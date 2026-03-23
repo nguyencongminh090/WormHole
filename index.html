@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wormhole Gomoku Editor</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
@@ -16,7 +16,7 @@
   <header id="toolbar">
 
     <div class="tb-section tb-left">
-      <h1 class="app-title">⬡ Wormhole<br><span>Gomoku Editor</span></h1>
+      <h1 class="app-title"><em>⬡ Wormhole</em><span>Gomoku Editor</span></h1>
 
       <div class="ctrl-group">
         <label class="ctrl-label" for="board-size-select">Board</label>
@@ -110,11 +110,11 @@
           <details>
             <summary>Format reference</summary>
             <pre>SIZE:17
-X:h6(1),g8(3)
-O:i6(2),h8(4)
-BLOCK:d5,l5
-PORTAL:red(h13,m8,m13,l8);blue(b2,c7)
-LINE:red(h6,6>l6,6)</pre>
+X:h6(1),g8(3),f9(5)
+O:i6(2),h8(4),i9(6)
+BLOCK:d5,l5,n5
+PORTAL:red(h13:m13),blue(l8:l13)
+LINE:red(h6>l10)</pre>
           </details>
         </div>
       </div>

@@ -109,7 +109,7 @@ window.Renderer = (() => {
 
   function _drawCoords(ctx, sz) {
     ctx.fillStyle    = C.CLR.LABEL;
-    ctx.font         = `bold ${CS * 0.38}px "Space Mono", monospace`;
+    ctx.font         = `700 ${CS * 0.36}px "Syne", "Inter", sans-serif`;
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
 
@@ -153,61 +153,68 @@ window.Renderer = (() => {
   // ── Stone ──────────────────────────────────────────────────────────────────
 
   function _drawStone(ctx, cx, cy, type, moveNum) {
-    const r = CS * C.STONE_R;
+    const r   = CS * C.STONE_R;
     const isX = type === C.TYPE.STONE_X;
+    const hasNum = (moveNum !== null && moveNum !== undefined);
 
     ctx.save();
-    ctx.shadowColor   = 'rgba(0,0,0,0.45)';
-    ctx.shadowBlur    = 5;
-    ctx.shadowOffsetX = 2;
-    ctx.shadowOffsetY = 2;
+    ctx.lineCap = 'round';
 
-    const grad = ctx.createRadialGradient(cx - r * 0.28, cy - r * 0.28, 0, cx, cy, r);
     if (isX) {
-      grad.addColorStop(0, C.CLR.STONE_X_A);
-      grad.addColorStop(1, C.CLR.STONE_X_B);
+      // ── Black X: bold cross, no circle ──────────────────────────────────
+      if (hasNum) {
+        // Faint cross behind number
+        const s = r * 0.38;
+        ctx.strokeStyle = 'rgba(30,32,51,0.18)';
+        ctx.lineWidth   = r * 0.20;
+        ctx.beginPath();
+        ctx.moveTo(cx - s, cy - s); ctx.lineTo(cx + s, cy + s);
+        ctx.moveTo(cx + s, cy - s); ctx.lineTo(cx - s, cy + s);
+        ctx.stroke();
+        // Number
+        const fs = r * (moveNum > 99 ? 0.56 : 0.72);
+        ctx.fillStyle    = C.CLR.STONE_X_NUM_PLAIN;
+        ctx.font         = `bold ${fs}px "Syne", sans-serif`;
+        ctx.textAlign    = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(String(moveNum), cx, cy);
+      } else {
+        // Bold X cross
+        const s = r * 0.42;
+        ctx.strokeStyle = C.CLR.STONE_X_PLAIN;
+        ctx.lineWidth   = r * 0.28;
+        ctx.beginPath();
+        ctx.moveTo(cx - s, cy - s); ctx.lineTo(cx + s, cy + s);
+        ctx.moveTo(cx + s, cy - s); ctx.lineTo(cx - s, cy + s);
+        ctx.stroke();
+      }
     } else {
-      grad.addColorStop(0, C.CLR.STONE_O_A);
-      grad.addColorStop(1, C.CLR.STONE_O_B);
+      // ── White O: open ring, no filled circle ─────────────────────────────
+      if (hasNum) {
+        // Faint ring behind number
+        ctx.beginPath();
+        ctx.arc(cx, cy, r * 0.42, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(30,32,51,0.14)';
+        ctx.lineWidth   = r * 0.14;
+        ctx.stroke();
+        // Number
+        const fs = r * (moveNum > 99 ? 0.56 : 0.72);
+        ctx.fillStyle    = C.CLR.STONE_O_NUM_PLAIN;
+        ctx.font         = `bold ${fs}px "Syne", sans-serif`;
+        ctx.textAlign    = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(String(moveNum), cx, cy);
+      } else {
+        // Bold O ring
+        ctx.beginPath();
+        ctx.arc(cx, cy, r * 0.44, 0, Math.PI * 2);
+        ctx.strokeStyle = C.CLR.STONE_O_PLAIN;
+        ctx.lineWidth   = r * 0.26;
+        ctx.stroke();
+      }
     }
 
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.fillStyle = grad;
-    ctx.fill();
-    ctx.strokeStyle = isX ? '#000' : '#999';
-    ctx.lineWidth   = 0.8;
-    ctx.stroke();
     ctx.restore();
-
-    // Always draw X cross or O ring, then overlay move number if needed
-    if (isX) {
-      const s = r * 0.40;
-      ctx.strokeStyle = (moveNum !== null && moveNum !== undefined) ? 'rgba(255,255,255,0.28)' : '#ffffff';
-      ctx.lineWidth   = r * 0.22;
-      ctx.lineCap     = 'round';
-      ctx.beginPath();
-      ctx.moveTo(cx - s, cy - s); ctx.lineTo(cx + s, cy + s);
-      ctx.moveTo(cx + s, cy - s); ctx.lineTo(cx - s, cy + s);
-      ctx.stroke();
-    } else {
-      // O ring inside the stone
-      const ringR = r * 0.44;
-      ctx.beginPath();
-      ctx.arc(cx, cy, ringR, 0, Math.PI * 2);
-      ctx.strokeStyle = (moveNum !== null && moveNum !== undefined) ? 'rgba(80,80,80,0.30)' : '#666666';
-      ctx.lineWidth   = r * 0.16;
-      ctx.stroke();
-    }
-    // Move number overlay on top
-    if (moveNum !== null && moveNum !== undefined) {
-      const fs = r * (moveNum > 99 ? 0.55 : 0.70);
-      ctx.fillStyle    = isX ? C.CLR.STONE_X_NUM : C.CLR.STONE_O_NUM;
-      ctx.font         = `bold ${fs}px "Space Mono", monospace`;
-      ctx.textAlign    = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(String(moveNum), cx, cy);
-    }
   }
 
   // ── Block / Wall ───────────────────────────────────────────────────────────
@@ -296,7 +303,7 @@ window.Renderer = (() => {
     const subLabel = (pair && pair.positions[1]) ? (isSecond ? '₂' : '₁') : '₁';
 
     ctx.fillStyle    = '#ffffff';
-    ctx.font         = `bold ${r * 0.7}px "Space Mono", monospace`;
+    ctx.font         = `800 ${r * 0.72}px "Syne", sans-serif`;
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(label, cx, cy - r * 0.1);
@@ -307,7 +314,6 @@ window.Renderer = (() => {
       ctx.fillStyle    = 'rgba(255,255,255,0.75)';
       ctx.fillText(isSecond ? '2' : '1', cx + r * 0.32, cy + r * 0.36);
     }
-  }
 
   // ── Analysis lines ─────────────────────────────────────────────────────────
 
@@ -356,6 +362,7 @@ window.Renderer = (() => {
     ctx.stroke();
     ctx.restore();
   }
+} 
 
   // ── Public API ─────────────────────────────────────────────────────────────
   return { render, pixelToCell, canvasSize, cellCx, cellCy };

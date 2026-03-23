@@ -60,12 +60,18 @@ window.C = Object.freeze({
     GRID:          '#B89040',
     LABEL:         '#8B6820',
 
-    STONE_X_A: '#444444',  // radial gradient inner
-    STONE_X_B: '#111111',  // radial gradient outer
+    STONE_X_A: '#444444',  // kept for compat
+    STONE_X_B: '#111111',
     STONE_O_A: '#FFFFFF',
     STONE_O_B: '#CCCCCC',
     STONE_X_NUM: '#FFFFFF',
     STONE_O_NUM: '#222222',
+
+    // Plain symbol mode (no circle)
+    STONE_X_PLAIN:     '#1e2033',   // dark cross stroke
+    STONE_O_PLAIN:     '#1e2033',   // dark ring stroke
+    STONE_X_NUM_PLAIN: '#1e2033',   // number on board for X
+    STONE_O_NUM_PLAIN: '#1e2033',   // number on board for O
 
     BLOCK_BASE:  '#CC2200',
     BLOCK_DARK:  '#8B0000',
