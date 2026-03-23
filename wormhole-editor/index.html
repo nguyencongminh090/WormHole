@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wormhole Gomoku Editor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ══ TOOLBAR ══════════════════════════════════════════════════════════ -->
+  <header id="toolbar">
+
+    <div class="tb-section tb-left">
+      <h1 class="app-title">⬡ Wormhole<br><span>Gomoku Editor</span></h1>
+
+      <div class="ctrl-group">
+        <label class="ctrl-label" for="board-size-select">Board</label>
+        <select id="board-size-select">
+          <option value="9">9×9</option>
+          <option value="13">13×13</option>
+          <option value="15">15×15</option>
+          <option value="17" selected>17×17</option>
+          <option value="19">19×19</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="tb-section tb-center">
+
+      <!-- Tool buttons -->
+      <div id="tool-palette">
+        <button class="tool-btn active" data-tool="stone_x" title="Black Stone (X)  [key: x]">
+          <span class="stone-icon stone-x"></span>
+        </button>
+        <button class="tool-btn" data-tool="stone_o" title="White Stone (O)  [key: o]">
+          <span class="stone-icon stone-o"></span>
+        </button>
+        <div class="tool-sep"></div>
+        <button class="tool-btn" data-tool="block" title="Block / Wall  [key: b]">
+          <span class="brick-icon">🧱</span>
+        </button>
+        <div class="tool-sep"></div>
+        <!-- Hole tool + color picker -->
+        <div class="compound-tool">
+          <button class="tool-btn" data-tool="hole" title="Portal Hole  [key: h]">
+            <span class="hole-tool-icon">⬡</span>
+          </button>
+          <div class="color-picker-strip" id="hole-color-picker"></div>
+        </div>
+        <div class="tool-sep"></div>
+        <!-- Line tool + color picker -->
+        <div class="compound-tool">
+          <button class="tool-btn" data-tool="line" title="Analysis Line  [key: l]">
+            <span>╱</span>
+          </button>
+          <div class="color-picker-strip" id="line-color-picker"></div>
+        </div>
+        <div class="tool-sep"></div>
+        <button class="tool-btn" data-tool="eraser" title="Eraser  [key: e]">⌫</button>
+      </div>
+
+      <div class="tb-divider"></div>
+
+      <!-- Undo / redo -->
+      <div class="action-strip">
+        <button id="btn-undo" class="act-btn" title="Undo  (Ctrl+Z)">↩</button>
+        <button id="btn-redo" class="act-btn" title="Redo  (Ctrl+Y)">↪</button>
+      </div>
+
+    </div>
+
+    <div class="tb-section tb-right">
+      <label class="toggle-row">
+        <input type="checkbox" id="show-move-numbers" checked>
+        <span>Move #</span>
+      </label>
+      <button id="btn-copy-img" class="act-btn" title="Copy board image to clipboard">⎘ Copy</button>
+      <button id="btn-export" class="act-btn primary" title="Download PNG">⬇ PNG</button>
+      <button id="btn-clear" class="act-btn danger" title="Clear board">✕ Clear</button>
+    </div>
+
+  </header>
+
+  <!-- ══ WORKSPACE ════════════════════════════════════════════════════════ -->
+  <main id="workspace">
+
+    <!-- Board -->
+    <div id="board-area">
+      <div id="board-scroll">
+        <canvas id="board-canvas"></canvas>
+      </div>
+
+      <!-- Notation -->
+      <div id="notation-panel">
+        <div class="panel-hd">
+          <span class="panel-title">Position Notation</span>
+          <div class="panel-actions">
+            <button id="btn-copy-notation" class="sm-btn">Copy</button>
+            <button id="btn-parse-notation" class="sm-btn primary">↳ Apply</button>
+          </div>
+        </div>
+        <textarea id="notation-input" spellcheck="false"
+          placeholder="Paste notation here and click Apply to load a position…"></textarea>
+        <div class="notation-help">
+          <details>
+            <summary>Format reference</summary>
+            <pre>SIZE:17
+X:h6(1),g8(3)
+O:i6(2),h8(4)
+BLOCK:d5,l5
+PORTAL:red(h13,m8,m13,l8);blue(b2,c7)
+LINE:red(h6,6>l6,6)</pre>
+          </details>
+        </div>
+      </div>
+    </div>
+
+    <!-- Side panel -->
+    <aside id="side-panel">
+
+      <!-- Portal pairs -->
+      <div class="panel" id="portals-panel">
+        <div class="panel-hd">
+          <span class="panel-title">⬡ Portals</span>
+        </div>
+        <div id="holes-list"></div>
+        <div id="pending-hole-hint" class="pending-hint">
+          ✦ Click a second cell to complete the portal pair. <button id="btn-cancel-portal" class="sm-btn">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Move history -->
+      <div class="panel" id="history-panel">
+        <div class="panel-hd">
+          <span class="panel-title">📋 History</span>
+          <button id="btn-clear-history" class="sm-btn"
+            onclick="History.clearLog(); document.getElementById('history-list').innerHTML='<div class=empty-hint>No moves yet.</div>'">
+            Clear
+          </button>
+        </div>
+        <div id="history-list">
+          <div class="empty-hint">No moves yet.</div>
+        </div>
+      </div>
+
+      <!-- Keyboard shortcuts cheatsheet -->
+      <div class="panel" id="shortcuts-panel">
+        <div class="panel-hd"><span class="panel-title">⌨ Shortcuts</span></div>
+        <table class="shortcut-table">
+          <tr><td>X</td><td>Black Stone</td></tr>
+          <tr><td>O</td><td>White Stone</td></tr>
+          <tr><td>B</td><td>Block</td></tr>
+          <tr><td>H</td><td>Portal Hole</td></tr>
+          <tr><td>L</td><td>Line</td></tr>
+          <tr><td>E</td><td>Eraser</td></tr>
+          <tr><td>Esc</td><td>Cancel pending</td></tr>
+          <tr><td>Ctrl+Z</td><td>Undo</td></tr>
+          <tr><td>Ctrl+Y</td><td>Redo</td></tr>
+          <tr><td>Right-click</td><td>Quick erase</td></tr>
+        </table>
+      </div>
+
+    </aside>
+  </main>
+
+  <!-- ══ STATUS BAR ════════════════════════════════════════════════════════ -->
+  <footer id="status-bar">
+    <span id="status-cursor">—</span>
+    <span id="status-tool">Tool: Black Stone</span>
+    <span id="status-move">Move: 1</span>
+    <span class="status-hint">Right-click = quick erase</span>
+  </footer>
+
+</div><!-- #app -->
+
+<!-- Modal -->
+<div id="modal-overlay" class="hidden">
+  <div id="modal">
+    <p id="modal-message">Are you sure?</p>
+    <div class="modal-buttons">
+      <button id="modal-confirm" class="act-btn danger">Confirm</button>
+      <button id="modal-cancel"  class="act-btn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts — load order matters (constants → state → renderer → … → app) -->
+<script src="src/constants.js"></script>
+<script src="src/state.js"></script>
+<script src="src/renderer.js"></script>
+<script src="src/history.js"></script>
+<script src="src/notation.js"></script>
+<script src="src/export.js"></script>
+<script src="src/app.js"></script>
+
+</body>
+</html>

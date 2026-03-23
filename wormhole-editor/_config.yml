@@ -1,0 +1,5 @@
+# Jekyll config — tells GitHub Pages not to process this as Jekyll
+# and to serve index.html as-is.
+include:
+  - src/
+  - assets/
