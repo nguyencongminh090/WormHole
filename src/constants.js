@@ -54,10 +54,11 @@ window.C = Object.freeze({
 
   // ── Visual palette ─────────────────────────────────────────────────────────
   CLR: Object.freeze({
-    BOARD_BG:      '#D5A95A',
-    BOARD_BG_DARK: '#C9973E',
-    GRID:          '#8B5E1E',
-    LABEL:         '#5C3A00',
+    BOARD_BG:      '#E8C97A',   // warm single board tone
+    BOARD_BG_DARK: '#E8C97A',   // same (unused now)
+    BOARD_MARGIN:  '#1e2330',   // dark margin outside board
+    GRID:          '#B89040',
+    LABEL:         '#8B6820',
 
     STONE_X_A: '#444444',  // radial gradient inner
     STONE_X_B: '#111111',  // radial gradient outer

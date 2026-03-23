@@ -82,13 +82,12 @@ window.Renderer = (() => {
   // ── Background & grid ──────────────────────────────────────────────────────
 
   function _drawBackground(ctx, sz, dim) {
-    // Checkerboard-style alternating cell shading
-    for (let c = 0; c < sz; c++) {
-      for (let r = 0; r < sz; r++) {
-        ctx.fillStyle = (c + r) % 2 === 0 ? C.CLR.BOARD_BG : C.CLR.BOARD_BG_DARK;
-        ctx.fillRect(M + c * CS, M + r * CS, CS, CS);
-      }
-    }
+    // Solid margin background
+    ctx.fillStyle = C.CLR.BOARD_MARGIN;
+    ctx.fillRect(0, 0, dim, dim);
+    // Solid board fill
+    ctx.fillStyle = C.CLR.BOARD_BG;
+    ctx.fillRect(M, M, sz * CS, sz * CS);
   }
 
   function _drawGrid(ctx, sz) {
@@ -181,26 +180,34 @@ window.Renderer = (() => {
     ctx.stroke();
     ctx.restore();
 
-    // Label (move number or X mark for X stones)
-    if (moveNum !== null && moveNum !== undefined) {
-      const fs = r * (moveNum > 99 ? 0.65 : 0.82);
-      ctx.fillStyle    = isX ? C.CLR.STONE_X_NUM : C.CLR.STONE_O_NUM;
-      ctx.font         = `bold ${fs}px "Space Mono", monospace`;
-      ctx.textAlign    = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(String(moveNum), cx, cy);
-    } else if (isX) {
-      // Draw × cross
-      const s = r * 0.42;
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth   = r * 0.24;
+    // Always draw X cross or O ring, then overlay move number if needed
+    if (isX) {
+      const s = r * 0.40;
+      ctx.strokeStyle = (moveNum !== null && moveNum !== undefined) ? 'rgba(255,255,255,0.28)' : '#ffffff';
+      ctx.lineWidth   = r * 0.22;
       ctx.lineCap     = 'round';
       ctx.beginPath();
       ctx.moveTo(cx - s, cy - s); ctx.lineTo(cx + s, cy + s);
       ctx.moveTo(cx + s, cy - s); ctx.lineTo(cx - s, cy + s);
       ctx.stroke();
+    } else {
+      // O ring inside the stone
+      const ringR = r * 0.44;
+      ctx.beginPath();
+      ctx.arc(cx, cy, ringR, 0, Math.PI * 2);
+      ctx.strokeStyle = (moveNum !== null && moveNum !== undefined) ? 'rgba(80,80,80,0.30)' : '#666666';
+      ctx.lineWidth   = r * 0.16;
+      ctx.stroke();
     }
-    // O stones: just the circle, no inner mark
+    // Move number overlay on top
+    if (moveNum !== null && moveNum !== undefined) {
+      const fs = r * (moveNum > 99 ? 0.55 : 0.70);
+      ctx.fillStyle    = isX ? C.CLR.STONE_X_NUM : C.CLR.STONE_O_NUM;
+      ctx.font         = `bold ${fs}px "Space Mono", monospace`;
+      ctx.textAlign    = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(String(moveNum), cx, cy);
+    }
   }
 
   // ── Block / Wall ───────────────────────────────────────────────────────────
