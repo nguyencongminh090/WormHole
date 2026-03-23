@@ -231,6 +231,13 @@
     if (!ns) { History.undo(gameState); return; } // no-op, pop undo
     History.logMove(`${player} ${Notation.cellLabel(cell.col, cell.row)}`);
     gameState = ns;
+
+    const elAutoSwitch = document.getElementById('auto-switch-cb');
+    if (elAutoSwitch && elAutoSwitch.checked) {
+      if (player === 'X') setTool(C.TOOL.STONE_O);
+      else if (player === 'O') setTool(C.TOOL.STONE_X);
+    }
+
     redraw();
     refreshSidePanel();
   }
