@@ -22,8 +22,7 @@ window.I18n = (() => {
       // Toolbar
       board:            'Board',
       autoSwitch:       'Auto-switch',
-      safeMode:         '🔒 Safe',
-      safeModeOn:       '🔓 Safe',
+      safeMode:         'Safe',
       tapAgain:         'TAP AGAIN TO CONFIRM',
       shareLink:        '🔗 Share Link',
       copy:             '⎘ Copy',
@@ -100,9 +99,8 @@ window.I18n = (() => {
       // Toolbar
       board:            'Bàn cờ',
       autoSwitch:       'Đánh 2 bên',
-      safeMode:         '🔒 An toàn',
-      safeModeOn:       '🔓 An toàn',
-      tapAgain:         'Nhấn 2 lần',
+      safeMode:         'Nhấn 2 lần ',
+      tapAgain:         'Vị trí hiện tại',
       shareLink:        '🔗 Chia sẻ',
       copy:             '⎘ Sao chép',
       downloadPNG:      '⬇ PNG',

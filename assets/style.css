@@ -176,6 +176,12 @@ select option { background: var(--bg-2); color: var(--text); }
   border-color: var(--glass-hi); transform: translateY(-1px);
 }
 .act-btn:active { transform: translateY(0); }
+.act-btn.active {
+  background: rgba(240,160,48,0.15);
+  color: var(--amber);
+  border-color: var(--amber);
+  box-shadow: 0 0 10px rgba(240,160,48,0.25);
+}
 .act-btn:disabled { opacity: .35; cursor: not-allowed; transform: none; }
 .act-btn.primary {
   background: var(--amber); border-color: var(--amber-dim); color: #111;

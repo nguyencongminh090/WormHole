@@ -533,14 +533,13 @@
 
     // Safe Mode toggle
     const elBtnSafe = document.getElementById('btn-safe-mode');
+    const elSafeIcon = document.getElementById('safe-mode-icon');
     if (elBtnSafe) {
       elBtnSafe.addEventListener('click', () => {
         ui.safeMode = !ui.safeMode;
         if (!ui.safeMode) _setSafeModePending(null);
         elBtnSafe.classList.toggle('active', ui.safeMode);
-        // Update label span inside the button
-        const span = elBtnSafe.querySelector('[data-i18n]');
-        if (span) span.textContent = ui.safeMode ? I18n.t('safeModeOn').replace(/^.*? /, '') : I18n.t('safeMode').replace(/^.*? /, '');
+        if (elSafeIcon) elSafeIcon.textContent = ui.safeMode ? '🔓' : '🔒';
       });
     }
 
