@@ -469,7 +469,11 @@ select option { background: var(--bg-2); color: var(--text); }
     width: 100%; order: 3;
     justify-content: center; gap: 4px;
   }
-  .tb-right { display: none; }  /* actions move to bottom */
+  .tb-right {
+    width: 100%; order: 4;
+    justify-content: center; gap: 4px; display: flex; flex-wrap: wrap;
+    padding-top: 4px; border-top: 1px solid var(--glass-hi);
+  }
   .tb-divider { display: none; }
   .app-title { font-size: 13px; }
   .app-title em { font-size: 13px; }
