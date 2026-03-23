@@ -77,6 +77,9 @@ window.Notation = (() => {
 
     let state = State.create(boardSize);
 
+    const stones = [];
+
+    // Parse non-stone elements first, and collect stones
     for (const line of rawLines) {
       if (line.startsWith('SIZE:')) continue;
 
@@ -87,8 +90,8 @@ window.Notation = (() => {
           if (!m) { errors.push(`Bad stone token: "${tok}"`); return; }
           const pos = _parsePos(m[1]);
           if (!pos) { errors.push(`Bad position: "${m[1]}"`); return; }
-          const num = m[2] ? parseInt(m[2], 10) : state.moveCounter;
-          state = _forceStone(state, pos.col, pos.row, player, num);
+          const num = m[2] ? parseInt(m[2], 10) : 99999;
+          stones.push({ col: pos.col, row: pos.row, player, num });
         });
         continue;
       }
@@ -136,7 +139,16 @@ window.Notation = (() => {
       }
     }
 
-    return { state, errors };
+    // Sort stones by move number and apply sequentially to track history
+    stones.sort((a, b) => a.num - b.num);
+    const historySteps = [];
+
+    for (const s of stones) {
+      historySteps.push({ state: State.clone(state), action: `${s.player} ${cellLabel(s.col, s.row)}` });
+      state = _forceStone(state, s.col, s.row, s.player, s.num);
+    }
+
+    return { state, errors, historySteps };
   }
 
   // ── Private helpers ───────────────────────────────────────────────────────

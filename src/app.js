@@ -82,6 +82,13 @@
         const parsed = Notation.parse(notation);
         if (parsed.errors.length === 0) {
           gameState = parsed.state;
+          if (parsed.historySteps) {
+            History.reset();
+            for (const step of parsed.historySteps) {
+              History.push(step.state);
+              History.logMove(step.action);
+            }
+          }
         } else {
           console.error("Errors parsing URL position:", parsed.errors);
           showToast("Failed to load position from link.", "error");
@@ -366,11 +373,23 @@
   }
 
   function onErase(col, row) {
+    const key = State.cellKey(col, row);
+    const cell = gameState.cells[key];
+    const erasedType = cell ? cell.type : null;
+
     History.push(gameState);
     const ns = State.erase(gameState, col, row);
     if (!ns) { History.undo(gameState); return; }
     History.logMove(`Erase ${Notation.cellLabel(col, row)}`);
     gameState = ns;
+
+    // "Undo" the color switch if we erased a stone and auto-switch is on
+    const elAutoSwitch = document.getElementById('auto-switch-cb');
+    if (elAutoSwitch && elAutoSwitch.checked) {
+      if (erasedType === C.TYPE.STONE_X) setTool(C.TOOL.STONE_X);
+      else if (erasedType === C.TYPE.STONE_O) setTool(C.TOOL.STONE_O);
+    }
+
     redraw();
     refreshSidePanel();
   }
@@ -464,6 +483,12 @@
       }
       History.reset();
       gameState = result.state;
+      if (result.historySteps) {
+        for (const step of result.historySteps) {
+          History.push(step.state);
+          History.logMove(step.action);
+        }
+      }
       elBoardSize.value = String(gameState.boardSize);
       cancelPendingOps();
       redraw();
@@ -475,8 +500,26 @@
 
   function doUndo() {
     cancelPendingOps();
+    // Remember the board state before undo
+    const oldCells = gameState.cells;
     const prev = History.undo(gameState);
-    if (prev) { gameState = prev; redraw(); refreshSidePanel(); }
+    if (prev) {
+      gameState = prev;
+      
+      // Check what stone was removed by this undo to revert tool color
+      const elAutoSwitch = document.getElementById('auto-switch-cb');
+      if (elAutoSwitch && elAutoSwitch.checked) {
+        for (const key in oldCells) {
+          if (!gameState.cells[key] && (oldCells[key].type === C.TYPE.STONE_X || oldCells[key].type === C.TYPE.STONE_O)) {
+            setTool(oldCells[key].type === C.TYPE.STONE_X ? C.TOOL.STONE_X : C.TOOL.STONE_O);
+            break;
+          }
+        }
+      }
+
+      redraw();
+      refreshSidePanel();
+    }
   }
 
   function doRedo() {
