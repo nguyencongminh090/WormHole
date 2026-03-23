@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wormhole Gomoku Editor</title>
+  <title>Zcaro Editor</title>
+  <meta name="description" content="Zcaro Editor — Wormhole Gomoku position editor by NguyenMinh">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/style.css">
@@ -16,10 +17,10 @@
   <header id="toolbar">
 
     <div class="tb-section tb-left">
-      <h1 class="app-title"><em>⬡ Wormhole</em><span>Gomoku Editor</span></h1>
+      <h1 class="app-title"><em>⬡ Zcaro</em><span data-i18n="appSubtitle">by NguyenMinh</span></h1>
 
       <div class="ctrl-group">
-        <label class="ctrl-label" for="board-size-select">Board</label>
+        <label class="ctrl-label" for="board-size-select" data-i18n="board">Board</label>
         <select id="board-size-select">
           <option value="9">9×9</option>
           <option value="13">13×13</option>
@@ -31,7 +32,8 @@
 
       <div class="ctrl-group" style="padding: 4px 8px;">
         <label class="auto-switch-label" title="Automatically flip between Black and White after placing a stone">
-          <input type="checkbox" id="auto-switch-cb" checked> Auto-switch
+          <input type="checkbox" id="auto-switch-cb" checked>
+          <span data-i18n="autoSwitch">Auto-switch</span>
         </label>
       </div>
     </div>
@@ -40,20 +42,24 @@
 
       <!-- Tool buttons -->
       <div id="tool-palette">
-        <button class="tool-btn active" data-tool="stone_x" title="Black Stone (X)  [key: x]">
+        <button class="tool-btn active" data-tool="stone_x"
+                data-i18n-title="toolBlackStone" title="Black Stone (X)  [key: x]">
           <span class="stone-icon stone-x"></span>
         </button>
-        <button class="tool-btn" data-tool="stone_o" title="White Stone (O)  [key: o]">
+        <button class="tool-btn" data-tool="stone_o"
+                data-i18n-title="toolWhiteStone" title="White Stone (O)  [key: o]">
           <span class="stone-icon stone-o"></span>
         </button>
         <div class="tool-sep"></div>
-        <button class="tool-btn" data-tool="block" title="Block / Wall  [key: b]">
+        <button class="tool-btn" data-tool="block"
+                data-i18n-title="toolBlock" title="Block / Wall  [key: b]">
           <span class="brick-icon">🧱</span>
         </button>
         <div class="tool-sep"></div>
         <!-- Hole tool + color picker -->
         <div class="compound-tool">
-          <button class="tool-btn" data-tool="hole" title="Portal Hole  [key: h]">
+          <button class="tool-btn" data-tool="hole"
+                  data-i18n-title="toolHole" title="Portal Hole  [key: h]">
             <span class="hole-tool-icon">⬡</span>
           </button>
           <div class="color-picker-strip" id="hole-color-picker"></div>
@@ -61,37 +67,52 @@
         <div class="tool-sep"></div>
         <!-- Line tool + color picker -->
         <div class="compound-tool">
-          <button class="tool-btn" data-tool="line" title="Analysis Line  [key: l]">
+          <button class="tool-btn" data-tool="line"
+                  data-i18n-title="toolLine" title="Analysis Line  [key: l]">
             <span>╱</span>
           </button>
           <div class="color-picker-strip" id="line-color-picker"></div>
         </div>
         <div class="tool-sep"></div>
-        <button class="tool-btn" data-tool="eraser" title="Eraser  [key: e]">⌫</button>
+        <button class="tool-btn" data-tool="eraser"
+                data-i18n-title="toolEraser" title="Eraser  [key: e]">⌫</button>
       </div>
 
       <div class="tb-divider"></div>
 
-      <!-- Undo / redo -->
+      <!-- Undo / redo + safe mode -->
       <div class="action-strip">
-        <button id="btn-undo" class="act-btn" title="Undo  (Ctrl+Z)">↩</button>
-        <button id="btn-redo" class="act-btn" title="Redo  (Ctrl+Y)">↪</button>
-        <button id="btn-safe-mode" class="act-btn" title="Safe Mode: require double-click/tap to place">🔒 Safe</button>
+        <button id="btn-undo" class="act-btn" data-i18n-title="undo" title="Undo  (Ctrl+Z)">↩</button>
+        <button id="btn-redo" class="act-btn" data-i18n-title="redo" title="Redo  (Ctrl+Y)">↪</button>
+        <button id="btn-safe-mode" class="act-btn"
+                title="Safe Mode: require double-click/tap to place">🔒 <span data-i18n="safeMode">Safe</span></button>
       </div>
       <!-- Safe mode confirm hint -->
       <div id="safe-mode-hint" class="ctrl-group hidden" style="gap:6px">
-        <span style="font-size:10px;color:var(--amber);font-weight:700">TAP AGAIN TO CONFIRM</span>
+        <span id="safe-mode-tap-label" style="font-size:10px;color:var(--amber);font-weight:700"
+              data-i18n="tapAgain">TAP AGAIN TO CONFIRM</span>
         <span id="safe-mode-cell" style="font-size:11px;color:var(--text);font-weight:700"></span>
+      </div>
+
+      <!-- Language switcher -->
+      <div class="ctrl-group" style="padding: 2px 4px;">
+        <button id="btn-lang-en" class="act-btn active lang-btn" data-lang="en">EN</button>
+        <button id="btn-lang-vi" class="act-btn lang-btn" data-lang="vi">VI</button>
       </div>
 
     </div>
 
     <div class="tb-section tb-right">
-      <button id="btn-share-link" class="act-btn" title="Generate shareable URL">🔗 Share Link</button>
-      <button id="btn-copy-img" class="act-btn" title="Copy board image to clipboard">⎘ Copy</button>
-      <button id="btn-export" class="act-btn primary" title="Download PNG">⬇ PNG</button>
-      <button id="btn-clear-lines" class="act-btn" title="Clear all lines">╱ Clear Lines</button>
-      <button id="btn-clear" class="act-btn danger" title="Clear entire board">✕ Clear</button>
+      <button id="btn-share-link" class="act-btn" data-i18n="shareLink"
+              title="Generate shareable URL">🔗 Share Link</button>
+      <button id="btn-copy-img" class="act-btn" data-i18n="copy"
+              title="Copy board image to clipboard">⎘ Copy</button>
+      <button id="btn-export" class="act-btn primary" data-i18n="downloadPNG"
+              title="Download PNG">⬇ PNG</button>
+      <button id="btn-clear-lines" class="act-btn" data-i18n="clearLines"
+              title="Clear all lines">╱ Clear Lines</button>
+      <button id="btn-clear" class="act-btn danger" data-i18n="clear"
+              title="Clear entire board">✕ Clear</button>
     </div>
 
   </header>
@@ -106,7 +127,7 @@
       </div>
       <!-- Touch / hover zoom bubble -->
       <div id="touch-zoom" class="hidden" aria-hidden="true">
-        <canvas id="zoom-canvas" width="120" height="120"></canvas>
+        <canvas id="zoom-canvas" width="180" height="180"></canvas>
         <div id="zoom-crosshair"></div>
         <div id="zoom-label">A1</div>
       </div>
@@ -114,27 +135,28 @@
       <!-- Notation panel (collapsible) -->
       <div id="notation-panel" class="panel collapsible">
         <div class="panel-hd" data-toggle="notation-panel">
-          <span class="panel-title">Position Notation</span>
+          <span class="panel-title" data-i18n="panelNotation">Position Notation</span>
           <div class="panel-hd-right">
             <div class="panel-actions">
-              <button id="btn-copy-notation" class="sm-btn">Copy</button>
-              <button id="btn-parse-notation" class="sm-btn primary">↳ Apply</button>
+              <button id="btn-copy-notation" class="sm-btn" data-i18n="btnCopy">Copy</button>
+              <button id="btn-parse-notation" class="sm-btn primary" data-i18n="btnApply">↳ Apply</button>
             </div>
             <span class="collapse-icon">▾</span>
           </div>
         </div>
         <div class="panel-body">
           <textarea id="notation-input" spellcheck="false"
+            data-i18n-placeholder="notationPlaceholder"
             placeholder="Paste notation here and click Apply to load a position…"></textarea>
           <div class="notation-help">
             <details>
-              <summary>Format reference</summary>
+              <summary data-i18n="formatReference">Format reference</summary>
               <pre>SIZE:17
 X:h6(1),g8(3),f9(5)
 O:i6(2),h8(4),i9(6)
 BLOCK:d5,l5,n5
 PORTAL:red(h13:m13),blue(l8:l13)
-LINE:red(h6>l10)</pre>
+LINE:red(h6&gt;l10)</pre>
             </details>
           </div>
         </div>
@@ -147,13 +169,14 @@ LINE:red(h6>l10)</pre>
       <!-- Portal pairs (collapsible) -->
       <div class="panel collapsible" id="portals-panel">
         <div class="panel-hd" data-toggle="portals-panel">
-          <span class="panel-title">⬡ Portals</span>
+          <span class="panel-title" data-i18n="panelPortals">⬡ Portals</span>
           <span class="collapse-icon">▾</span>
         </div>
         <div class="panel-body">
           <div id="holes-list"></div>
           <div id="pending-hole-hint" class="pending-hint">
-            ✦ Click a second cell to complete the portal pair. <button id="btn-cancel-portal" class="sm-btn">Cancel</button>
+            <span data-i18n="portalHint">✦ Click a second cell to complete the portal pair.</span>
+            <button id="btn-cancel-portal" class="sm-btn" data-i18n="cancel">Cancel</button>
           </div>
         </div>
       </div>
@@ -161,18 +184,18 @@ LINE:red(h6>l10)</pre>
       <!-- Move history (collapsible) -->
       <div class="panel collapsible" id="history-panel">
         <div class="panel-hd" data-toggle="history-panel">
-          <span class="panel-title">📋 History</span>
+          <span class="panel-title" data-i18n="panelHistory">📋 History</span>
           <div class="panel-hd-right">
             <button id="btn-clear-history" class="sm-btn"
-              onclick="History.clearLog(); document.getElementById('history-list').innerHTML='<div class=empty-hint>No moves yet.</div>'">
-              Clear
+              onclick="History.clearLog(); document.getElementById('history-list').innerHTML='<div class=empty-hint>' + I18n.t('noMovesYet') + '</div>'">
+              <span data-i18n="clearHistory">Clear</span>
             </button>
             <span class="collapse-icon">▾</span>
           </div>
         </div>
         <div class="panel-body">
           <div id="history-list">
-            <div class="empty-hint">No moves yet.</div>
+            <div class="empty-hint" data-i18n="noMovesYet">No moves yet.</div>
           </div>
         </div>
       </div>
@@ -180,21 +203,21 @@ LINE:red(h6>l10)</pre>
       <!-- Keyboard shortcuts (collapsible, collapsed by default) -->
       <div class="panel collapsible collapsed" id="shortcuts-panel">
         <div class="panel-hd" data-toggle="shortcuts-panel">
-          <span class="panel-title">⌨ Shortcuts</span>
+          <span class="panel-title" data-i18n="panelShortcuts">⌨ Shortcuts</span>
           <span class="collapse-icon">▾</span>
         </div>
         <div class="panel-body">
           <table class="shortcut-table">
-            <tr><td>X</td><td>Black Stone</td></tr>
-            <tr><td>O</td><td>White Stone</td></tr>
-            <tr><td>B</td><td>Block</td></tr>
-            <tr><td>H</td><td>Portal Hole</td></tr>
-            <tr><td>L</td><td>Line</td></tr>
-            <tr><td>E</td><td>Eraser</td></tr>
-            <tr><td>Esc</td><td>Cancel pending</td></tr>
-            <tr><td>Ctrl+Z</td><td>Undo</td></tr>
-            <tr><td>Ctrl+Y</td><td>Redo</td></tr>
-            <tr><td>Right-click</td><td>Quick erase</td></tr>
+            <tr><td>X</td><td data-i18n="shortcutBlack">Black Stone</td></tr>
+            <tr><td>O</td><td data-i18n="shortcutWhite">White Stone</td></tr>
+            <tr><td>B</td><td data-i18n="shortcutBlock">Block</td></tr>
+            <tr><td>H</td><td data-i18n="shortcutHole">Portal Hole</td></tr>
+            <tr><td>L</td><td data-i18n="shortcutLine">Line</td></tr>
+            <tr><td>E</td><td data-i18n="shortcutEraser">Eraser</td></tr>
+            <tr><td>Esc</td><td data-i18n="shortcutEsc">Cancel pending</td></tr>
+            <tr><td>Ctrl+Z</td><td data-i18n="shortcutUndo">Undo</td></tr>
+            <tr><td>Ctrl+Y</td><td data-i18n="shortcutRedo">Redo</td></tr>
+            <tr><td data-i18n="shortcutRightClick">Right-click</td><td>Quick erase</td></tr>
           </table>
         </div>
       </div>
@@ -207,7 +230,7 @@ LINE:red(h6>l10)</pre>
     <span id="status-cursor">—</span>
     <span id="status-tool">Tool: Black Stone</span>
     <span id="status-move">Move: 1</span>
-    <span class="status-hint">Right-click = quick erase</span>
+    <span class="status-hint" data-i18n="statusRightClick">Right-click = quick erase</span>
   </footer>
 
 </div><!-- #app -->
@@ -215,16 +238,17 @@ LINE:red(h6>l10)</pre>
 <!-- Modal -->
 <div id="modal-overlay" class="hidden">
   <div id="modal">
-    <p id="modal-message">Are you sure?</p>
+    <p id="modal-message" data-i18n="modalDefaultMsg">Are you sure?</p>
     <div class="modal-buttons">
-      <button id="modal-confirm" class="act-btn danger">Confirm</button>
-      <button id="modal-cancel"  class="act-btn">Cancel</button>
+      <button id="modal-confirm" class="act-btn danger" data-i18n="modalConfirm">Confirm</button>
+      <button id="modal-cancel"  class="act-btn" data-i18n="modalCancel">Cancel</button>
     </div>
   </div>
 </div>
 
-<!-- Scripts — load order matters (constants → state → renderer → … → app) -->
+<!-- Scripts — load order matters -->
 <script src="src/constants.js"></script>
+<script src="src/i18n.js"></script>
 <script src="src/state.js"></script>
 <script src="src/renderer.js"></script>
 <script src="src/history.js"></script>

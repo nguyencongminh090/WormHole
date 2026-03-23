@@ -77,6 +77,26 @@ window.Renderer = (() => {
     if (!forExport && uiState.linePreview && uiState.mousePos) {
       _drawLinePreview(ctx, uiState.linePreview.from, uiState.mousePos);
     }
+
+    // Safe-mode pending confirmation overlay
+    if (!forExport && uiState.safeModePending) {
+      const p = uiState.safeModePending;
+      const cx = cellCx(p.col);
+      const cy = cellCy(p.row);
+      // Soft amber fill
+      ctx.fillStyle = 'rgba(240,160,48,0.18)';
+      ctx.fillRect(cellLeft(p.col), cellTop(p.row), CS, CS);
+      // Dashed amber ring
+      ctx.save();
+      ctx.strokeStyle = 'rgba(240,160,48,0.90)';
+      ctx.lineWidth   = 2;
+      ctx.setLineDash([4, 3]);
+      ctx.lineDashOffset = (Date.now() / 40) % 14; // animates
+      ctx.beginPath();
+      ctx.rect(cellLeft(p.col) + 2, cellTop(p.row) + 2, CS - 4, CS - 4);
+      ctx.stroke();
+      ctx.restore();
+    }
   }
 
   // ── Background & grid ──────────────────────────────────────────────────────
@@ -472,9 +492,9 @@ window.Renderer = (() => {
    */
   function drawZoom(zc, state, col, row, tool, holeColorId) {
     const ZCS = 20;           // zoomed cell size (pixels)
-    const ZSZ = 7;            // 7×7 grid
-    const ZR  = (ZSZ - 1) / 2; // radius = 3
-    const dim = ZCS * ZSZ;
+    const ZSZ = 9;            // 9×9 grid
+    const ZR  = (ZSZ - 1) / 2; // radius = 4
+    const dim  = ZCS * ZSZ;   // 180px
     zc.width  = dim;
     zc.height = dim;
 
@@ -573,11 +593,30 @@ window.Renderer = (() => {
   }
 
   /** Drawn cell content at zoom scale */
-  function _drawZoomCell(ctx, zcs, cx, cy, cell) {
+  function _drawZoomCell(ctx, zcs, cx, cy, cell, state) {
     if (cell.type === C.TYPE.STONE_X || cell.type === C.TYPE.STONE_O) {
+      ctx.globalAlpha = 1;
       _drawZoomStone(ctx, cx, cy, cell.type, zcs);
+    } else if (cell.type === C.TYPE.BLOCK) {
+      // Simplified brick fill
+      ctx.globalAlpha = 1;
+      const lx = cx - zcs / 2, ty = cy - zcs / 2;
+      _drawZoomBlock(ctx, lx, ty, zcs);
+    } else if (cell.type === C.TYPE.HOLE) {
+      // Simplified portal ring
+      ctx.globalAlpha = 1;
+      const colorDef = C.HOLE_COLORS.find(c => c.id === cell.holeColorId) || C.HOLE_COLORS[0];
+      ctx.beginPath();
+      ctx.arc(cx, cy, zcs * C.STONE_R * 0.85, 0, Math.PI * 2);
+      ctx.strokeStyle = colorDef.fill;
+      ctx.lineWidth   = zcs * 0.12;
+      ctx.stroke();
+      // inner glow
+      ctx.beginPath();
+      ctx.arc(cx, cy, zcs * 0.15, 0, Math.PI * 2);
+      ctx.fillStyle = colorDef.fill;
+      ctx.fill();
     }
-    // Blocks and holes render too small to bother reproducing at 40px
   }
 
   /** Minimal block for zoom preview */
