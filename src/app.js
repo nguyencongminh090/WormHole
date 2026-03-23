@@ -346,6 +346,17 @@
       }
     });
 
+    document.getElementById('btn-clear-lines').addEventListener('click', () => {
+      const ns = State.clearLines(gameState);
+      if (ns) {
+        History.push(gameState);
+        History.logMove('Clear Lines');
+        gameState = ns;
+        redraw();
+        showToast('Analysis lines cleared.');
+      }
+    });
+
     elBtnClear.addEventListener('click', () => {
       confirm('Clear the entire board?', () => {
         History.reset();

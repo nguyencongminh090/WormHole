@@ -188,78 +188,145 @@ window.Renderer = (() => {
     ctx.restore();
   }
 
-  // ── Block / Wall ───────────────────────────────────────────────────────────
+  // ── Block / Wall (3D Brick) ────────────────────────────────────────────────
 
   function _drawBlock(ctx, lx, ty) {
     const pad = 1;
     const x = lx + pad, y = ty + pad;
     const w = CS - pad * 2, h = CS - pad * 2;
+    const br = 3; // brick corner radius
+    const mortarW = 1.5;
 
-    // Base fill
-    ctx.fillStyle = C.CLR.BLOCK_BASE;
-    ctx.fillRect(x, y, w, h);
+    // Mortar background (dark grout fills entire cell)
+    ctx.fillStyle = C.CLR.BLOCK_MORTAR;
+    _roundRect(ctx, x, y, w, h, br + 1);
+    ctx.fill();
 
-    // Brick mortar lines
-    ctx.strokeStyle = C.CLR.BLOCK_MORTAR;
-    ctx.lineWidth   = 1;
-
+    // Brick layout: 3 rows, staggered
     const rows = 3;
-    const bh   = h / rows;
+    const bh = (h - mortarW * (rows + 1)) / rows;
+    const bricksPerRow = [2, 3, 2]; // alternating pattern
 
     for (let r = 0; r < rows; r++) {
-      const by = y + r * bh;
-      // Horizontal mortar
-      ctx.beginPath();
-      ctx.moveTo(x, by); ctx.lineTo(x + w, by);
-      ctx.stroke();
-      // Vertical mortar (offset every other row)
-      const vx = x + (r % 2 === 0 ? w * 0.5 : w * 0.25);
-      if (vx > x && vx < x + w) {
+      const by = y + mortarW + r * (bh + mortarW);
+      const numBricks = bricksPerRow[r];
+      const bw = (w - mortarW * (numBricks + 1)) / numBricks;
+
+      for (let b = 0; b < numBricks; b++) {
+        const bx = x + mortarW + b * (bw + mortarW);
+
+        // Base brick fill with subtle gradient
+        const grad = ctx.createLinearGradient(bx, by, bx, by + bh);
+        grad.addColorStop(0, C.CLR.BLOCK_LIGHT);
+        grad.addColorStop(0.4, C.CLR.BLOCK_BASE);
+        grad.addColorStop(1, C.CLR.BLOCK_DARK);
+        ctx.fillStyle = grad;
+        _roundRect(ctx, bx, by, bw, bh, br);
+        ctx.fill();
+
+        // Top bevel highlight
+        ctx.strokeStyle = 'rgba(255,200,150,0.25)';
+        ctx.lineWidth = 0.8;
         ctx.beginPath();
-        ctx.moveTo(vx, by); ctx.lineTo(vx, by + bh);
+        ctx.moveTo(bx + br, by + 0.5);
+        ctx.lineTo(bx + bw - br, by + 0.5);
+        ctx.stroke();
+
+        // Bottom shadow
+        ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+        ctx.lineWidth = 0.6;
+        ctx.beginPath();
+        ctx.moveTo(bx + br, by + bh - 0.5);
+        ctx.lineTo(bx + bw - br, by + bh - 0.5);
         ctx.stroke();
       }
     }
-    // Bottom line
-    ctx.beginPath();
-    ctx.moveTo(x, y + h); ctx.lineTo(x + w, y + h);
-    ctx.stroke();
-
-    // Highlight top edge
-    ctx.strokeStyle = C.CLR.BLOCK_LIGHT;
-    ctx.lineWidth   = 1;
-    ctx.beginPath();
-    ctx.moveTo(x, y); ctx.lineTo(x + w, y);
-    ctx.stroke();
   }
 
-  // ── Hole / Portal ──────────────────────────────────────────────────────────
+  /** Rounded rect helper */
+  function _roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
+
+  // ── Hole / Portal (Wormhole Effect) ────────────────────────────────────────
 
   function _drawHole(ctx, cx, cy, cell, holePairs, col, row) {
     const colorDef = C.HOLE_COLORS.find(c => c.id === cell.holeColorId) || C.HOLE_COLORS[0];
     const r        = CS * C.STONE_R;
 
-    // Glow ring
     ctx.save();
-    ctx.shadowColor = colorDef.fill;
-    ctx.shadowBlur  = 10;
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.fillStyle   = colorDef.fill;
-    ctx.fill();
-    ctx.restore();
 
+    // Outer glow
+    ctx.shadowColor = colorDef.fill;
+    ctx.shadowBlur  = 14;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * 1.05, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.01)';
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Concentric rings (event horizon)
+    for (let i = 4; i >= 0; i--) {
+      const frac  = i / 4;
+      const ringR = r * (0.3 + frac * 0.75);
+      const alpha = 0.15 + (1 - frac) * 0.15;
+      ctx.beginPath();
+      ctx.arc(cx, cy, ringR, 0, Math.PI * 2);
+      ctx.strokeStyle = _hexToRgba(colorDef.fill, alpha);
+      ctx.lineWidth = 1.2 - frac * 0.4;
+      ctx.stroke();
+    }
+
+    // Radial gradient void (center is pure black, edges fade to color)
+    const voidGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r * 0.95);
+    voidGrad.addColorStop(0, 'rgba(0,0,0,0.92)');
+    voidGrad.addColorStop(0.5, 'rgba(0,0,0,0.7)');
+    voidGrad.addColorStop(0.85, _hexToRgba(colorDef.fill, 0.8));
+    voidGrad.addColorStop(1, 'transparent');
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * 0.95, 0, Math.PI * 2);
+    ctx.fillStyle = voidGrad;
+    ctx.fill();
+
+    // Bright border ring
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, Math.PI * 2);
     ctx.strokeStyle = colorDef.stroke;
-    ctx.lineWidth   = 2;
+    ctx.lineWidth   = 2.2;
     ctx.stroke();
 
-    // Inner dark void
+    // Inner bright rim
     ctx.beginPath();
-    ctx.arc(cx, cy, r * 0.48, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.78)';
-    ctx.fill();
+    ctx.arc(cx, cy, r * 0.42, 0, Math.PI * 2);
+    ctx.strokeStyle = colorDef.fill;
+    ctx.lineWidth   = 1;
+    ctx.globalAlpha  = 0.5;
+    ctx.stroke();
+    ctx.globalAlpha  = 1;
+
+    // Swirl accent lines
+    ctx.globalAlpha = 0.2;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 0.8;
+    for (let a = 0; a < 3; a++) {
+      const startAngle = (a * Math.PI * 2 / 3);
+      ctx.beginPath();
+      ctx.arc(cx, cy, r * 0.65, startAngle, startAngle + Math.PI * 0.5);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+
+    ctx.restore();
 
     // Pair label (A, B, C…)
     const pairKeys  = Object.keys(holePairs);
@@ -272,17 +339,24 @@ window.Renderer = (() => {
                      pair.positions[1].col === col &&
                      pair.positions[1].row === row;
 
+    // Label text with drop shadow
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.8)';
+    ctx.shadowBlur  = 3;
     ctx.fillStyle    = '#ffffff';
     ctx.font         = `700 ${r * 0.72}px "Inter", sans-serif`;
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(label, cx, cy - r * 0.1);
+    ctx.fillText(label, cx, cy - r * 0.05);
+    ctx.restore();
 
     // Draw subscript end indicator (1 or 2) if pair is complete
     if (pair && pair.positions[1]) {
-      ctx.font      = `500 ${r * 0.38}px "Inter", sans-serif`;
-      ctx.fillStyle = 'rgba(255,255,255,0.75)';
-      ctx.fillText(isSecond ? '2' : '1', cx + r * 0.32, cy + r * 0.36);
+      ctx.font      = `600 ${r * 0.36}px "Inter", sans-serif`;
+      ctx.fillStyle = 'rgba(255,255,255,0.85)';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(isSecond ? '₂' : '₁', cx + r * 0.38, cy + r * 0.38);
     }
   }
 
@@ -332,6 +406,15 @@ window.Renderer = (() => {
     ctx.lineTo(mousePos.x, mousePos.y);
     ctx.stroke();
     ctx.restore();
+  }
+
+  // ── Colour helpers ──────────────────────────────────────────────────────────
+
+  function _hexToRgba(hex, alpha) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r},${g},${b},${alpha})`;
   }
 
   // ── Public API ─────────────────────────────────────────────────────────────

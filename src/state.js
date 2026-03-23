@@ -44,25 +44,21 @@ window.State = (() => {
   // ── Actions ────────────────────────────────────────────────────────────────
 
   /**
-   * Place a stone. Returns new state or null if cell is blocked.
+   * Place a stone. Returns new state or null if cell is occupied.
    */
   function placeStone(state, col, row, player) {
     const key  = cellKey(col, row);
     const cell = state.cells[key];
 
-    // Cannot overwrite blocks or holes
-    if (cell && (cell.type === C.TYPE.BLOCK || cell.type === C.TYPE.HOLE)) return null;
+    // Cannot place on any occupied cell (stone, block, or hole)
+    if (cell) return null;
 
-    const ns      = clone(state);
-    const isNew   = !cell || (cell.type !== C.TYPE.STONE_X && cell.type !== C.TYPE.STONE_O);
-    const moveNum = isNew ? ns.moveCounter : cell.moveNum;
-
+    const ns = clone(state);
     ns.cells[key] = {
       type:    player === 'X' ? C.TYPE.STONE_X : C.TYPE.STONE_O,
-      moveNum: moveNum,
+      moveNum: ns.moveCounter,
     };
-
-    if (isNew) ns.moveCounter++;
+    ns.moveCounter++;
     ns.lastMovePos = { col, row };
     return ns;
   }
@@ -180,6 +176,16 @@ window.State = (() => {
   }
 
   /**
+   * Remove all analysis lines.
+   */
+  function clearLines(state) {
+    if (state.lines.length === 0) return null;
+    const ns = clone(state);
+    ns.lines = [];
+    return ns;
+  }
+
+  /**
    * Toggle move-number display.
    */
   function setShowMoveNumbers(state, show) {
@@ -234,6 +240,7 @@ window.State = (() => {
     erase,
     addLine,
     removeLine,
+    clearLines,
     setBoardSize,
     clearBoard,
     setShowMoveNumbers,
