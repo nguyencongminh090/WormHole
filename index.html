@@ -75,10 +75,6 @@
     </div>
 
     <div class="tb-section tb-right">
-      <label class="toggle-row">
-        <input type="checkbox" id="show-move-numbers" checked>
-        <span>Move #</span>
-      </label>
       <button id="btn-copy-img" class="act-btn" title="Copy board image to clipboard">⎘ Copy</button>
       <button id="btn-export" class="act-btn primary" title="Download PNG">⬇ PNG</button>
       <button id="btn-clear" class="act-btn danger" title="Clear board">✕ Clear</button>
@@ -95,27 +91,32 @@
         <canvas id="board-canvas"></canvas>
       </div>
 
-      <!-- Notation -->
-      <div id="notation-panel">
-        <div class="panel-hd">
+      <!-- Notation panel (collapsible) -->
+      <div id="notation-panel" class="panel collapsible">
+        <div class="panel-hd" data-toggle="notation-panel">
           <span class="panel-title">Position Notation</span>
-          <div class="panel-actions">
-            <button id="btn-copy-notation" class="sm-btn">Copy</button>
-            <button id="btn-parse-notation" class="sm-btn primary">↳ Apply</button>
+          <div class="panel-hd-right">
+            <div class="panel-actions">
+              <button id="btn-copy-notation" class="sm-btn">Copy</button>
+              <button id="btn-parse-notation" class="sm-btn primary">↳ Apply</button>
+            </div>
+            <span class="collapse-icon">▾</span>
           </div>
         </div>
-        <textarea id="notation-input" spellcheck="false"
-          placeholder="Paste notation here and click Apply to load a position…"></textarea>
-        <div class="notation-help">
-          <details>
-            <summary>Format reference</summary>
-            <pre>SIZE:17
+        <div class="panel-body">
+          <textarea id="notation-input" spellcheck="false"
+            placeholder="Paste notation here and click Apply to load a position…"></textarea>
+          <div class="notation-help">
+            <details>
+              <summary>Format reference</summary>
+              <pre>SIZE:17
 X:h6(1),g8(3),f9(5)
 O:i6(2),h8(4),i9(6)
 BLOCK:d5,l5,n5
 PORTAL:red(h13:m13),blue(l8:l13)
 LINE:red(h6>l10)</pre>
-          </details>
+            </details>
+          </div>
         </div>
       </div>
     </div>
@@ -123,46 +124,59 @@ LINE:red(h6>l10)</pre>
     <!-- Side panel -->
     <aside id="side-panel">
 
-      <!-- Portal pairs -->
-      <div class="panel" id="portals-panel">
-        <div class="panel-hd">
+      <!-- Portal pairs (collapsible) -->
+      <div class="panel collapsible" id="portals-panel">
+        <div class="panel-hd" data-toggle="portals-panel">
           <span class="panel-title">⬡ Portals</span>
+          <span class="collapse-icon">▾</span>
         </div>
-        <div id="holes-list"></div>
-        <div id="pending-hole-hint" class="pending-hint">
-          ✦ Click a second cell to complete the portal pair. <button id="btn-cancel-portal" class="sm-btn">Cancel</button>
+        <div class="panel-body">
+          <div id="holes-list"></div>
+          <div id="pending-hole-hint" class="pending-hint">
+            ✦ Click a second cell to complete the portal pair. <button id="btn-cancel-portal" class="sm-btn">Cancel</button>
+          </div>
         </div>
       </div>
 
-      <!-- Move history -->
-      <div class="panel" id="history-panel">
-        <div class="panel-hd">
+      <!-- Move history (collapsible) -->
+      <div class="panel collapsible" id="history-panel">
+        <div class="panel-hd" data-toggle="history-panel">
           <span class="panel-title">📋 History</span>
-          <button id="btn-clear-history" class="sm-btn"
-            onclick="History.clearLog(); document.getElementById('history-list').innerHTML='<div class=empty-hint>No moves yet.</div>'">
-            Clear
-          </button>
+          <div class="panel-hd-right">
+            <button id="btn-clear-history" class="sm-btn"
+              onclick="History.clearLog(); document.getElementById('history-list').innerHTML='<div class=empty-hint>No moves yet.</div>'">
+              Clear
+            </button>
+            <span class="collapse-icon">▾</span>
+          </div>
         </div>
-        <div id="history-list">
-          <div class="empty-hint">No moves yet.</div>
+        <div class="panel-body">
+          <div id="history-list">
+            <div class="empty-hint">No moves yet.</div>
+          </div>
         </div>
       </div>
 
-      <!-- Keyboard shortcuts cheatsheet -->
-      <div class="panel" id="shortcuts-panel">
-        <div class="panel-hd"><span class="panel-title">⌨ Shortcuts</span></div>
-        <table class="shortcut-table">
-          <tr><td>X</td><td>Black Stone</td></tr>
-          <tr><td>O</td><td>White Stone</td></tr>
-          <tr><td>B</td><td>Block</td></tr>
-          <tr><td>H</td><td>Portal Hole</td></tr>
-          <tr><td>L</td><td>Line</td></tr>
-          <tr><td>E</td><td>Eraser</td></tr>
-          <tr><td>Esc</td><td>Cancel pending</td></tr>
-          <tr><td>Ctrl+Z</td><td>Undo</td></tr>
-          <tr><td>Ctrl+Y</td><td>Redo</td></tr>
-          <tr><td>Right-click</td><td>Quick erase</td></tr>
-        </table>
+      <!-- Keyboard shortcuts (collapsible, collapsed by default) -->
+      <div class="panel collapsible collapsed" id="shortcuts-panel">
+        <div class="panel-hd" data-toggle="shortcuts-panel">
+          <span class="panel-title">⌨ Shortcuts</span>
+          <span class="collapse-icon">▾</span>
+        </div>
+        <div class="panel-body">
+          <table class="shortcut-table">
+            <tr><td>X</td><td>Black Stone</td></tr>
+            <tr><td>O</td><td>White Stone</td></tr>
+            <tr><td>B</td><td>Block</td></tr>
+            <tr><td>H</td><td>Portal Hole</td></tr>
+            <tr><td>L</td><td>Line</td></tr>
+            <tr><td>E</td><td>Eraser</td></tr>
+            <tr><td>Esc</td><td>Cancel pending</td></tr>
+            <tr><td>Ctrl+Z</td><td>Undo</td></tr>
+            <tr><td>Ctrl+Y</td><td>Redo</td></tr>
+            <tr><td>Right-click</td><td>Quick erase</td></tr>
+          </table>
+        </div>
       </div>
 
     </aside>
@@ -197,6 +211,8 @@ LINE:red(h6>l10)</pre>
 <script src="src/notation.js"></script>
 <script src="src/export.js"></script>
 <script src="src/app.js"></script>
+
+<div id="toast"></div>
 
 </body>
 </html>

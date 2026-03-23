@@ -62,9 +62,9 @@ window.C = Object.freeze({
 
     // X and O symbol colors
     X_COLOR:  '#1a1a2e',           // dark ink for X
-    X_FAINT:  'rgba(26,26,46,0.18)', // faint X behind numbers
+    X_FAINT:  'rgba(26,26,46,0.30)', // visible X behind numbers
     O_COLOR:  '#c0392b',           // red ink for O
-    O_FAINT:  'rgba(192,57,43,0.16)', // faint O behind numbers
+    O_FAINT:  'rgba(192,57,43,0.28)', // visible O behind numbers
 
     // Block
     BLOCK_BASE:  '#CC2200',

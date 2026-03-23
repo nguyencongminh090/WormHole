@@ -146,7 +146,7 @@ window.Renderer = (() => {
     switch (cell.type) {
       case C.TYPE.STONE_X:
       case C.TYPE.STONE_O:
-        _drawStone(ctx, cx, cy, cell.type, state.showMoveNumbers ? cell.moveNum : null);
+        _drawStone(ctx, cx, cy, cell.type);
         break;
       case C.TYPE.BLOCK:
         _drawBlock(ctx, cellLeft(col), cellTop(row));
@@ -159,67 +159,30 @@ window.Renderer = (() => {
 
   // ── Stone (X / O symbol) ───────────────────────────────────────────────────
 
-  function _drawStone(ctx, cx, cy, type, moveNum) {
+  function _drawStone(ctx, cx, cy, type) {
     const r   = CS * C.STONE_R;
     const isX = type === C.TYPE.STONE_X;
-    const hasNum = (moveNum !== null && moveNum !== undefined);
 
     ctx.save();
     ctx.lineCap  = 'round';
     ctx.lineJoin = 'round';
 
     if (isX) {
-      // ── X symbol ────────────────────────────────────────────────────────
-      if (hasNum) {
-        // Faint X behind the number
-        const s = r * 0.40;
-        ctx.strokeStyle = C.CLR.X_FAINT;
-        ctx.lineWidth   = r * 0.18;
-        ctx.beginPath();
-        ctx.moveTo(cx - s, cy - s); ctx.lineTo(cx + s, cy + s);
-        ctx.moveTo(cx + s, cy - s); ctx.lineTo(cx - s, cy + s);
-        ctx.stroke();
-        // Move number
-        const fs = r * (moveNum > 99 ? 0.56 : 0.72);
-        ctx.fillStyle    = C.CLR.X_COLOR;
-        ctx.font         = `600 ${fs}px "Inter", sans-serif`;
-        ctx.textAlign    = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(String(moveNum), cx, cy + 0.5);
-      } else {
-        // Bold X cross
-        const s = r * 0.44;
-        ctx.strokeStyle = C.CLR.X_COLOR;
-        ctx.lineWidth   = r * 0.28;
-        ctx.beginPath();
-        ctx.moveTo(cx - s, cy - s); ctx.lineTo(cx + s, cy + s);
-        ctx.moveTo(cx + s, cy - s); ctx.lineTo(cx - s, cy + s);
-        ctx.stroke();
-      }
+      // Bold X cross
+      const s = r * 0.55;
+      ctx.strokeStyle = C.CLR.X_COLOR;
+      ctx.lineWidth   = r * 0.38;
+      ctx.beginPath();
+      ctx.moveTo(cx - s, cy - s); ctx.lineTo(cx + s, cy + s);
+      ctx.moveTo(cx + s, cy - s); ctx.lineTo(cx - s, cy + s);
+      ctx.stroke();
     } else {
-      // ── O symbol ────────────────────────────────────────────────────────
-      if (hasNum) {
-        // Faint O ring behind the number
-        ctx.beginPath();
-        ctx.arc(cx, cy, r * 0.42, 0, Math.PI * 2);
-        ctx.strokeStyle = C.CLR.O_FAINT;
-        ctx.lineWidth   = r * 0.14;
-        ctx.stroke();
-        // Move number
-        const fs = r * (moveNum > 99 ? 0.56 : 0.72);
-        ctx.fillStyle    = C.CLR.O_COLOR;
-        ctx.font         = `600 ${fs}px "Inter", sans-serif`;
-        ctx.textAlign    = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(String(moveNum), cx, cy + 0.5);
-      } else {
-        // Bold O ring
-        ctx.beginPath();
-        ctx.arc(cx, cy, r * 0.44, 0, Math.PI * 2);
-        ctx.strokeStyle = C.CLR.O_COLOR;
-        ctx.lineWidth   = r * 0.26;
-        ctx.stroke();
-      }
+      // Bold O ring
+      ctx.beginPath();
+      ctx.arc(cx, cy, r * 0.48, 0, Math.PI * 2);
+      ctx.strokeStyle = C.CLR.O_COLOR;
+      ctx.lineWidth   = r * 0.32;
+      ctx.stroke();
     }
 
     ctx.restore();

@@ -29,7 +29,6 @@
   const ctx         = canvas.getContext('2d');
 
   const elBoardSize    = document.getElementById('board-size-select');
-  const elShowNums     = document.getElementById('show-move-numbers');
   const elBtnUndo      = document.getElementById('btn-undo');
   const elBtnRedo      = document.getElementById('btn-redo');
   const elBtnExport    = document.getElementById('btn-export');
@@ -63,6 +62,16 @@
     // Cancel pending portal
     const cancelPortalBtn = document.getElementById('btn-cancel-portal');
     if (cancelPortalBtn) cancelPortalBtn.addEventListener('click', cancelPendingOps);
+
+    // Collapsible panels
+    document.querySelectorAll('.panel-hd[data-toggle]').forEach(hd => {
+      hd.addEventListener('click', (e) => {
+        // Don't toggle if clicking a button inside the header
+        if (e.target.closest('.sm-btn') || e.target.closest('.panel-actions')) return;
+        const panel = document.getElementById(hd.dataset.toggle);
+        if (panel) panel.classList.toggle('collapsed');
+      });
+    });
 
     redraw();
     refreshSidePanel();
@@ -313,11 +322,6 @@
       });
     });
 
-    elShowNums.checked = gameState.showMoveNumbers;
-    elShowNums.addEventListener('change', () => {
-      gameState = State.setShowMoveNumbers(gameState, elShowNums.checked);
-      redraw();
-    });
 
     elBtnUndo.addEventListener('click', doUndo);
     elBtnRedo.addEventListener('click', doRedo);
