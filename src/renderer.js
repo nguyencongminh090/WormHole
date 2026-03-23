@@ -292,7 +292,14 @@ window.Renderer = (() => {
     ctx.font         = `bold ${r * 0.7}px "Space Mono", monospace`;
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(label, cx, cy);
+    ctx.fillText(label, cx, cy - r * 0.1);
+
+    // Draw subscript end indicator (₁ or ₂) if pair is complete
+    if (pair && pair.positions[1]) {
+      ctx.font         = `${r * 0.38}px "Space Mono", monospace`;
+      ctx.fillStyle    = 'rgba(255,255,255,0.75)';
+      ctx.fillText(isSecond ? '2' : '1', cx + r * 0.32, cy + r * 0.36);
+    }
   }
 
   // ── Analysis lines ─────────────────────────────────────────────────────────

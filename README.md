@@ -2,7 +2,7 @@
 
 A browser-based position editor for **Wormhole Gomoku** — the variant where paired portal holes teleport stones across the board, creating unique 5-in-a-row threats through the wormhole.
 
-**→ [Live Demo on GitHub Pages](https://your-username.github.io/wormhole-editor/)**
+**→ [Live Demo on GitHub Pages](https://nguyencongminh090.github.io/WormHole/)**
 
 ---
 
