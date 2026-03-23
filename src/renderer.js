@@ -82,12 +82,19 @@ window.Renderer = (() => {
   // ── Background & grid ──────────────────────────────────────────────────────
 
   function _drawBackground(ctx, sz, dim) {
-    // Solid margin background
+    // Margin area
     ctx.fillStyle = C.CLR.BOARD_MARGIN;
     ctx.fillRect(0, 0, dim, dim);
-    // Solid board fill
+    // Paper board fill
     ctx.fillStyle = C.CLR.BOARD_BG;
     ctx.fillRect(M, M, sz * CS, sz * CS);
+    // Subtle paper texture — faint noise dots
+    ctx.fillStyle = 'rgba(0,0,0,0.012)';
+    for (let i = 0; i < 300; i++) {
+      const px = M + Math.random() * sz * CS;
+      const py = M + Math.random() * sz * CS;
+      ctx.fillRect(px, py, 1, 1);
+    }
   }
 
   function _drawGrid(ctx, sz) {
@@ -109,7 +116,7 @@ window.Renderer = (() => {
 
   function _drawCoords(ctx, sz) {
     ctx.fillStyle    = C.CLR.LABEL;
-    ctx.font         = `700 ${CS * 0.36}px "Syne", "Inter", sans-serif`;
+    ctx.font         = `600 ${CS * 0.36}px "Inter", sans-serif`;
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
 
@@ -150,7 +157,7 @@ window.Renderer = (() => {
     }
   }
 
-  // ── Stone ──────────────────────────────────────────────────────────────────
+  // ── Stone (X / O symbol) ───────────────────────────────────────────────────
 
   function _drawStone(ctx, cx, cy, type, moveNum) {
     const r   = CS * C.STONE_R;
@@ -158,30 +165,31 @@ window.Renderer = (() => {
     const hasNum = (moveNum !== null && moveNum !== undefined);
 
     ctx.save();
-    ctx.lineCap = 'round';
+    ctx.lineCap  = 'round';
+    ctx.lineJoin = 'round';
 
     if (isX) {
-      // ── Black X: bold cross, no circle ──────────────────────────────────
+      // ── X symbol ────────────────────────────────────────────────────────
       if (hasNum) {
-        // Faint cross behind number
-        const s = r * 0.38;
-        ctx.strokeStyle = 'rgba(30,32,51,0.18)';
-        ctx.lineWidth   = r * 0.20;
+        // Faint X behind the number
+        const s = r * 0.40;
+        ctx.strokeStyle = C.CLR.X_FAINT;
+        ctx.lineWidth   = r * 0.18;
         ctx.beginPath();
         ctx.moveTo(cx - s, cy - s); ctx.lineTo(cx + s, cy + s);
         ctx.moveTo(cx + s, cy - s); ctx.lineTo(cx - s, cy + s);
         ctx.stroke();
-        // Number
+        // Move number
         const fs = r * (moveNum > 99 ? 0.56 : 0.72);
-        ctx.fillStyle    = C.CLR.STONE_X_NUM_PLAIN;
-        ctx.font         = `bold ${fs}px "Syne", sans-serif`;
+        ctx.fillStyle    = C.CLR.X_COLOR;
+        ctx.font         = `600 ${fs}px "Inter", sans-serif`;
         ctx.textAlign    = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(String(moveNum), cx, cy);
+        ctx.fillText(String(moveNum), cx, cy + 0.5);
       } else {
         // Bold X cross
-        const s = r * 0.42;
-        ctx.strokeStyle = C.CLR.STONE_X_PLAIN;
+        const s = r * 0.44;
+        ctx.strokeStyle = C.CLR.X_COLOR;
         ctx.lineWidth   = r * 0.28;
         ctx.beginPath();
         ctx.moveTo(cx - s, cy - s); ctx.lineTo(cx + s, cy + s);
@@ -189,26 +197,26 @@ window.Renderer = (() => {
         ctx.stroke();
       }
     } else {
-      // ── White O: open ring, no filled circle ─────────────────────────────
+      // ── O symbol ────────────────────────────────────────────────────────
       if (hasNum) {
-        // Faint ring behind number
+        // Faint O ring behind the number
         ctx.beginPath();
         ctx.arc(cx, cy, r * 0.42, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(30,32,51,0.14)';
+        ctx.strokeStyle = C.CLR.O_FAINT;
         ctx.lineWidth   = r * 0.14;
         ctx.stroke();
-        // Number
+        // Move number
         const fs = r * (moveNum > 99 ? 0.56 : 0.72);
-        ctx.fillStyle    = C.CLR.STONE_O_NUM_PLAIN;
-        ctx.font         = `bold ${fs}px "Syne", sans-serif`;
+        ctx.fillStyle    = C.CLR.O_COLOR;
+        ctx.font         = `600 ${fs}px "Inter", sans-serif`;
         ctx.textAlign    = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(String(moveNum), cx, cy);
+        ctx.fillText(String(moveNum), cx, cy + 0.5);
       } else {
         // Bold O ring
         ctx.beginPath();
         ctx.arc(cx, cy, r * 0.44, 0, Math.PI * 2);
-        ctx.strokeStyle = C.CLR.STONE_O_PLAIN;
+        ctx.strokeStyle = C.CLR.O_COLOR;
         ctx.lineWidth   = r * 0.26;
         ctx.stroke();
       }
@@ -300,20 +308,20 @@ window.Renderer = (() => {
     const isSecond = pair && pair.positions[1] &&
                      pair.positions[1].col === col &&
                      pair.positions[1].row === row;
-    const subLabel = (pair && pair.positions[1]) ? (isSecond ? '₂' : '₁') : '₁';
 
     ctx.fillStyle    = '#ffffff';
-    ctx.font         = `800 ${r * 0.72}px "Syne", sans-serif`;
+    ctx.font         = `700 ${r * 0.72}px "Inter", sans-serif`;
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(label, cx, cy - r * 0.1);
 
-    // Draw subscript end indicator (₁ or ₂) if pair is complete
+    // Draw subscript end indicator (1 or 2) if pair is complete
     if (pair && pair.positions[1]) {
-      ctx.font         = `${r * 0.38}px "Space Mono", monospace`;
-      ctx.fillStyle    = 'rgba(255,255,255,0.75)';
+      ctx.font      = `500 ${r * 0.38}px "Inter", sans-serif`;
+      ctx.fillStyle = 'rgba(255,255,255,0.75)';
       ctx.fillText(isSecond ? '2' : '1', cx + r * 0.32, cy + r * 0.36);
     }
+  }
 
   // ── Analysis lines ─────────────────────────────────────────────────────────
 
@@ -362,7 +370,6 @@ window.Renderer = (() => {
     ctx.stroke();
     ctx.restore();
   }
-} 
 
   // ── Public API ─────────────────────────────────────────────────────────────
   return { render, pixelToCell, canvasSize, cellCx, cellCy };

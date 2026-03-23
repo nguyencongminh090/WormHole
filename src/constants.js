@@ -9,7 +9,7 @@ window.C = Object.freeze({
   // ── Rendering ──────────────────────────────────────────────────────────────
   CELL_SIZE:   36,
   MARGIN:      44,   // space for coordinate labels
-  STONE_R:     0.43, // stone radius as fraction of CELL_SIZE
+  STONE_R:     0.43, // symbol radius as fraction of CELL_SIZE
 
   // ── Board ──────────────────────────────────────────────────────────────────
   BOARD_SIZES: [9, 13, 15, 17, 19],
@@ -49,40 +49,35 @@ window.C = Object.freeze({
     { id: 'blue',   hex: '#2980b9' },
     { id: 'green',  hex: '#27ae60' },
     { id: 'orange', hex: '#e67e22' },
-    { id: 'black',  hex: '#1a1a1a' },
+    { id: 'black',  hex: '#c0c0c0' },
   ],
 
   // ── Visual palette ─────────────────────────────────────────────────────────
   CLR: Object.freeze({
-    BOARD_BG:      '#E8C97A',   // warm single board tone
-    BOARD_BG_DARK: '#E8C97A',   // same (unused now)
-    BOARD_MARGIN:  '#1e2330',   // dark margin outside board
-    GRID:          '#B89040',
-    LABEL:         '#8B6820',
+    // Paper board
+    BOARD_BG:      '#f5f0e8',   // warm off-white paper
+    BOARD_MARGIN:  '#0f1219',   // dark margin (matches glass UI)
+    GRID:          '#c8bca0',   // soft pencil-line grid
+    LABEL:         '#9a8e78',   // muted label color
 
-    STONE_X_A: '#444444',  // kept for compat
-    STONE_X_B: '#111111',
-    STONE_O_A: '#FFFFFF',
-    STONE_O_B: '#CCCCCC',
-    STONE_X_NUM: '#FFFFFF',
-    STONE_O_NUM: '#222222',
+    // X and O symbol colors
+    X_COLOR:  '#1a1a2e',           // dark ink for X
+    X_FAINT:  'rgba(26,26,46,0.18)', // faint X behind numbers
+    O_COLOR:  '#c0392b',           // red ink for O
+    O_FAINT:  'rgba(192,57,43,0.16)', // faint O behind numbers
 
-    // Plain symbol mode (no circle)
-    STONE_X_PLAIN:     '#1e2033',   // dark cross stroke
-    STONE_O_PLAIN:     '#1e2033',   // dark ring stroke
-    STONE_X_NUM_PLAIN: '#1e2033',   // number on board for X
-    STONE_O_NUM_PLAIN: '#1e2033',   // number on board for O
-
+    // Block
     BLOCK_BASE:  '#CC2200',
     BLOCK_DARK:  '#8B0000',
     BLOCK_LIGHT: '#E04030',
     BLOCK_MORTAR:'#771100',
 
-    LAST_MOVE: 'rgba(255, 220, 30, 0.55)',
-    HOVER:     'rgba(150, 150, 150, 0.28)',
-    PENDING_HOLE: 'rgba(80, 80, 200, 0.18)',
+    // Highlights
+    LAST_MOVE: 'rgba(240, 180, 40, 0.35)',
+    HOVER:     'rgba(100, 100, 100, 0.15)',
+    PENDING_HOLE: 'rgba(80, 80, 200, 0.12)',
 
     LINE_W:    2.5,
-    PREVIEW_LINE: 'rgba(80, 80, 80, 0.45)',
+    PREVIEW_LINE: 'rgba(80, 80, 80, 0.35)',
   }),
 });
