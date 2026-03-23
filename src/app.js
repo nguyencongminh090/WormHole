@@ -10,6 +10,7 @@
   // ── App state ──────────────────────────────────────────────────────────────
 
   let gameState = State.create();
+  let urlUpdateTimer = null;
 
   /** Transient UI state — never saved to history */
   const ui = {
@@ -73,8 +74,67 @@
       });
     });
 
+    // Parse shareable URL parameter if present
+    const params = new URLSearchParams(window.location.search);
+    const encodedPos = params.get('pos');
+    if (encodedPos) {
+      _decodeUrlPos(encodedPos).then(notation => {
+        const parsed = Notation.parse(notation);
+        if (parsed.errors.length === 0) {
+          gameState = parsed.state;
+        } else {
+          console.error("Errors parsing URL position:", parsed.errors);
+          showToast("Failed to load position from link.", "error");
+        }
+        _finishInit();
+      });
+    } else {
+      _finishInit();
+    }
+  }
+
+  function _finishInit() {
     redraw();
     refreshSidePanel();
+  }
+
+  async function _decodeUrlPos(base64UrlSafe) {
+    try {
+      let base64 = base64UrlSafe.replace(/-/g, '+').replace(/_/g, '/');
+      while (base64.length % 4) base64 += '=';
+      const binary = atob(base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+      return await new Response(stream).text();
+    } catch (e) {
+      // Fallback for old uncompressed links
+      try { return atob(base64UrlSafe); } catch (err) { return ''; }
+    }
+  }
+
+  function syncUrl() {
+    clearTimeout(urlUpdateTimer);
+    urlUpdateTimer = setTimeout(async () => {
+      try {
+        const notation = Notation.serialise(gameState);
+        const url = new URL(window.location.href);
+        if (notation === `SIZE:${gameState.boardSize}`) {
+          url.searchParams.delete('pos');
+        } else {
+          const stream = new Blob([notation]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+          const buffer = await new Response(stream).arrayBuffer();
+          const bytes = new Uint8Array(buffer);
+          let binary = '';
+          for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+          const b64 = btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+          url.searchParams.set('pos', b64);
+        }
+        window.history.replaceState({}, '', url.toString());
+      } catch (e) {
+        // ignore errors
+      }
+    }, 400);
   }
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -84,6 +144,7 @@
     syncNotation();
     refreshUndoRedo();
     elStatusMove.textContent = `Move: ${gameState.moveCounter}`;
+    syncUrl();
   }
 
   // ── Tool palette ───────────────────────────────────────────────────────────
@@ -345,6 +406,25 @@
         showToast('Clipboard not available. Use Export PNG instead.', 'error');
       }
     });
+
+    const elBtnShareLink = document.getElementById('btn-share-link');
+    if (elBtnShareLink) {
+      elBtnShareLink.addEventListener('click', () => {
+        try {
+          // Address bar is already synced, just copy it
+          const url = window.location.href;
+          navigator.clipboard.writeText(url).then(() => {
+            showToast('Shareable link copied to clipboard!');
+          }).catch(() => {
+            showToast('Failed to write to clipboard.', 'error');
+            console.error(url);
+          });
+        } catch (e) {
+          console.error(e);
+          showToast('Failed to copy link.', 'error');
+        }
+      });
+    }
 
     document.getElementById('btn-clear-lines').addEventListener('click', () => {
       const ns = State.clearLines(gameState);
