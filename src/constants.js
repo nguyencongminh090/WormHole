@@ -66,11 +66,11 @@ window.C = Object.freeze({
     O_COLOR:  '#c0392b',           // red ink for O
     O_FAINT:  'rgba(192,57,43,0.28)', // visible O behind numbers
 
-    // Block
-    BLOCK_BASE:  '#CC2200',
-    BLOCK_DARK:  '#8B0000',
-    BLOCK_LIGHT: '#E04030',
-    BLOCK_MORTAR:'#771100',
+    // Block — colors match the SVG brick style
+    BLOCK_BASE:   '#e04e2c',   // main brick (medium red)
+    BLOCK_DARK:   '#bf360c',   // darker brick shade
+    BLOCK_LIGHT:  '#ff7043',   // lighter brick shade
+    BLOCK_MORTAR: '#c8b8a0',   // warm cream mortar (near board bg)
 
     // Highlights
     LAST_MOVE: 'rgba(240, 180, 40, 0.35)',

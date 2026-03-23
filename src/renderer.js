@@ -188,59 +188,79 @@ window.Renderer = (() => {
     ctx.restore();
   }
 
-  // ── Block / Wall (3D Brick) ────────────────────────────────────────────────
+  // ── Block / Wall (SVG Brick Style) ─────────────────────────────────────────
 
   function _drawBlock(ctx, lx, ty) {
     const pad = 1;
-    const x = lx + pad, y = ty + pad;
-    const w = CS - pad * 2, h = CS - pad * 2;
-    const br = 3; // brick corner radius
-    const mortarW = 1.5;
+    const x   = lx + pad, y = ty + pad;
+    const w   = CS - pad * 2, h = CS - pad * 2;
+    const br  = 3;    // outer shape corner
+    const br2 = 2;    // individual brick corner (matches SVG rounding)
+    const GAP = 1;    // mortar thickness in pixels
 
-    // Mortar background (dark grout fills entire cell)
+    // Brick color palette — matches SVG fills
+    const CLR = [C.CLR.BLOCK_BASE, C.CLR.BLOCK_DARK, C.CLR.BLOCK_LIGHT];
+    // Pseudo-random but deterministic color per position
+    const brickColor = (r, b) => CLR[(r * 7 + b * 3) % CLR.length];
+
+    ctx.save();
+
+    // 1 — Cream mortar background, clipped to cell
+    _roundRect(ctx, x, y, w, h, br);
     ctx.fillStyle = C.CLR.BLOCK_MORTAR;
-    _roundRect(ctx, x, y, w, h, br + 1);
     ctx.fill();
+    ctx.clip(); // all bricks are clipped to this cell boundary
 
-    // Brick layout: 3 rows, staggered
-    const rows = 3;
-    const bh = (h - mortarW * (rows + 1)) / rows;
-    const bricksPerRow = [2, 3, 2]; // alternating pattern
+    // 2 — 4 rows: alternating 3-full-bricks / staggered (half + 2-full + half)
+    const rows = 4;
+    const bh   = Math.floor((h - GAP * (rows + 1)) / rows);
+    // Full brick width when 3 per row
+    const bw3  = Math.floor((w - GAP * 4) / 3);
 
     for (let r = 0; r < rows; r++) {
-      const by = y + mortarW + r * (bh + mortarW);
-      const numBricks = bricksPerRow[r];
-      const bw = (w - mortarW * (numBricks + 1)) / numBricks;
+      const by        = y + GAP + r * (bh + GAP);
+      const staggered = r % 2 === 1; // odd rows are staggered
 
-      for (let b = 0; b < numBricks; b++) {
-        const bx = x + mortarW + b * (bw + mortarW);
+      if (!staggered) {
+        // Row with 3 equal bricks
+        for (let b = 0; b < 3; b++) {
+          const bx = x + GAP + b * (bw3 + GAP);
+          _roundRect(ctx, bx, by, bw3, bh, br2);
+          ctx.fillStyle = brickColor(r, b);
+          ctx.fill();
+        }
+      } else {
+        // Staggered row: half-brick | full | full | half-brick
+        const halfW = Math.floor(bw3 / 2);
 
-        // Base brick fill with subtle gradient
-        const grad = ctx.createLinearGradient(bx, by, bx, by + bh);
-        grad.addColorStop(0, C.CLR.BLOCK_LIGHT);
-        grad.addColorStop(0.4, C.CLR.BLOCK_BASE);
-        grad.addColorStop(1, C.CLR.BLOCK_DARK);
-        ctx.fillStyle = grad;
-        _roundRect(ctx, bx, by, bw, bh, br);
+        // Left half-brick
+        _roundRect(ctx, x + GAP, by, halfW, bh, br2);
+        ctx.fillStyle = brickColor(r, 0);
         ctx.fill();
 
-        // Top bevel highlight
-        ctx.strokeStyle = 'rgba(255,200,150,0.25)';
-        ctx.lineWidth = 0.8;
-        ctx.beginPath();
-        ctx.moveTo(bx + br, by + 0.5);
-        ctx.lineTo(bx + bw - br, by + 0.5);
-        ctx.stroke();
+        // 2 full bricks
+        for (let b = 0; b < 2; b++) {
+          const bx = x + GAP + halfW + GAP + b * (bw3 + GAP);
+          _roundRect(ctx, bx, by, bw3, bh, br2);
+          ctx.fillStyle = brickColor(r, b + 1);
+          ctx.fill();
+        }
 
-        // Bottom shadow
-        ctx.strokeStyle = 'rgba(0,0,0,0.3)';
-        ctx.lineWidth = 0.6;
-        ctx.beginPath();
-        ctx.moveTo(bx + br, by + bh - 0.5);
-        ctx.lineTo(bx + bw - br, by + bh - 0.5);
-        ctx.stroke();
+        // Right half-brick — position calculated forward to avoid 1px gap
+        const rightHalfX = x + GAP + halfW + GAP + bw3 + GAP + bw3 + GAP;
+        _roundRect(ctx, rightHalfX, by, halfW, bh, br2);
+        ctx.fillStyle = brickColor(r, 3);
+        ctx.fill();
       }
     }
+
+    ctx.restore();
+
+    // 3 — Subtle outer border
+    ctx.strokeStyle = 'rgba(0,0,0,0.20)';
+    ctx.lineWidth   = 0.8;
+    _roundRect(ctx, x, y, w, h, br);
+    ctx.stroke();
   }
 
   /** Rounded rect helper */
@@ -258,91 +278,117 @@ window.Renderer = (() => {
     ctx.closePath();
   }
 
-  // ── Hole / Portal (Wormhole Effect) ────────────────────────────────────────
+  // ── Hole / Portal (Cosmic Vortex) ───────────────────────────────────────────
 
   function _drawHole(ctx, cx, cy, cell, holePairs, col, row) {
     const colorDef = C.HOLE_COLORS.find(c => c.id === cell.holeColorId) || C.HOLE_COLORS[0];
-    const r        = CS * C.STONE_R;
+    const r  = CS * C.STONE_R;
+    const c1 = colorDef.fill;
+    const c2 = colorDef.stroke;
 
     ctx.save();
 
-    // Outer glow
-    ctx.shadowColor = colorDef.fill;
-    ctx.shadowBlur  = 14;
+    // ─── 1. Outer diffuse glow (atmosphere)
+    const atmGrad = ctx.createRadialGradient(cx, cy, r * 0.7, cx, cy, r * 1.8);
+    atmGrad.addColorStop(0,   _hexToRgba(c1, 0.45));
+    atmGrad.addColorStop(0.4, _hexToRgba(c1, 0.15));
+    atmGrad.addColorStop(1,   'rgba(0,0,0,0)');
+    ctx.fillStyle = atmGrad;
     ctx.beginPath();
-    ctx.arc(cx, cy, r * 1.05, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(0,0,0,0.01)';
+    ctx.arc(cx, cy, r * 1.8, 0, Math.PI * 2);
     ctx.fill();
-    ctx.shadowBlur = 0;
 
-    // Concentric rings (event horizon)
-    for (let i = 4; i >= 0; i--) {
-      const frac  = i / 4;
-      const ringR = r * (0.3 + frac * 0.75);
-      const alpha = 0.15 + (1 - frac) * 0.15;
+    // ─── 2. Accretion rings (4 crisp rings that fade toward center)
+    const ringCount = 5;
+    for (let i = ringCount; i >= 0; i--) {
+      const frac   = i / ringCount;
+      const ringR  = r * (0.2 + frac * 0.85);
+      const alpha  = 0.08 + (1 - frac) * 0.65;
+      const lw     = 1.6 - frac * 0.9;
       ctx.beginPath();
       ctx.arc(cx, cy, ringR, 0, Math.PI * 2);
-      ctx.strokeStyle = _hexToRgba(colorDef.fill, alpha);
-      ctx.lineWidth = 1.2 - frac * 0.4;
+      ctx.strokeStyle = _hexToRgba(c1, alpha);
+      ctx.lineWidth   = lw;
       ctx.stroke();
     }
 
-    // Radial gradient void (center is pure black, edges fade to color)
-    const voidGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r * 0.95);
-    voidGrad.addColorStop(0, 'rgba(0,0,0,0.92)');
-    voidGrad.addColorStop(0.5, 'rgba(0,0,0,0.7)');
-    voidGrad.addColorStop(0.85, _hexToRgba(colorDef.fill, 0.8));
-    voidGrad.addColorStop(1, 'transparent');
+    // ─── 3. Deep void (full radial depth gradient inside outermost ring)
+    const voidGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    voidGrad.addColorStop(0,    'rgba(0,0,0,1)');
+    voidGrad.addColorStop(0.35, 'rgba(0,0,0,0.9)');
+    voidGrad.addColorStop(0.7,  _hexToRgba(c2, 0.7));
+    voidGrad.addColorStop(0.88, _hexToRgba(c1, 0.85));
+    voidGrad.addColorStop(1,    'rgba(0,0,0,0)');
     ctx.beginPath();
-    ctx.arc(cx, cy, r * 0.95, 0, Math.PI * 2);
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
     ctx.fillStyle = voidGrad;
     ctx.fill();
 
-    // Bright border ring
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.strokeStyle = colorDef.stroke;
-    ctx.lineWidth   = 2.2;
-    ctx.stroke();
-
-    // Inner bright rim
-    ctx.beginPath();
-    ctx.arc(cx, cy, r * 0.42, 0, Math.PI * 2);
-    ctx.strokeStyle = colorDef.fill;
-    ctx.lineWidth   = 1;
-    ctx.globalAlpha  = 0.5;
-    ctx.stroke();
-    ctx.globalAlpha  = 1;
-
-    // Swirl accent lines
-    ctx.globalAlpha = 0.2;
+    // ─── 4. Spiral arms (3 arcs slightly offset in angle, forming a slow vortex)
+    ctx.save();
+    ctx.globalAlpha = 0.28;
     ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 0.8;
-    for (let a = 0; a < 3; a++) {
-      const startAngle = (a * Math.PI * 2 / 3);
+    for (let arm = 0; arm < 4; arm++) {
+      const baseAngle = (arm / 4) * Math.PI * 2;
+      const sweepFwd  = Math.PI * 0.55;
+      const ri = r * 0.18;
+      const ro = r * 0.78;
       ctx.beginPath();
-      ctx.arc(cx, cy, r * 0.65, startAngle, startAngle + Math.PI * 0.5);
+      // Approximate spiral by drawing arc between inner and outer radius
+      ctx.arc(cx + Math.cos(baseAngle) * r * 0.08,
+              cy + Math.sin(baseAngle) * r * 0.08,
+              (ri + ro) * 0.5,
+              baseAngle, baseAngle + sweepFwd);
+      ctx.lineWidth = 0.9;
       ctx.stroke();
     }
+    ctx.restore();
+
+    // ─── 5. Hard bright outer ring (the "event horizon" edge)
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = c1;
+    ctx.lineWidth   = 2.5;
+    ctx.shadowColor  = c1;
+    ctx.shadowBlur   = 10;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // ─── 6. Inner ring pulse
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * 0.38, 0, Math.PI * 2);
+    ctx.strokeStyle = c1;
+    ctx.lineWidth   = 1.5;
+    ctx.globalAlpha = 0.55;
+    ctx.stroke();
     ctx.globalAlpha = 1;
+
+    // ─── 7. Bright central core (star-like)
+    const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r * 0.22);
+    coreGrad.addColorStop(0,  'rgba(255,255,255,0.92)');
+    coreGrad.addColorStop(0.4, _hexToRgba(c1, 0.55));
+    coreGrad.addColorStop(1,  'rgba(0,0,0,0)');
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * 0.22, 0, Math.PI * 2);
+    ctx.fillStyle = coreGrad;
+    ctx.fill();
 
     ctx.restore();
 
-    // Pair label (A, B, C…)
+    // ─── 8. Pair label (A, B, C…)
     const pairKeys  = Object.keys(holePairs);
     const pairIndex = pairKeys.indexOf(cell.holeGroupId);
     const label     = pairIndex >= 0 ? String.fromCharCode(65 + pairIndex) : '?';
 
-    // Which end of the pair?
     const pair     = holePairs[cell.holeGroupId];
     const isSecond = pair && pair.positions[1] &&
                      pair.positions[1].col === col &&
                      pair.positions[1].row === row;
 
-    // Label text with drop shadow
+    // Drop-shadow text
     ctx.save();
-    ctx.shadowColor = 'rgba(0,0,0,0.8)';
-    ctx.shadowBlur  = 3;
+    ctx.shadowColor  = 'rgba(0,0,0,0.9)';
+    ctx.shadowBlur   = 5;
     ctx.fillStyle    = '#ffffff';
     ctx.font         = `700 ${r * 0.72}px "Inter", sans-serif`;
     ctx.textAlign    = 'center';
@@ -350,11 +396,11 @@ window.Renderer = (() => {
     ctx.fillText(label, cx, cy - r * 0.05);
     ctx.restore();
 
-    // Draw subscript end indicator (1 or 2) if pair is complete
+    // Subscript end indicator
     if (pair && pair.positions[1]) {
-      ctx.font      = `600 ${r * 0.36}px "Inter", sans-serif`;
-      ctx.fillStyle = 'rgba(255,255,255,0.85)';
-      ctx.textAlign = 'center';
+      ctx.font         = `600 ${r * 0.36}px "Inter", sans-serif`;
+      ctx.fillStyle    = 'rgba(255,255,255,0.85)';
+      ctx.textAlign    = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(isSecond ? '₂' : '₁', cx + r * 0.38, cy + r * 0.38);
     }
