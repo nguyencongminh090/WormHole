@@ -198,10 +198,15 @@ window.Renderer = (() => {
     const br2 = 2;    // individual brick corner (matches SVG rounding)
     const GAP = 1;    // mortar thickness in pixels
 
-    // Brick color palette — matches SVG fills
-    const CLR = [C.CLR.BLOCK_BASE, C.CLR.BLOCK_DARK, C.CLR.BLOCK_LIGHT];
-    // Pseudo-random but deterministic color per position
-    const brickColor = (r, b) => CLR[(r * 7 + b * 3) % CLR.length];
+    // Brick color palette — dark-heavy weighting (similar to real brick variation)
+    // DARK:3 / BASE:2 / LIGHT:1  → dark ~50%
+    const PALETTE = [
+      C.CLR.BLOCK_DARK, C.CLR.BLOCK_DARK, C.CLR.BLOCK_DARK,
+      C.CLR.BLOCK_BASE, C.CLR.BLOCK_BASE,
+      C.CLR.BLOCK_LIGHT,
+    ];
+    // Deterministic hash seeded by grid position so colors don't flicker on redraw
+    const brickColor = (r, b) => PALETTE[Math.abs(r * 17 + b * 11 + r * b * 3) % PALETTE.length];
 
     ctx.save();
 
@@ -211,8 +216,8 @@ window.Renderer = (() => {
     ctx.fill();
     ctx.clip(); // all bricks are clipped to this cell boundary
 
-    // 2 — 4 rows: alternating 3-full-bricks / staggered (half + 2-full + half)
-    const rows = 4;
+    // 2 — 5 rows: alternating 3-full-bricks / staggered (half + 2-full + half)
+    const rows = 5;
     const bh   = Math.floor((h - GAP * (rows + 1)) / rows);
     // Full brick width when 3 per row
     const bw3  = Math.floor((w - GAP * 4) / 3);
@@ -454,6 +459,136 @@ window.Renderer = (() => {
     ctx.restore();
   }
 
+  // ── Touch Zoom Preview ─────────────────────────────────────────────────────
+
+  /**
+   * Render a 3×3 magnified neighbourhood onto a small canvas.
+   * @param {HTMLCanvasElement} zc    - the mini canvas (#zoom-canvas)
+   * @param {Object}  state           - current game state
+   * @param {string}  col             - hovered column letter (e.g. 'e')
+   * @param {number}  row             - hovered row number (e.g. 5)
+   * @param {string}  tool            - current tool id (C.TOOL.*)
+   * @param {string}  holeColorId     - active portal color id
+   */
+  function drawZoom(zc, state, col, row, tool, holeColorId) {
+    const ZCS = 20;           // zoomed cell size (pixels)
+    const ZSZ = 7;            // 7×7 grid
+    const ZR  = (ZSZ - 1) / 2; // radius = 3
+    const dim = ZCS * ZSZ;
+    zc.width  = dim;
+    zc.height = dim;
+
+    const ctx = zc.getContext('2d');
+    const ci  = C.COLS.indexOf(col);
+    const ri  = row - 1;
+
+    // Draw 7×7 neighbourhood
+    for (let dr = -ZR; dr <= ZR; dr++) {
+      for (let dc = -ZR; dc <= ZR; dc++) {
+        const gc = C.COLS[ci + dc];
+        const gr = ri + 1 + dr;
+        const lx = (dc + ZR) * ZCS;
+        const ty = (dr + ZR) * ZCS;
+        const cx = lx + ZCS / 2;
+        const cy = ty + ZCS / 2;
+
+        // Board background — always opaque cream first
+        const isCenter = dr === 0 && dc === 0;
+        ctx.fillStyle = C.CLR.BOARD_BG;
+        ctx.fillRect(lx, ty, ZCS, ZCS);
+        // Amber highlight on the centre target cell
+        if (isCenter) {
+          ctx.fillStyle = 'rgba(240,160,48,0.22)';
+          ctx.fillRect(lx, ty, ZCS, ZCS);
+        }
+
+        // Grid lines
+        ctx.strokeStyle = C.CLR.GRID;
+        ctx.lineWidth   = 0.5;
+        ctx.strokeRect(lx + 0.5, ty + 0.5, ZCS - 1, ZCS - 1);
+
+        // Existing cell content — scale the draw calls
+        if (gc && gr >= 1 && gr <= state.boardSize) {
+          const key  = `${gc},${gr}`;
+          const cell = state.cells[key];
+          if (cell) {
+            ctx.save();
+            ctx.translate(lx - ZCS * 0, ty - ZCS * 0);
+            _drawZoomCell(ctx, ZCS, cx - lx, cy - ty, cell, state);
+            ctx.restore();
+          }
+        }
+      }
+    }
+
+    // Tool ghost preview in the centre cell
+    const lx = ZR * ZCS, ty = ZR * ZCS;
+    const cx = lx + ZCS / 2, cy = ty + ZCS / 2;
+    ctx.save();
+    ctx.globalAlpha = 0.55;
+    if (tool === C.TOOL.STONE_X) _drawZoomStone(ctx, cx, cy, C.TYPE.STONE_X, ZCS);
+    else if (tool === C.TOOL.STONE_O) _drawZoomStone(ctx, cx, cy, C.TYPE.STONE_O, ZCS);
+    else if (tool === C.TOOL.BLOCK) _drawZoomBlock(ctx, lx, ty, ZCS);
+    else if (tool === C.TOOL.HOLE) {
+      const colorDef = C.HOLE_COLORS.find(c => c.id === holeColorId) || C.HOLE_COLORS[0];
+      ctx.globalAlpha = 0.45;
+      ctx.beginPath();
+      ctx.arc(cx, cy, ZCS * C.STONE_R, 0, Math.PI * 2);
+      ctx.strokeStyle = colorDef.fill;
+      ctx.lineWidth   = 3;
+      ctx.stroke();
+    } else if (tool === C.TOOL.ERASER) {
+      ctx.globalAlpha = 0.4;
+      ctx.font = `bold ${ZCS * 0.45}px Inter, sans-serif`;
+      ctx.fillStyle = '#ff6060';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('✕', cx, cy);
+    }
+    ctx.restore();
+  }
+
+  /** Scaled stone for zoom preview */
+  function _drawZoomStone(ctx, cx, cy, type, zcs) {
+    const r   = zcs * C.STONE_R;
+    const isX = type === C.TYPE.STONE_X;
+    ctx.save();
+    ctx.lineCap = 'round';
+    if (isX) {
+      const s = r * 0.55;
+      ctx.strokeStyle = C.CLR.X_COLOR;
+      ctx.lineWidth   = r * 0.38;
+      ctx.beginPath();
+      ctx.moveTo(cx - s, cy - s); ctx.lineTo(cx + s, cy + s);
+      ctx.moveTo(cx + s, cy - s); ctx.lineTo(cx - s, cy + s);
+      ctx.stroke();
+    } else {
+      ctx.beginPath();
+      ctx.arc(cx, cy, r * 0.48, 0, Math.PI * 2);
+      ctx.strokeStyle = C.CLR.O_COLOR;
+      ctx.lineWidth   = r * 0.32;
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  /** Drawn cell content at zoom scale */
+  function _drawZoomCell(ctx, zcs, cx, cy, cell) {
+    if (cell.type === C.TYPE.STONE_X || cell.type === C.TYPE.STONE_O) {
+      _drawZoomStone(ctx, cx, cy, cell.type, zcs);
+    }
+    // Blocks and holes render too small to bother reproducing at 40px
+  }
+
+  /** Minimal block for zoom preview */
+  function _drawZoomBlock(ctx, lx, ty, zcs) {
+    ctx.fillStyle = C.CLR.BLOCK_MORTAR;
+    ctx.fillRect(lx + 2, ty + 2, zcs - 4, zcs - 4);
+    ctx.fillStyle = C.CLR.BLOCK_BASE;
+    ctx.fillRect(lx + 3, ty + 3, zcs - 6, (zcs - 8) / 2);
+    ctx.fillRect(lx + 3, ty + 3 + (zcs - 8) / 2 + 2, zcs - 6, (zcs - 8) / 2);
+  }
+
   // ── Colour helpers ──────────────────────────────────────────────────────────
 
   function _hexToRgba(hex, alpha) {
@@ -464,5 +599,5 @@ window.Renderer = (() => {
   }
 
   // ── Public API ─────────────────────────────────────────────────────────────
-  return { render, pixelToCell, canvasSize, cellCx, cellCy };
+  return { render, pixelToCell, canvasSize, cellCx, cellCy, drawZoom };
 })();

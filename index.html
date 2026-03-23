@@ -76,6 +76,12 @@
       <div class="action-strip">
         <button id="btn-undo" class="act-btn" title="Undo  (Ctrl+Z)">↩</button>
         <button id="btn-redo" class="act-btn" title="Redo  (Ctrl+Y)">↪</button>
+        <button id="btn-safe-mode" class="act-btn" title="Safe Mode: require double-click/tap to place">🔒 Safe</button>
+      </div>
+      <!-- Safe mode confirm hint -->
+      <div id="safe-mode-hint" class="ctrl-group hidden" style="gap:6px">
+        <span style="font-size:10px;color:var(--amber);font-weight:700">TAP AGAIN TO CONFIRM</span>
+        <span id="safe-mode-cell" style="font-size:11px;color:var(--text);font-weight:700"></span>
       </div>
 
     </div>
@@ -97,6 +103,12 @@
     <div id="board-area">
       <div id="board-scroll">
         <canvas id="board-canvas"></canvas>
+      </div>
+      <!-- Touch / hover zoom bubble -->
+      <div id="touch-zoom" class="hidden" aria-hidden="true">
+        <canvas id="zoom-canvas" width="120" height="120"></canvas>
+        <div id="zoom-crosshair"></div>
+        <div id="zoom-label">A1</div>
       </div>
 
       <!-- Notation panel (collapsible) -->
