@@ -65,10 +65,23 @@ window.Renderer = (() => {
     _drawGrid(ctx, sz);
     _drawCoords(ctx, sz);
 
+    // Draw stones
     for (const [key, cell] of Object.entries(state.cells)) {
       const [col, rowStr] = key.split(',');
       const row = parseInt(rowStr, 10);
       _drawCell(ctx, col, row, cell, state);
+    }
+    
+    // Draw setup blocks and holes
+    if (window.Setup) {
+      for (const [key, cell] of Object.entries(window.Setup.blocks)) {
+        const [col, rowStr] = key.split(',');
+        _drawCell(ctx, col, parseInt(rowStr, 10), cell, state);
+      }
+      for (const [key, cell] of Object.entries(window.Setup.holes)) {
+        const [col, rowStr] = key.split(',');
+        _drawCell(ctx, col, parseInt(rowStr, 10), cell, state);
+      }
     }
   }
 
@@ -90,7 +103,7 @@ window.Renderer = (() => {
       _drawCellBg(ctx, uiState.pendingHolePos.col, uiState.pendingHolePos.row, C.CLR.PENDING_HOLE);
     }
 
-    state.lines.forEach(line => _drawLine(ctx, line));
+    if (window.Setup) window.Setup.lines.forEach(line => _drawLine(ctx, line));
 
     if (!forExport && uiState.linePreview && uiState.mousePos) {
       _drawLinePreview(ctx, uiState.linePreview.from, uiState.mousePos);
@@ -177,7 +190,7 @@ window.Renderer = (() => {
         _drawBlock(ctx, cellLeft(col), cellTop(row));
         break;
       case C.TYPE.HOLE:
-        _drawHole(ctx, cx, cy, cell, state.holePairs, col, row);
+        _drawHole(ctx, cx, cy, cell, window.Setup ? window.Setup.holePairs : {}, col, row);
         break;
     }
   }

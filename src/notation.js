@@ -39,24 +39,24 @@ window.Notation = (() => {
     if (xs.length) out.push('X:' + xs.map(e => `${e.s}(${e.n})`).join(','));
     if (os.length) out.push('O:' + os.map(e => `${e.s}(${e.n})`).join(','));
 
-    const blocks = Object.entries(state.cells)
-      .filter(([, c]) => c.type === C.TYPE.BLOCK)
-      .map(([key]) => _keyToStr(key));
-    if (blocks.length) out.push('BLOCK:' + blocks.join(','));
+    if (window.Setup) {
+      const blocks = Object.keys(window.Setup.blocks).map(k => _keyToStr(k));
+      if (blocks.length) out.push('BLOCK:' + blocks.join(','));
 
-    const portals = [];
-    for (const pair of Object.values(state.holePairs)) {
-      if (pair.positions[0] && pair.positions[1]) {
-        const p1 = pair.positions[0], p2 = pair.positions[1];
-        portals.push(`${pair.colorId}(${_posStr(p1.col, p1.row)}:${_posStr(p2.col, p2.row)})`);
+      const portals = [];
+      for (const pair of Object.values(window.Setup.holePairs)) {
+        if (pair.positions[0] && pair.positions[1]) {
+          const p1 = pair.positions[0], p2 = pair.positions[1];
+          portals.push(`${pair.colorId}(${_posStr(p1.col, p1.row)}:${_posStr(p2.col, p2.row)})`);
+        }
       }
-    }
-    if (portals.length) out.push('PORTAL:' + portals.join(','));
+      if (portals.length) out.push('PORTAL:' + portals.join(','));
 
-    const lines = state.lines.map(l =>
-      `${l.colorId}(${_posStr(l.from.col, l.from.row)}>${_posStr(l.to.col, l.to.row)})`
-    );
-    if (lines.length) out.push('LINE:' + lines.join(','));
+      const lines = window.Setup.lines.map(l =>
+        `${l.colorId}(${_posStr(l.from.col, l.from.row)}>${_posStr(l.to.col, l.to.row)})`
+      );
+      if (lines.length) out.push('LINE:' + lines.join(','));
+    }
 
     return out.join('\n');
   }
@@ -100,8 +100,33 @@ window.Notation = (() => {
         _splitCSV(line.slice(6)).forEach(tok => {
           const pos = _parsePos(tok);
           if (!pos) { errors.push(`Bad block: "${tok}"`); return; }
-          const ns = State.placeBlock(state, pos.col, pos.row);
-          if (ns) state = ns;
+          if (window.Setup) window.Setup.addBlock(pos.col, pos.row);
+        });
+        continue;
+      }
+
+      if (line.startsWith('PORTAL:')) {
+        _splitCSV(line.slice(7)).forEach(tok => {
+          const m = tok.match(/^(\w+)\(([a-s]\d{1,2}):([a-s]\d{1,2})\)$/);
+          if (!m) { errors.push(`Bad portal token: "${tok}"`); return; }
+          const [, colorId, s1, s2] = m;
+          const p1 = _parsePos(s1), p2 = _parsePos(s2);
+          if (!p1 || !p2) { errors.push(`Bad portal positions in "${tok}"`); return; }
+          if (!window.Setup) return;
+          const groupId = window.Setup.startHole(p1.col, p1.row, colorId);
+          window.Setup.completeHole(p2.col, p2.row, groupId);
+        });
+        continue;
+      }
+
+      if (line.startsWith('LINE:')) {
+        _splitCSV(line.slice(5)).forEach(tok => {
+          const m = tok.match(/^(\w+)\(([a-s]\d{1,2})>([a-s]\d{1,2})\)$/);
+          if (!m) { errors.push(`Bad line token: "${tok}"`); return; }
+          const [, colorId, sf, st] = m;
+          const from = _parsePos(sf), to = _parsePos(st);
+          if (!from || !to) { errors.push(`Bad line positions in "${tok}"`); return; }
+          if (window.Setup) window.Setup.lines.push({from: {...from}, to: {...to}, colorId});
         });
         continue;
       }

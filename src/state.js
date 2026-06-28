@@ -17,12 +17,9 @@ window.State = (() => {
     return {
       boardSize:      state.boardSize,
       cells:          { ...state.cells },
-      holePairs:      JSON.parse(JSON.stringify(state.holePairs)),
-      lines:          state.lines.map(l => ({ ...l, from: { ...l.from }, to: { ...l.to } })),
       moveCounter:    state.moveCounter,
       lastMovePos:    state.lastMovePos ? { ...state.lastMovePos } : null,
       showMoveNumbers: state.showMoveNumbers,
-      _nextHoleId:    state._nextHoleId,
     };
   }
 
@@ -32,12 +29,9 @@ window.State = (() => {
     return {
       boardSize,
       cells:          {},    // { "col,row": CellData }
-      holePairs:      {},    // { groupId: { colorId, label, positions: [pos|null, pos|null] } }
-      lines:          [],    // [{ from, to, colorId }]
       moveCounter:    1,
       lastMovePos:    null,
       showMoveNumbers: true,
-      _nextHoleId:    1,
     };
   }
 
@@ -46,12 +40,12 @@ window.State = (() => {
   /**
    * Place a stone. Returns new state or { error: string }.
    */
-  function placeStone(state, col, row, player, strict = false) {
+  function placeStone(state, col, row, player, setup = null, strict = false) {
     const key  = cellKey(col, row);
     const cell = state.cells[key];
 
-    // Cannot place on any occupied cell (stone, block, or hole)
-    if (cell) return { error: 'Cell is occupied.' };
+    if (cell) return { error: 'Cell is occupied by a stone.' };
+    if (setup && (setup.blocks[key] || setup.holes[key])) return { error: 'Cell is occupied by a block or portal.' };
 
     if (strict) {
       // Zero-indexed: 0=X, 1=O, 2=X, 3=O
@@ -71,68 +65,7 @@ window.State = (() => {
     return { state: ns };
   }
 
-  /**
-   * Place a block/wall. Returns new state or null if already a block.
-   */
-  function placeBlock(state, col, row) {
-    const key  = cellKey(col, row);
-    const cell = state.cells[key];
-    if (cell && cell.type === C.TYPE.BLOCK) return null;
 
-    const ns = clone(state);
-    if (cell && cell.type === C.TYPE.HOLE) _cleanHole(ns, col, row);
-    ns.cells[key]  = { type: C.TYPE.BLOCK };
-    ns.lastMovePos = null;
-    return ns;
-  }
-
-  /**
-   * Place the FIRST portal of a new pair.
-   * Returns { state: newState, groupId } or { error: string }.
-   */
-  function startHole(state, col, row, colorId) {
-    const key  = cellKey(col, row);
-    const cell = state.cells[key];
-
-    if (cell) return { error: 'Cell is occupied. Portals must be placed on empty cells.' };
-
-    const ns      = clone(state);
-    const groupId = `g${ns._nextHoleId++}`;
-
-    ns.cells[key]        = { type: C.TYPE.HOLE, holeColorId: colorId, holeGroupId: groupId };
-    ns.holePairs[groupId] = { colorId, positions: [{ col, row }, null] };
-
-    return { state: ns, groupId };
-  }
-
-  /**
-   * Place the SECOND portal of an existing pair.
-   * Validates Chebyshev distance ≥ 5.
-   * Returns { state: newState } or { error: string }.
-   */
-  function completeHole(state, col, row, groupId) {
-    const key  = cellKey(col, row);
-    const cell = state.cells[key];
-    const pair = state.holePairs[groupId];
-
-    if (cell)  return { error: 'Cell is occupied.' };
-    if (!pair) return { error: 'Portal group not found.' };
-    if (pair.positions[1]) return { error: 'Portal pair already complete.' };
-
-    // Chebyshev distance check
-    const p1   = pair.positions[0];
-    const dx   = Math.abs(colIdx(col) - colIdx(p1.col));
-    const dy   = Math.abs(row - p1.row);
-    const dist = Math.max(dx, dy);
-    if (dist < 5) {
-      return { error: `Portals must be ≥5 cells apart (Chebyshev). Distance: ${dist}` };
-    }
-
-    const ns = clone(state);
-    ns.cells[key]                    = { type: C.TYPE.HOLE, holeColorId: pair.colorId, holeGroupId: groupId };
-    ns.holePairs[groupId].positions[1] = { col, row };
-    return { state: ns };
-  }
 
   /**
    * Erase whatever is at (col, row).
@@ -143,31 +76,11 @@ window.State = (() => {
     if (!state.cells[key]) return null;
 
     const ns = clone(state);
-    const cell = state.cells[key];
-    if (cell.type === C.TYPE.HOLE) _cleanHole(ns, col, row);
     delete ns.cells[key];
     return ns;
   }
 
-  /**
-   * Add an analysis line between two cells.
-   */
-  function addLine(state, from, to, colorId) {
-    if (from.col === to.col && from.row === to.row) return null;
-    const ns = clone(state);
-    ns.lines.push({ from: { ...from }, to: { ...to }, colorId });
-    return ns;
-  }
 
-  /**
-   * Remove an analysis line by index.
-   */
-  function removeLine(state, idx) {
-    if (idx < 0 || idx >= state.lines.length) return null;
-    const ns = clone(state);
-    ns.lines.splice(idx, 1);
-    return ns;
-  }
 
   /**
    * Change board size — resets everything.
@@ -183,15 +96,7 @@ window.State = (() => {
     return create(state.boardSize);
   }
 
-  /**
-   * Remove all analysis lines.
-   */
-  function clearLines(state) {
-    if (state.lines.length === 0) return null;
-    const ns = clone(state);
-    ns.lines = [];
-    return ns;
-  }
+
 
   /**
    * Toggle move-number display.
@@ -214,26 +119,7 @@ window.State = (() => {
     return ns;
   }
 
-  // ── Internal helpers ───────────────────────────────────────────────────────
 
-  /** Remove a hole from its pair; also delete the partner if it has one. */
-  function _cleanHole(ns, col, row) {
-    const key  = cellKey(col, row);
-    const cell = ns.cells[key];
-    if (!cell || cell.type !== C.TYPE.HOLE) return;
-
-    const groupId = cell.holeGroupId;
-    const pair    = ns.holePairs[groupId];
-    if (!pair) return;
-
-    // If the OTHER position exists, also erase it
-    pair.positions.forEach(pos => {
-      if (pos && !(pos.col === col && pos.row === row)) {
-        delete ns.cells[cellKey(pos.col, pos.row)];
-      }
-    });
-    delete ns.holePairs[groupId];
-  }
 
   // ── Public API ─────────────────────────────────────────────────────────────
   return {
@@ -242,13 +128,7 @@ window.State = (() => {
     cellKey,
     colIdx,
     placeStone,
-    placeBlock,
-    startHole,
-    completeHole,
     erase,
-    addLine,
-    removeLine,
-    clearLines,
     setBoardSize,
     clearBoard,
     setShowMoveNumbers,

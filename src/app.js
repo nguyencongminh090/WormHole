@@ -171,6 +171,7 @@
     const encodedPos = params.get('pos');
     if (encodedPos) {
       _decodeUrlPos(encodedPos).then(notation => {
+        Setup.clear();
         const parsed = Notation.parse(notation);
         if (parsed.errors.length === 0) {
           gameState = parsed.state;
@@ -543,7 +544,7 @@
   function onPlaceStone(cell, player) {
     const elAutoSwitch = document.getElementById('auto-switch-cb');
     const isStrict = elAutoSwitch && elAutoSwitch.checked;
-    const result = State.placeStone(gameState, cell.col, cell.row, player, isStrict);
+    const result = State.placeStone(gameState, cell.col, cell.row, player, window.Setup, isStrict);
     
     if (result.error) {
       showToast(result.error, 'error');
@@ -564,38 +565,37 @@
   }
 
   function onPlaceBlock(cell) {
-    const ns = State.placeBlock(gameState, cell.col, cell.row);
-    if (!ns) return;
-    Tree.addNode(ns, `Block ${Notation.cellLabel(cell.col, cell.row)}`);
-    gameState = ns;
+    if (gameState.cells[`${cell.col},${cell.row}`]) return; // stone exists
+    Setup.addBlock(cell.col, cell.row);
     redraw();
     refreshSidePanel();
   }
 
   function onPlaceHole(cell) {
+    const key = `${cell.col},${cell.row}`;
+    if (gameState.cells[key] || Setup.blocks[key] || Setup.holes[key]) {
+      showToast('Cell is occupied.', 'error');
+      return;
+    }
+
     if (!ui.pendingHole) {
-      // First portal click
-      const result = State.startHole(gameState, cell.col, cell.row, ui.holeColorId);
-      if (result.error) {
-        showToast(result.error, 'error');
-        return;
-      }
-      gameState = result.state;
-      ui.pendingHole    = { groupId: result.groupId, pos: { col: cell.col, row: cell.row } };
+      const groupId = Setup.startHole(cell.col, cell.row, ui.holeColorId);
+      ui.pendingHole = { groupId, pos: { col: cell.col, row: cell.row } };
       ui.pendingHolePos = { col: cell.col, row: cell.row };
       elPendingHint.classList.add('visible');
       redraw();
       refreshSidePanel();
     } else {
-      // Second portal click
-      const result = State.completeHole(gameState, cell.col, cell.row, ui.pendingHole.groupId);
-      if (result.error) {
-        showToast(result.error, 'error');
+      const p1 = ui.pendingHole.pos;
+      const dx = Math.abs(C.COLS.indexOf(cell.col) - C.COLS.indexOf(p1.col));
+      const dy = Math.abs(cell.row - p1.row);
+      const dist = Math.max(dx, dy);
+      if (dist < 5) {
+        showToast(`Portals must be ≥5 cells apart. Distance: ${dist}`, 'error');
         return;
       }
-      Tree.addNode(result.state, `Portal ${ui.holeColorId} ${Notation.cellLabel(ui.pendingHole.pos.col, ui.pendingHole.pos.row)} ↔ ${Notation.cellLabel(cell.col, cell.row)}`);
-      gameState = result.state;
-      ui.pendingHole    = null;
+      Setup.completeHole(cell.col, cell.row, ui.pendingHole.groupId);
+      ui.pendingHole = null;
       ui.pendingHolePos = null;
       elPendingHint.classList.remove('visible');
       redraw();
@@ -622,22 +622,15 @@
   }
 
   function onErase(col, row) {
-    const key = State.cellKey(col, row);
-    const cell = gameState.cells[key];
-    const erasedType = cell ? cell.type : null;
-
+    if (Setup.erase(col, row)) {
+      redraw();
+      refreshSidePanel();
+      return;
+    }
     const ns = State.erase(gameState, col, row);
     if (!ns) return;
     Tree.addNode(ns, `Erase ${Notation.cellLabel(col, row)}`);
     gameState = ns;
-
-    // "Undo" the color switch if we erased a stone and auto-switch is on
-    const elAutoSwitch = document.getElementById('auto-switch-cb');
-    if (elAutoSwitch && elAutoSwitch.checked) {
-      if (erasedType === C.TYPE.STONE_X) setTool(C.TOOL.STONE_X);
-      else if (erasedType === C.TYPE.STONE_O) setTool(C.TOOL.STONE_O);
-    }
-
     redraw();
     refreshSidePanel();
   }
@@ -986,19 +979,16 @@
     }
 
     document.getElementById('btn-clear-lines').addEventListener('click', () => {
-      const ns = State.clearLines(gameState);
-      if (ns) {
-        Tree.addNode(gameState, 'Clear Lines');
-        gameState = ns;
-        redraw();
-        showToast('Analysis lines cleared.');
-      }
+      Setup.lines = [];
+      redraw();
+      showToast('Analysis lines cleared.');
     });
 
     elBtnClear.addEventListener('click', () => {
-      confirm('Clear the entire board?', () => {
-        
+      confirm('Clear the entire board and history?', () => {
+        Setup.clear();
         gameState = State.clearBoard(gameState);
+        Tree.init(gameState);
         cancelPendingOps();
         redraw();
         refreshSidePanel();
@@ -1013,6 +1003,7 @@
     elBtnParseNot.addEventListener('click', () => {
       const text = elNotationIn.value.trim();
       if (!text) return;
+      Setup.clear();
       const result = Notation.parse(text);
       if (result.errors.length) {
         showToast('Parsed with warnings. Check console.', 'warn');
