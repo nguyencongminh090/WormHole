@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "backend-architect": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/backend-architect/SKILL.md",
+      "computedHash": "991cd650814b2e4e434720ebe20ae8d00e1b2c8a3ac3193c1a5d477e729b595c"
+    },
     "frontend-design": {
       "source": "sickn33/antigravity-awesome-skills",
       "sourceType": "github",
