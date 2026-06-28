@@ -7,6 +7,66 @@
 (function () {
   'use strict';
 
+  window.Setup = {
+    blocks: {},
+    holes: {},
+    holePairs: {},
+    lines: [],
+    _nextHoleId: 1,
+    clear() {
+      this.blocks = {};
+      this.holes = {};
+      this.holePairs = {};
+      this.lines = [];
+      this._nextHoleId = 1;
+    },
+    cellKey(col, row) { return `${col},${row}`; },
+    addBlock(col, row) {
+      const key = this.cellKey(col, row);
+      if (this.holes[key]) this.removeHole(col, row);
+      this.blocks[key] = { type: C.TYPE.BLOCK };
+    },
+    startHole(col, row, colorId) {
+      const key = this.cellKey(col, row);
+      const groupId = `g${this._nextHoleId++}`;
+      this.holes[key] = { type: C.TYPE.HOLE, holeColorId: colorId, holeGroupId: groupId };
+      this.holePairs[groupId] = { colorId, positions: [{col, row}, null] };
+      return groupId;
+    },
+    completeHole(col, row, groupId) {
+      const key = this.cellKey(col, row);
+      const pair = this.holePairs[groupId];
+      this.holes[key] = { type: C.TYPE.HOLE, holeColorId: pair.colorId, holeGroupId: groupId };
+      pair.positions[1] = {col, row};
+    },
+    removeHole(col, row) {
+      const key = this.cellKey(col, row);
+      const cell = this.holes[key];
+      if (!cell) return;
+      const groupId = cell.holeGroupId;
+      const pair = this.holePairs[groupId];
+      if (pair) {
+        pair.positions.forEach(pos => {
+          if (pos) delete this.holes[this.cellKey(pos.col, pos.row)];
+        });
+        delete this.holePairs[groupId];
+      }
+    },
+    erase(col, row) {
+      const key = this.cellKey(col, row);
+      let erased = false;
+      if (this.blocks[key]) {
+        delete this.blocks[key];
+        erased = true;
+      }
+      if (this.holes[key]) {
+        this.removeHole(col, row);
+        erased = true;
+      }
+      return erased;
+    }
+  };
+
   function initTheme() {
     const saved = localStorage.getItem('wormholeTheme') || 'dark';
     setTheme(saved);
