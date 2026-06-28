@@ -14,6 +14,11 @@ window.Tree = (() => {
   let _rootHash = null;
 
   function init(initialState) {
+    if (!initialState) {
+      initialState = window.State.create();
+      // Assume current board size is C.COLS.length
+      initialState = window.State.setBoardSize(initialState, window.C.COLS.length);
+    }
     _nodes.clear();
     const h = window.Bitboard.hashState(initialState);
     _nodes.set(h, {

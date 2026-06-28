@@ -7,6 +7,18 @@
       "skillPath": "skills/backend-architect/SKILL.md",
       "computedHash": "991cd650814b2e4e434720ebe20ae8d00e1b2c8a3ac3193c1a5d477e729b595c"
     },
+    "bug-hunter": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/bug-hunter/SKILL.md",
+      "computedHash": "8a426c68b92d44bdfd5483c175f39fe61c7441fbe6abe5d83e7b9b087c584a91"
+    },
+    "find-bugs": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/find-bugs/SKILL.md",
+      "computedHash": "5c5ce3d0961af2121af2f4575dcde9da3b9a0ff07d2cc87d744c35fba6bc5914"
+    },
     "frontend-design": {
       "source": "sickn33/antigravity-awesome-skills",
       "sourceType": "github",

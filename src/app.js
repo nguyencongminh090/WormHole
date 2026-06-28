@@ -856,20 +856,26 @@
       });
     }
 
-    // Mobile clear board
+    // Unified Clear Board logic
+    const elBtnClear = document.getElementById('btn-clear');
     const elClearMobile = document.getElementById('btn-clear-mobile');
-    if (elClearMobile) {
-      elClearMobile.addEventListener('click', () => {
-        elMoreMenu && elMoreMenu.classList.add('hidden');
-        confirm('Clear the entire board?', () => {
-          
-          gameState = State.clearBoard(gameState);
-          cancelPendingOps();
-          redraw();
-          refreshSidePanel();
-        });
+    const elClearMobileQuick = document.getElementById('btn-clear-mobile-quick');
+    
+    const doClearBoard = () => {
+      confirm('Clear the entire board and history?', () => {
+        if (typeof elMoreMenu !== 'undefined' && elMoreMenu) elMoreMenu.classList.add('hidden');
+        Setup.clear();
+        gameState = State.clearBoard(gameState);
+        Tree.init(gameState);
+        cancelPendingOps();
+        redraw();
+        refreshSidePanel();
       });
-    }
+    };
+
+    if (elBtnClear) elBtnClear.addEventListener('click', doClearBoard);
+    if (elClearMobile) elClearMobile.addEventListener('click', doClearBoard);
+    if (elClearMobileQuick) elClearMobileQuick.addEventListener('click', doClearBoard);
 
     // Mobile scan board
     const elImgUploadMobile = document.getElementById('img-upload-mobile');
@@ -1059,16 +1065,7 @@
       showToast('Analysis lines cleared.');
     });
 
-    elBtnClear.addEventListener('click', () => {
-      confirm('Clear the entire board and history?', () => {
-        Setup.clear();
-        gameState = State.clearBoard(gameState);
-        Tree.init(gameState);
-        cancelPendingOps();
-        redraw();
-        refreshSidePanel();
-      });
-    });
+    // (elBtnClear logic moved to unified doClearBoard handler)
 
     elBtnCopyNot.addEventListener('click', () => {
       const text = elNotationIn.value;
