@@ -1,118 +1,219 @@
 /* ════════════════════════════════════════════════════════════════════════════
-   Wormhole Gomoku Editor — style.css
-   Theme: Multi-theme Support (Dark, Light, Classic, Cyberpunk)
+   Wormhole Gomoku Editor — style.css v2.0
+   Vibe: Ethereal Glass (Awwwards-Tier)
+   Layout: Fluid Islands — all chrome floats, nothing glued to edges
+   Font: Plus Jakarta Sans
    ════════════════════════════════════════════════════════════════════════════ */
 
+/* ── Custom Easing Physics ────────────────────────────────────────────────── */
+:root {
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring:   cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-snap:     cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ── Design Tokens — Ethereal Glass / OLED Dark ───────────────────────────── */
 :root, [data-theme="dark"] {
-  --color-bg: 15 15 35;
-  --color-text: 226 232 240;
-  --color-text-muted: 148 163 184;
-  --color-primary: 124 58 237;
-  --color-primary-light: 167 139 250;
-  --color-accent: 244 63 94;
-  
-  --glass-bg: rgba(255, 255, 255, 0.03);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-hover: rgba(255, 255, 255, 0.1);
-  --bg-gradient: radial-gradient(circle at 50% 50%, rgb(30, 30, 60), rgb(15, 15, 35));
+  --color-bg:           5 5 10;
+  --color-text:         220 228 240;
+  --color-text-muted:   94 110 130;
+  --color-primary:      139 92 246;        /* violet-500 */
+  --color-primary-light: 167 139 250;      /* violet-400 */
+  --color-accent:       244 63 94;
+
+  /* ── Doppelrand Glass System ─────────────────────────────────────────────
+     Three layers:
+     1. Outer ring:        faint outer border via box-shadow (no layout)
+     2. Inner highlight:   1px top edge shine from inset box-shadow
+     3. Ambient shadow:    ultra-diffused, low-opacity drop shadow
+     Together these simulate a glass plate in a machined aluminum housing.
+  */
+  --glass-bg:             rgba(255, 255, 255, 0.024);
+  --glass-border:         rgba(255, 255, 255, 0.072);
+  --glass-hover:          rgba(255, 255, 255, 0.055);
+  --glass-ring:           0 0 0 1px rgba(255, 255, 255, 0.044);
+  --glass-shine:          inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  --glass-shadow:         0 16px 40px -8px rgba(0, 0, 0, 0.45),
+                          0 4px 12px -2px rgba(0, 0, 0, 0.28);
+  --glass-shadow-sm:      0 6px 20px -4px rgba(0, 0, 0, 0.35),
+                          0 2px 6px -1px rgba(0, 0, 0, 0.2);
+
+  --bg-gradient:
+    radial-gradient(ellipse 70% 45% at 15% 15%, rgba(139, 92, 246, 0.11) 0%, transparent 65%),
+    radial-gradient(ellipse 55% 38% at 85% 78%, rgba(99, 102, 241, 0.07) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 28% at 60% 5%,  rgba(167, 139, 250, 0.05) 0%, transparent 50%),
+    linear-gradient(160deg, rgb(9, 7, 20) 0%, rgb(5, 5, 10) 100%);
 }
 
 [data-theme="light"] {
-  --color-bg: 248 250 252;
-  --color-text: 30 41 59;
-  --color-text-muted: 100 116 139;
-  --color-primary: 59 130 246;
-  --color-primary-light: 96 165 250;
-  --color-accent: 249 115 22;
-  
-  --glass-bg: rgba(255, 255, 255, 0.6);
-  --glass-border: rgba(0, 0, 0, 0.1);
-  --glass-hover: rgba(255, 255, 255, 0.9);
-  --bg-gradient: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+  --color-bg:            248 250 252;
+  --color-text:          15 23 42;
+  --color-text-muted:    100 116 139;
+  --color-primary:       99 102 241;
+  --color-primary-light: 129 140 248;
+  --color-accent:        249 115 22;
+
+  --glass-bg:             rgba(255, 255, 255, 0.72);
+  --glass-border:         rgba(15, 23, 42, 0.07);
+  --glass-hover:          rgba(255, 255, 255, 0.92);
+  --glass-ring:           0 0 0 1px rgba(15, 23, 42, 0.04);
+  --glass-shine:          inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  --glass-shadow:         0 16px 40px -8px rgba(0, 0, 0, 0.1),
+                          0 4px 10px -2px rgba(0, 0, 0, 0.06);
+  --glass-shadow-sm:      0 4px 16px -4px rgba(0, 0, 0, 0.08),
+                          0 1px 4px -1px rgba(0, 0, 0, 0.04);
+
+  --bg-gradient:
+    radial-gradient(ellipse 70% 45% at 10% 10%, rgba(99, 102, 241, 0.06) 0%, transparent 60%),
+    linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
 }
 
 [data-theme="classic"] {
-  --color-bg: 245 240 232;
-  --color-text: 55 65 81;
-  --color-text-muted: 156 163 175;
-  --color-primary: 107 114 128;
+  --color-bg:            245 240 232;
+  --color-text:          55 65 81;
+  --color-text-muted:    107 114 128;
+  --color-primary:       107 114 128;
   --color-primary-light: 156 163 175;
-  --color-accent: 239 68 68;
-  
-  --glass-bg: rgba(255, 255, 255, 0.5);
-  --glass-border: rgba(0, 0, 0, 0.15);
-  --glass-hover: rgba(255, 255, 255, 0.8);
+  --color-accent:        239 68 68;
+
+  --glass-bg:             rgba(255, 255, 255, 0.52);
+  --glass-border:         rgba(0, 0, 0, 0.09);
+  --glass-hover:          rgba(255, 255, 255, 0.82);
+  --glass-ring:           0 0 0 1px rgba(0, 0, 0, 0.03);
+  --glass-shine:          inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  --glass-shadow:         0 12px 30px -6px rgba(0, 0, 0, 0.1);
+  --glass-shadow-sm:      0 4px 12px -2px rgba(0, 0, 0, 0.07);
+
   --bg-gradient: none;
 }
 
 [data-theme="cyberpunk"] {
-  --color-bg: 18 18 18;
-  --color-text: 255 255 255;
-  --color-text-muted: 160 160 160;
-  --color-primary: 57 255 20;
+  --color-bg:            10 10 10;
+  --color-text:          255 255 255;
+  --color-text-muted:    140 140 140;
+  --color-primary:       57 255 20;
   --color-primary-light: 127 255 0;
-  --color-accent: 255 20 147;
-  
-  --glass-bg: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(57, 255, 20, 0.3);
-  --glass-hover: rgba(57, 255, 20, 0.15);
-  --bg-gradient: linear-gradient(180deg, #121212, #050505);
+  --color-accent:        255 20 147;
+
+  --glass-bg:             rgba(57, 255, 20, 0.028);
+  --glass-border:         rgba(57, 255, 20, 0.18);
+  --glass-hover:          rgba(57, 255, 20, 0.07);
+  --glass-ring:           0 0 0 1px rgba(57, 255, 20, 0.07);
+  --glass-shine:          inset 0 1px 0 rgba(57, 255, 20, 0.15);
+  --glass-shadow:         0 0 48px rgba(57, 255, 20, 0.08),
+                          0 20px 40px -10px rgba(0, 0, 0, 0.6);
+  --glass-shadow-sm:      0 0 16px rgba(57, 255, 20, 0.05),
+                          0 6px 20px -4px rgba(0, 0, 0, 0.4);
+
+  --bg-gradient:
+    radial-gradient(ellipse 55% 38% at 25% 25%, rgba(57, 255, 20, 0.05) 0%, transparent 60%),
+    linear-gradient(180deg, #0a0a0a 0%, #050505 100%);
 }
 
+/* ── Background Gradient ──────────────────────────────────────────────────── */
 .bg-app-gradient {
   background: var(--bg-gradient);
+  transition: background 0.6s var(--ease-snap);
 }
 
-/* Custom Utilities for Glassmorphism */
+/* ── Glassmorphism — Double-Bezel (Doppelrand) Architecture ───────────────── */
 .glass-panel {
   background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
   border: 1px solid var(--glass-border);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+  box-shadow:
+    var(--glass-ring),
+    var(--glass-shine),
+    var(--glass-shadow-sm);
+  transition:
+    background  0.4s var(--ease-snap),
+    border-color 0.4s var(--ease-snap),
+    box-shadow  0.4s var(--ease-snap);
 }
 
+/* ── Action Buttons ───────────────────────────────────────────────────────── */
 .act-btn {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  transition: all 0.2s ease;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: all 0.3s var(--ease-out-expo);
+  will-change: transform;
 }
 .act-btn:hover {
   background: var(--glass-hover);
-  border-color: rgba(var(--color-text), 0.2);
+  border-color: var(--glass-border);
+}
+.act-btn:active {
+  transform: scale(0.96);
+  transition-duration: 0.1s;
+}
+
+/* ── Tool Buttons — Radial Backlight Active State ─────────────────────────── */
+.tool-btn {
+  transition:
+    background 0.3s var(--ease-out-expo),
+    transform  0.3s var(--ease-spring),
+    box-shadow 0.3s var(--ease-out-expo),
+    color      0.3s var(--ease-snap);
+  will-change: transform;
+}
+.tool-btn:hover {
+  transform: translateY(-1px) scale(1.04);
+}
+.tool-btn:active {
+  transform: scale(0.94) translateY(0);
+  transition-duration: 0.1s;
 }
 
 .tool-btn.active:not(.tool-btn-mobile) {
-  background: rgb(var(--color-primary) / 0.2) !important;
-  border-color: rgb(var(--color-primary) / 0.5) !important;
-  box-shadow: 0 0 15px rgb(var(--color-primary) / 0.4) !important;
-  color: rgb(var(--color-primary)) !important;
+  background: radial-gradient(
+    ellipse 80% 100% at 50% 100%,
+    rgb(var(--color-primary) / 0.28) 0%,
+    rgb(var(--color-primary) / 0.1) 55%,
+    transparent 100%
+  ) !important;
+  border-color: rgb(var(--color-primary) / 0.42) !important;
+  box-shadow:
+    0 0 0 1px rgb(var(--color-primary) / 0.18),
+    0 0 20px -2px rgb(var(--color-primary) / 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  color: rgb(var(--color-primary-light)) !important;
 }
 
-/* For light themes, active tool needs to be dark enough */
-[data-theme="light"] .tool-btn.active:not(.tool-btn-mobile), [data-theme="classic"] .tool-btn.active:not(.tool-btn-mobile) {
+[data-theme="light"] .tool-btn.active:not(.tool-btn-mobile),
+[data-theme="classic"] .tool-btn.active:not(.tool-btn-mobile) {
   color: #fff !important;
-  background: rgb(var(--color-primary) / 0.8) !important;
+  background: rgb(var(--color-primary) / 0.82) !important;
+  box-shadow: 0 0 16px rgb(var(--color-primary) / 0.25) !important;
 }
 
+/* ── Color Picker Dots ────────────────────────────────────────────────────── */
 .color-dot {
   width: 14px;
   height: 14px;
   border-radius: 50%;
   cursor: pointer;
   border: 2px solid transparent;
-  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+  transition:
+    transform   0.25s var(--ease-spring),
+    border-color 0.2s var(--ease-snap),
+    box-shadow  0.25s var(--ease-snap);
 }
-.color-dot:hover { transform: scale(1.2); }
+.color-dot:hover {
+  transform: scale(1.28);
+}
 .color-dot.active {
   border-color: rgb(var(--color-text));
-  transform: scale(1.2);
-  box-shadow: 0 0 0 2px rgb(var(--color-bg)), 0 0 10px rgb(var(--color-primary) / 0.8);
+  transform: scale(1.28);
+  box-shadow: 0 0 0 2px rgb(var(--color-bg)), 0 0 14px rgb(var(--color-primary) / 0.7);
 }
 
-/* Collapsible Panel Logic */
+/* ── Collapsible Panels ───────────────────────────────────────────────────── */
 .panel-body {
-  transition: max-height 0.3s ease, opacity 0.2s ease, padding 0.3s ease;
+  transition:
+    max-height 0.5s var(--ease-out-expo),
+    opacity    0.35s var(--ease-snap),
+    padding    0.4s var(--ease-out-expo);
   opacity: 1;
 }
 .collapsible.collapsed {
@@ -129,78 +230,186 @@
 .collapsible.collapsed .collapse-icon {
   transform: rotate(-90deg);
 }
+.collapse-icon {
+  transition: transform 0.4s var(--ease-spring);
+}
 .collapsible.collapsed .panel-hd {
   border-bottom-color: transparent;
 }
 
-/* Toast Animations */
+/* ── Mount Entry Animations ───────────────────────────────────────────────── */
+@keyframes panelReveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0px);
+  }
+}
+
+[data-reveal] {
+  animation: panelReveal 0.75s var(--ease-out-expo) both;
+}
+[data-reveal="1"] { animation-delay: 0.04s; }
+[data-reveal="2"] { animation-delay: 0.1s;  }
+[data-reveal="3"] { animation-delay: 0.16s; }
+[data-reveal="4"] { animation-delay: 0.22s; }
+[data-reveal="5"] { animation-delay: 0.28s; }
+
+/* ── Toast Notifications ──────────────────────────────────────────────────── */
+#toast {
+  backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  box-shadow: var(--glass-shadow-sm);
+}
 #toast.visible {
   opacity: 1 !important;
   transform: translateX(-50%) translateY(0) !important;
 }
-.toast-error { border-color: #f43f5e !important; color: #f43f5e !important; }
-.toast-warn  { border-color: #fbbf24 !important; color: #fbbf24 !important; }
+.toast-error {
+  border-color: rgba(244, 63, 94, 0.35) !important;
+  color: #fb7185 !important;
+  background: rgba(244, 63, 94, 0.07) !important;
+}
+.toast-warn {
+  border-color: rgba(251, 191, 36, 0.35) !important;
+  color: #fbbf24 !important;
+  background: rgba(251, 191, 36, 0.06) !important;
+}
 
-/* Custom Scrollbar */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgb(var(--color-text) / 0.1);
-  border-radius: 4px;
+/* ── Custom Scrollbar ─────────────────────────────────────────────────────── */
+.custom-scrollbar::-webkit-scrollbar        { width: 3px; }
+.custom-scrollbar::-webkit-scrollbar-track  { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb  {
+  background: rgb(var(--color-text) / 0.07);
+  border-radius: 3px;
+  transition: background 0.3s var(--ease-snap);
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgb(var(--color-text) / 0.2);
+  background: rgb(var(--color-text) / 0.16);
 }
 
-/* Hole dot for history panel */
+/* ── Hole Dot ─────────────────────────────────────────────────────────────── */
 .hole-dot {
   width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
   font-size: 10px; font-weight: 700; color: #fff;
-  font-family: 'Inter', sans-serif;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* ── Responsive Layout Utilities ────────────────────────────────────────────── */
+/* ── Bottom Toolbar — Deep Floating Shadow ────────────────────────────────── */
+#bottom-toolbar .glass-panel {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 40px 80px -20px rgba(0, 0, 0, 0.55),
+    0 16px 32px -8px rgba(0, 0, 0, 0.35);
+}
 
+/* ── Sidebar Panel Cards ──────────────────────────────────────────────────── */
+#right-sidebar .glass-panel {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 4px 16px -4px rgba(0, 0, 0, 0.18);
+}
+
+/* ── Theme Dropdown ───────────────────────────────────────────────────────── */
+#theme-select-menu {
+  transition: opacity 0.25s var(--ease-out-expo), transform 0.25s var(--ease-spring);
+}
+#theme-select-menu:not(.pointer-events-none) {
+  animation: fadeSlideDown 0.25s var(--ease-out-expo) both;
+}
+
+/* ── Export / Primary CTA Button ─────────────────────────────────────────── */
+#btn-export {
+  transition: all 0.35s var(--ease-out-expo);
+  will-change: transform;
+}
+#btn-export:hover {
+  box-shadow: 0 0 28px rgb(var(--color-primary) / 0.32), var(--glass-shadow-sm);
+  transform: translateY(-1px);
+}
+#btn-export:active {
+  transform: scale(0.96);
+  transition-duration: 0.1s;
+}
+
+/* ── Pending Portal Hint ──────────────────────────────────────────────────── */
+#pending-hole-hint {
+  transition:
+    opacity   0.4s var(--ease-out-expo),
+    transform 0.4s var(--ease-spring);
+}
+#pending-hole-hint:not(.visible) {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-6px);
+}
+#pending-hole-hint.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Sidebar Toggle Button ────────────────────────────────────────────────── */
+#btn-toggle-sidebar {
+  transition:
+    right      0.45s var(--ease-spring),
+    background 0.3s var(--ease-snap),
+    box-shadow 0.3s var(--ease-snap);
+}
+#btn-toggle-sidebar:hover {
+  box-shadow: var(--glass-shadow-sm);
+}
+
+/* ── Responsive Layout ────────────────────────────────────────────────────── */
 @media (max-width: 767px) {
-  /* Shift board container to sit between mobile header (48px) and nav (64px) */
+  /* Shift board container to sit below floating pill header (top-3 + h-12 + gap) */
   #board-container {
-    top: 48px;
+    top: 68px;
     bottom: 64px;
     overflow: hidden;
     align-items: center;
     justify-content: center;
   }
-
-  /* Canvas wrapper: CSS scale to fit the available area */
   #canvas-wrapper {
     transform-origin: center center;
-    transition: transform 0.2s ease;
+    transition: transform 0.35s var(--ease-out-expo);
   }
 }
 
-/* ── Mobile Nav Active Tool ─────────────────────────────────────────────────── */
+/* ── Mobile Nav Active Tool ───────────────────────────────────────────────── */
 .tool-btn-mobile.active {
-  background: rgb(var(--color-primary) / 0.2);
-  box-shadow: 0 0 12px rgb(var(--color-primary) / 0.4);
+  background: rgb(var(--color-primary) / 0.16);
+  box-shadow: 0 0 18px -2px rgb(var(--color-primary) / 0.38);
 }
 
-/* ── Mobile More Menu ───────────────────────────────────────────────────────── */
+/* ── Mobile More Menu ─────────────────────────────────────────────────────── */
 #mobile-more-menu.open {
   display: flex;
   flex-direction: column;
-  animation: fadeSlideDown 0.15s ease;
+  animation: fadeSlideDown 0.28s var(--ease-out-expo);
 }
 
 @keyframes fadeSlideDown {
-  from { opacity: 0; transform: translateY(-8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.97);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
 }
 
-/* ── Glass border var fallback ──────────────────────────────────────────────── */
+/* ── Glass Border Utility ─────────────────────────────────────────────────── */
 .border-glass-border { border-color: var(--glass-border); }

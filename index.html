@@ -19,30 +19,34 @@
             'app-accent': 'rgb(var(--color-accent) / <alpha-value>)',
           },
           fontFamily: {
-            poppins: ['Poppins', 'sans-serif'],
-            inter: ['Inter', 'sans-serif'],
+            jakarta: ['Plus Jakarta Sans', 'sans-serif'],
           }
         }
       }
     }
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/style.css?v=1.1">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css?v=2.0">
 </head>
-<body class="text-app-text h-screen w-screen overflow-hidden bg-app-bg relative font-inter transition-colors duration-300">
+<body class="text-app-text h-screen w-screen overflow-hidden bg-app-bg relative font-jakarta transition-colors duration-300">
 
-  <!-- Background Gradient / Noise -->
+  <!-- Background Gradient Orbs -->
   <div class="absolute inset-0 bg-app-gradient z-0 pointer-events-none transition-all duration-300"></div>
+  <!-- Radial Mesh Orbs (OLED-tier depth) -->
+  <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+    <div style="position:absolute;width:70vw;height:55vh;top:-10%;left:-15%;background:radial-gradient(ellipse,rgb(var(--color-primary)/0.07) 0%,transparent 70%);filter:blur(40px);will-change:transform;"></div>
+    <div style="position:absolute;width:55vw;height:45vh;bottom:-5%;right:-10%;background:radial-gradient(ellipse,rgb(99 102 241/0.05) 0%,transparent 70%);filter:blur(48px);will-change:transform;"></div>
+  </div>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
        MOBILE LAYOUT (visible only on < md screens)
        ═══════════════════════════════════════════════════════════════════════ -->
 
-  <!-- Mobile Header -->
-  <header id="mobile-header" class="flex md:hidden fixed top-0 left-0 right-0 z-40 h-12 glass-panel items-center justify-between px-3 border-b border-glass-border">
+  <!-- Mobile Header — Floating Pill Island -->
+  <header id="mobile-header" class="flex md:hidden fixed top-3 left-3 right-3 z-40 h-12 glass-panel rounded-full items-center justify-between px-4">
     <div class="flex items-center gap-2">
       <img src="zcaro-icon-only.svg" alt="Zcaro Logo" class="w-6 h-6 drop-shadow-md">
-      <span class="font-poppins font-semibold text-sm text-app-text">Zcaro</span>
+      <span class="font-jakarta font-semibold text-sm text-app-text">Zcaro</span>
       <div class="w-px h-4 bg-white/20 mx-1"></div>
       <select id="board-size-select-mobile" class="bg-transparent text-xs text-app-muted outline-none cursor-pointer focus:ring-0 appearance-none font-medium">
         <option value="9">9×9</option>
@@ -59,7 +63,7 @@
       </button>
       <!-- Panels toggle -->
       <button id="btn-panels-mobile" class="w-8 h-8 rounded-full flex items-center justify-center text-app-muted hover:text-app-text hover:bg-white/10 transition-colors" title="Panels">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M4 6h16M4 12h16M4 18h7"></path></svg>
       </button>
       <!-- ⋯ More menu trigger -->
       <button id="btn-more-mobile" class="w-8 h-8 rounded-full flex items-center justify-center text-app-muted hover:text-app-text hover:bg-white/10 transition-colors" aria-label="More options">
@@ -69,10 +73,10 @@
   </header>
 
   <!-- Mobile ⋯ Dropdown Menu -->
-  <div id="mobile-more-menu" class="hidden fixed top-12 right-2 z-50 glass-panel rounded-2xl p-2 flex-col gap-1 shadow-xl w-52 border border-glass-border">
+  <div id="mobile-more-menu" class="hidden fixed top-[68px] right-3 z-50 glass-panel rounded-2xl p-2 flex-col gap-1 shadow-xl w-52 border border-glass-border">
     <!-- Theme -->
     <div class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/5 text-sm text-app-muted">
-      <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg>
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg>
       <select id="theme-select-mobile" class="bg-transparent text-sm font-medium outline-none cursor-pointer focus:ring-0 appearance-none flex-1">
         <option value="dark">Dark Space</option>
         <option value="light">Light Minimal</option>
@@ -82,7 +86,7 @@
     </div>
     <!-- Lang -->
     <div class="flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-app-muted">
-      <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></svg>
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></svg>
       <span class="flex-1" data-i18n="language">Language</span>
       <div class="flex gap-1">
         <button class="lang-btn-mobile px-2 py-0.5 rounded text-xs font-medium bg-white/10 text-app-text" data-lang="en">EN</button>
@@ -98,24 +102,24 @@
     <input type="file" id="img-upload-mobile" accept="image/*" class="hidden">
     <!-- Share -->
     <button id="btn-share-link-mobile" class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/5 text-sm text-app-muted w-full">
-      <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
       <span data-i18n="shareLink">Share Link</span>
     </button>
     <!-- Export -->
     <button id="btn-export-mobile" class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/5 text-sm text-app-muted w-full">
-      <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
       <span data-i18n="downloadPNG">Download PNG</span>
     </button>
     <div class="h-px bg-white/10 mx-2"></div>
     <!-- Clear -->
     <button id="btn-clear-mobile" class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-app-accent/10 text-sm text-app-accent/80 w-full">
-      <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
       <span data-i18n="clear">Clear Board</span>
     </button>
   </div>
 
   <!-- Safe Mode Confirm Hint (Mobile) -->
-  <div id="safe-mode-hint-mobile" class="hidden md:hidden fixed top-12 left-0 right-0 z-40 mx-2 mt-1 glass-panel rounded-xl px-3 py-2 items-center gap-2 bg-app-accent/10 border-app-accent/30">
+  <div id="safe-mode-hint-mobile" class="hidden md:hidden fixed top-[68px] left-3 right-3 z-40 mx-0 mt-1 glass-panel rounded-xl px-3 py-2 items-center gap-2 bg-app-accent/10 border-app-accent/30">
     <span class="text-xs text-app-accent font-bold animate-pulse" data-i18n="tapAgain">TAP AGAIN TO CONFIRM:</span>
     <span id="safe-mode-cell-mobile" class="text-xs font-bold text-app-text"></span>
   </div>
@@ -148,10 +152,10 @@
        ═══════════════════════════════════════════════════════════════════════ -->
 
   <!-- Top Left: Brand & Board Config -->
-  <header class="hidden md:flex absolute top-6 left-6 z-30 items-center gap-4">
+  <header class="hidden md:flex absolute top-6 left-6 z-30 items-center gap-4" data-reveal="1">
     <div class="glass-panel rounded-2xl px-5 py-3 flex items-center gap-3">
-      <h1 class="text-xl font-poppins font-semibold tracking-wide flex items-center gap-3">
-        <img src="zcaro-icon-only.svg" alt="Zcaro Logo" class="w-8 h-8 drop-shadow-[0_0_8px_rgba(123,92,245,0.6)] hover:scale-105 transition-transform cursor-pointer">
+      <h1 class="text-xl font-jakarta font-semibold tracking-tight flex items-center gap-3">
+        <img src="zcaro-icon-only.svg" alt="Zcaro Logo" class="w-8 h-8 drop-shadow-[0_0_10px_rgba(139,92,246,0.65)] hover:scale-110 transition-transform cursor-pointer" style="transition:transform 0.35s cubic-bezier(0.32,0.72,0,1);">
         <span class="app-title text-app-text">Zcaro</span>
       </h1>
       <div class="w-px h-5 bg-white/20"></div>
@@ -171,7 +175,7 @@
       <button id="btn-safe-mode" class="act-btn px-3 py-1.5 rounded-lg flex items-center gap-2 text-sm font-medium text-app-muted hover:text-app-text hover:bg-white/10 transition-colors group [&.active]:text-app-accent [&.active]:bg-app-accent/10">
         <svg id="safe-mode-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <!-- Default: Locked -->
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
         </svg>
         <span data-i18n="safeMode">Safe Mode</span>
       </button>
@@ -191,8 +195,8 @@
       <!-- Scan Board -->
       <label for="img-upload" class="px-3 py-1.5 rounded-lg flex items-center gap-2 text-sm font-medium text-app-primary hover:text-app-primary-light hover:bg-white/10 cursor-pointer transition-colors">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
         </svg>
         <span data-i18n="uploadZcr">AI Board Scan</span>
       </label>
@@ -207,11 +211,11 @@
   </header>
 
   <!-- Top Right: Actions -->
-  <div id="top-right-actions" class="hidden md:flex absolute top-6 right-6 z-30 items-center gap-3 transition-all duration-300 [&.sidebar-open]:right-[23.5rem]">
+  <div id="top-right-actions" class="hidden md:flex absolute top-6 right-6 z-30 items-center gap-3 [&.sidebar-open]:right-[23.5rem]" style="transition:right 0.45s cubic-bezier(0.32,0.72,0,1);" data-reveal="2">
     <!-- Theme Selector -->
     <div class="relative group" id="theme-dropdown-container">
       <button id="theme-select-btn" class="glass-panel rounded-xl flex items-center px-3 py-1.5 gap-2 text-app-muted hover:text-app-text transition-colors cursor-pointer">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg>
         <span id="theme-select-label" class="text-sm font-medium">Dark Space</span>
       </button>
       <div id="theme-select-menu" class="absolute top-full right-0 mt-2 w-36 glass-panel rounded-xl shadow-2xl opacity-0 scale-95 pointer-events-none transition-all duration-200 flex flex-col overflow-hidden z-50">
@@ -230,27 +234,37 @@
 
     <div class="glass-panel rounded-xl flex items-center p-1 gap-1">
       <button id="btn-share-link" class="act-btn px-3 py-1.5 rounded-lg text-sm text-app-muted hover:bg-white/10 hover:text-app-text transition-all flex items-center gap-2" data-i18n-title="shareLink">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
       </button>
       <button id="btn-copy-img" class="act-btn px-3 py-1.5 rounded-lg text-sm text-app-muted hover:bg-white/10 hover:text-app-text transition-all flex items-center gap-2" data-i18n-title="copy">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
-      </button>
-      <button id="btn-export" class="act-btn px-3 py-1.5 rounded-lg text-sm bg-app-primary/20 text-app-primary-light hover:bg-app-primary/30 hover:text-app-text border border-app-primary/30 transition-all flex items-center gap-2" data-i18n-title="downloadPNG">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
       </button>
     </div>
+    <!-- Export CTA — Button-in-Button Pill Architecture -->
+    <button id="btn-export"
+      class="group flex items-center gap-2 rounded-full border border-app-primary/25 bg-app-primary/10 px-3 py-1.5 text-app-primary-light hover:bg-app-primary/20 active:scale-[0.96]"
+      style="transition: all 0.35s cubic-bezier(0.32,0.72,0,1);"
+      data-i18n-title="downloadPNG">
+      <span class="text-xs font-semibold tracking-wide" data-i18n="downloadPNG">Export</span>
+      <span class="flex w-5 h-5 items-center justify-center rounded-full bg-app-primary/20"
+        style="transition: transform 0.3s cubic-bezier(0.32,0.72,0,1); transform: translateX(0) translateY(0) scale(1);"
+        id="btn-export-icon-wrap">
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+      </span>
+    </button>
   </div>
 
   <!-- Bottom Floating Toolbar (Desktop) — shadow NOT clipped -->
-  <nav id="bottom-toolbar" class="hidden md:flex absolute bottom-8 left-1/2 -translate-x-1/2 z-30">
-    <div class="glass-panel rounded-full px-3 py-2 flex items-center gap-1 shadow-[0_8px_48px_rgba(0,0,0,0.6)]">
+  <div class="hidden md:flex absolute bottom-8 left-1/2 -translate-x-1/2 z-30">
+    <nav id="bottom-toolbar" data-reveal="3">
+      <div class="glass-panel rounded-full px-3 py-2 flex items-center gap-1 shadow-[0_8px_48px_rgba(0,0,0,0.6)]">
       
       <!-- Undo / Redo -->
       <button id="btn-undo" class="w-10 h-10 rounded-full flex items-center justify-center text-app-muted hover:text-app-text hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed" data-i18n-title="shortcutUndo">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path></svg>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path></svg>
       </button>
       <button id="btn-redo" class="w-10 h-10 rounded-full flex items-center justify-center text-app-muted hover:text-app-text hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed" data-i18n-title="shortcutRedo">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6"></path></svg>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6"></path></svg>
       </button>
 
       <div class="w-px h-8 bg-white/10 mx-2"></div>
@@ -265,14 +279,14 @@
         </button>
         
         <button class="tool-btn w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 hover:bg-white/10 relative text-app-muted" data-tool="block" data-i18n-title="toolBlock">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4h16v16H4z M4 9h16 M4 14h16 M9 4v5 M15 9v5 M9 14v6"></path></svg>
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M4 4h16v16H4z M4 9h16 M4 14h16 M9 4v5 M15 9v5 M9 14v6"></path></svg>
         </button>
 
         <div class="w-px h-8 bg-white/10 mx-1"></div>
 
         <div class="relative group flex items-center compound-tool">
           <button class="tool-btn w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 hover:bg-white/10 relative text-app-muted" data-tool="hole" data-i18n-title="toolHole">
-            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2l8 4.5v9L12 22l-8-4.5v-9L12 2z"></path></svg>
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M12 2l8 4.5v9L12 22l-8-4.5v-9L12 2z"></path></svg>
           </button>
           <div class="absolute bottom-full left-1/2 -translate-x-1/2 pb-2 hidden group-hover:flex flex-col items-center">
             <div id="hole-color-picker" class="glass-panel rounded-full p-2 flex gap-2 shadow-xl border-white/10 transition-all"></div>
@@ -281,7 +295,7 @@
 
         <div class="relative group flex items-center compound-tool">
           <button class="tool-btn w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 hover:bg-white/10 relative text-app-muted" data-tool="line" data-i18n-title="toolLine">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 7l-10 10"></path></svg>
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M17 7l-10 10"></path></svg>
           </button>
           <div class="absolute bottom-full left-1/2 -translate-x-1/2 pb-2 hidden group-hover:flex flex-col items-center">
             <div id="line-color-picker" class="glass-panel rounded-full p-2 flex gap-2 shadow-xl border-white/10 transition-all"></div>
@@ -291,15 +305,16 @@
         <div class="w-px h-8 bg-white/10 mx-1"></div>
 
         <button class="tool-btn w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 hover:bg-app-accent/20 hover:text-app-accent text-app-muted relative" data-tool="eraser" data-i18n-title="toolEraser">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
         </button>
       </div>
     </div>
   </nav>
+</div>
 
   <!-- Right Sidebar Toggle Button (Desktop only) -->
   <button id="btn-toggle-sidebar" class="hidden md:flex fixed top-1/2 right-0 [&.sidebar-open]:right-[22rem] -translate-y-1/2 z-50 glass-panel border-r-0 rounded-l-2xl px-2 py-6 text-app-muted hover:text-app-text hover:bg-white/10 transition-all duration-300 shadow-xl group" title="Toggle Sidebar">
-    <svg class="w-5 h-5 transition-transform duration-300 transform group-[.sidebar-open]:rotate-180 rotate-180 group-[.sidebar-open]:rotate-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+    <svg class="w-5 h-5 transition-transform duration-300 transform group-[.sidebar-open]:rotate-180 rotate-180 group-[.sidebar-open]:rotate-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M15 19l-7-7 7-7"></path></svg>
   </button>
 
 
@@ -320,11 +335,11 @@
       <!-- Portals -->
       <div class="panel collapsible flex flex-col shrink-0 glass-panel rounded-2xl border border-white/5 overflow-hidden shadow-sm" id="portals-panel">
         <div class="panel-hd px-4 py-3 flex justify-between items-center cursor-pointer hover:bg-white/5 transition-colors group" data-toggle="portals-panel">
-          <span class="font-inter font-semibold text-xs uppercase tracking-wider text-app-muted group-hover:text-app-text transition-colors flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2l8 4.5v9L12 22l-8-4.5v-9L12 2z"></path></svg>
+          <span class="font-jakarta font-semibold text-xs uppercase tracking-wider text-app-muted group-hover:text-app-text transition-colors flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M12 2l8 4.5v9L12 22l-8-4.5v-9L12 2z"></path></svg>
             <span data-i18n="panelPortals">Portals</span>
           </span>
-          <svg class="collapse-icon w-4 h-4 text-app-muted group-hover:text-app-text transition-all duration-300 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          <svg class="collapse-icon w-4 h-4 text-app-muted group-hover:text-app-text transition-all duration-300 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M19 9l-7 7-7-7"></path></svg>
         </div>
         <div class="panel-body px-4 pb-4 pt-1">
           <div id="holes-list" class="flex flex-col gap-2"></div>
@@ -334,19 +349,19 @@
       <!-- History -->
       <div class="panel collapsible flex flex-col flex-1 min-h-[200px] glass-panel rounded-2xl border border-white/5 overflow-hidden shadow-sm" id="history-panel">
         <div class="panel-hd px-4 py-3 flex justify-between items-center cursor-pointer hover:bg-white/5 transition-colors group" data-toggle="history-panel">
-          <span class="font-inter font-semibold text-xs uppercase tracking-wider text-app-muted group-hover:text-app-text transition-colors flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+          <span class="font-jakarta font-semibold text-xs uppercase tracking-wider text-app-muted group-hover:text-app-text transition-colors flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
             <span data-i18n="panelHistory">History</span>
           </span>
           <div class="flex items-center gap-3">
             <button id="btn-clear-history" class="text-xs font-medium text-app-muted hover:text-app-text transition-colors" data-i18n="clearHistory">Clear</button>
-            <svg class="collapse-icon w-4 h-4 text-app-muted group-hover:text-app-text transition-all duration-300 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            <svg class="collapse-icon w-4 h-4 text-app-muted group-hover:text-app-text transition-all duration-300 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M19 9l-7 7-7-7"></path></svg>
           </div>
         </div>
         <div class="panel-body px-4 pb-4 pt-1 h-full overflow-y-auto custom-scrollbar">
           <div id="history-list" class="flex flex-col gap-1.5">
             <div class="text-xs text-app-muted italic p-2 flex flex-col items-center justify-center h-20 opacity-50" data-i18n="noMovesYet">
-              <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 12H4"></path></svg>
+              <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M20 12H4"></path></svg>
               No moves yet.
             </div>
           </div>
@@ -356,19 +371,19 @@
       <!-- Notation -->
       <div class="panel collapsible collapsed flex flex-col shrink-0 glass-panel rounded-2xl border border-white/5 overflow-hidden shadow-sm" id="notation-panel">
         <div class="panel-hd px-4 py-3 flex justify-between items-center cursor-pointer hover:bg-white/5 transition-colors group" data-toggle="notation-panel">
-          <span class="font-inter font-semibold text-xs uppercase tracking-wider text-app-muted group-hover:text-app-text transition-colors flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+          <span class="font-jakarta font-semibold text-xs uppercase tracking-wider text-app-muted group-hover:text-app-text transition-colors flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
             <span data-i18n="panelNotation">Notation</span>
           </span>
           <div class="flex items-center gap-3">
             <button id="btn-parse-notation" class="text-xs font-semibold bg-app-primary/10 text-app-primary-light px-3 py-1 rounded-md hover:bg-app-primary/20 transition-colors border border-app-primary/20" data-i18n="btnApply">Apply</button>
-            <svg class="collapse-icon w-4 h-4 text-app-muted group-hover:text-app-text transition-all duration-300 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            <svg class="collapse-icon w-4 h-4 text-app-muted group-hover:text-app-text transition-all duration-300 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M19 9l-7 7-7-7"></path></svg>
           </div>
         </div>
         <div class="panel-body p-4 flex flex-col gap-3">
           <textarea id="notation-input" class="w-full bg-black/5 dark:bg-black/30 border border-white/10 rounded-xl p-3 text-xs text-app-muted font-mono focus:outline-none focus:ring-1 focus:ring-app-primary/50 transition-all resize-none h-24 custom-scrollbar shadow-inner" spellcheck="false" data-i18n-placeholder="notationPlaceholder" placeholder="Paste notation here and click Apply to load a position…"></textarea>
           <button id="btn-copy-notation" class="w-full py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-app-text transition-colors flex items-center justify-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
             <span data-i18n="btnCopy">Copy Notation</span>
           </button>
         </div>
@@ -377,8 +392,8 @@
   </aside>
 
   <!-- Bottom Left: Status (Desktop only) -->
-  <div class="hidden md:flex absolute bottom-6 left-6 z-30 flex-col gap-2 pointer-events-none">
-    <div class="glass-panel rounded-xl px-4 py-2 flex items-center gap-4 text-xs font-mono text-app-muted">
+  <div class="hidden md:flex absolute bottom-6 left-6 z-30 flex-col gap-2 pointer-events-none" data-reveal="4">
+    <div class="glass-panel rounded-xl px-4 py-2 flex items-center gap-4 text-xs font-mono text-app-muted" style="font-family:'Plus Jakarta Sans',monospace;">
       <span id="status-cursor" class="w-8">—</span>
       <div class="w-px h-3 bg-white/20"></div>
       <span id="status-tool" class="min-w-[120px]">Tool: Black Stone</span>
@@ -400,10 +415,10 @@
       <!-- Undo / Redo Group -->
       <div class="flex items-center gap-1 shrink-0 snap-center">
         <button id="btn-undo-mobile" class="w-11 h-11 rounded-full flex items-center justify-center text-app-muted hover:text-app-text hover:bg-white/10 transition-colors disabled:opacity-30" data-i18n-title="shortcutUndo">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path></svg>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path></svg>
         </button>
         <button id="btn-redo-mobile" class="w-11 h-11 rounded-full flex items-center justify-center text-app-muted hover:text-app-text hover:bg-white/10 transition-colors disabled:opacity-30" data-i18n-title="shortcutRedo">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6"></path></svg>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6"></path></svg>
         </button>
       </div>
 
@@ -418,16 +433,16 @@
           <div class="w-5 h-5 rounded-full bg-[#f5f0e8] border border-slate-300 shadow-md"></div>
         </button>
         <button class="tool-btn-mobile tool-btn w-11 h-11 rounded-full flex items-center justify-center transition-all snap-center text-app-muted" data-tool="block" data-i18n-title="shortcutBlock">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4h16v16H4z M4 9h16 M4 14h16 M9 4v5 M15 9v5 M9 14v6"></path></svg>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M4 4h16v16H4z M4 9h16 M4 14h16 M9 4v5 M15 9v5 M9 14v6"></path></svg>
         </button>
         <button class="tool-btn-mobile tool-btn w-11 h-11 rounded-full flex items-center justify-center transition-all snap-center text-app-muted" data-tool="hole" data-i18n-title="shortcutHole">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2l8 4.5v9L12 22l-8-4.5v-9L12 2z"></path></svg>
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M12 2l8 4.5v9L12 22l-8-4.5v-9L12 2z"></path></svg>
         </button>
         <button class="tool-btn-mobile tool-btn w-11 h-11 rounded-full flex items-center justify-center transition-all snap-center text-app-muted" data-tool="line" data-i18n-title="shortcutLine">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 7l-10 10"></path></svg>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M17 7l-10 10"></path></svg>
         </button>
         <button class="tool-btn-mobile tool-btn w-11 h-11 rounded-full flex items-center justify-center transition-all snap-center text-app-muted hover:text-app-accent hover:bg-app-accent/20" data-tool="eraser" data-i18n-title="shortcutEraser">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
         </button>
       </div>
 
@@ -436,7 +451,7 @@
       <!-- Clear Board Quick Action -->
       <div class="flex items-center gap-1 shrink-0">
         <button id="btn-clear-mobile-quick" class="w-11 h-11 rounded-full flex items-center justify-center transition-all snap-center text-[#f43f5e] hover:bg-[#f43f5e]/10" data-i18n-title="clear">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
         </button>
       </div>
     </div>
@@ -475,6 +490,21 @@
   <script src="src/notation.js"></script>
   <script src="src/export.js"></script>
   <script src="src/app.js"></script>
+  <!-- Button-in-Button hover physics for Export CTA -->
+  <script>
+    (function() {
+      const btn = document.getElementById('btn-export');
+      const iconWrap = document.getElementById('btn-export-icon-wrap');
+      if (btn && iconWrap) {
+        btn.addEventListener('mouseenter', () => {
+          iconWrap.style.transform = 'translateX(1px) translateY(-1px) scale(1.1)';
+        });
+        btn.addEventListener('mouseleave', () => {
+          iconWrap.style.transform = 'translateX(0) translateY(0) scale(1)';
+        });
+      }
+    })();
+  </script>
 
 </body>
 </html>
