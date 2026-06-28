@@ -545,12 +545,19 @@
   // ── Actions ────────────────────────────────────────────────────────────────
 
   function onPlaceStone(cell, player) {
-    const ns = State.placeStone(gameState, cell.col, cell.row, player);
-    if (!ns) return; 
+    const elAutoSwitch = document.getElementById('auto-switch-cb');
+    const isStrict = elAutoSwitch && elAutoSwitch.checked;
+    const result = State.placeStone(gameState, cell.col, cell.row, player, isStrict);
+    
+    if (result.error) {
+      showToast(result.error, 'error');
+      return;
+    }
+    
+    const ns = result.state;
     Tree.addNode(ns, `${player} ${Notation.cellLabel(cell.col, cell.row)}`);
     gameState = ns;
 
-    const elAutoSwitch = document.getElementById('auto-switch-cb');
     if (elAutoSwitch && elAutoSwitch.checked) {
       if (player === 'X') setTool(C.TOOL.STONE_O);
       else if (player === 'O') setTool(C.TOOL.STONE_X);
@@ -768,6 +775,20 @@
       elExportMobile.addEventListener('click', () => {
         Export.downloadPNG(canvasStatic, gameState);
         elMoreMenu && elMoreMenu.classList.add('hidden');
+        elMoreMenu && elMoreMenu.classList.add('hidden');
+      });
+    }
+
+    // Clear History
+    const elBtnClearHistory = document.getElementById('btn-clear-history');
+    if (elBtnClearHistory) {
+      elBtnClearHistory.addEventListener('click', () => {
+        Tree.reset();
+        if (typeof gameState !== 'undefined' && gameState) {
+          Tree.init(gameState);
+        }
+        redraw();
+        refreshSidePanel();
       });
     }
 
@@ -806,8 +827,8 @@
             for (let r = 0; r < boardSize; r++) {
               for (let c = 0; c < boardSize; c++) {
                 const val = matrix[r][c];
-                if (val === 'X') gameState = State.placeStone(gameState, C.COLS[c], r+1, 'X');
-                else if (val === 'O') gameState = State.placeStone(gameState, C.COLS[c], r+1, 'O');
+                if (val === 'X') gameState = State.placeStone(gameState, C.COLS[c], r+1, 'X').state || gameState;
+                else if (val === 'O') gameState = State.placeStone(gameState, C.COLS[c], r+1, 'O').state || gameState;
                 else if (val === 'W') gameState = State.placeBlock(gameState, C.COLS[c], r+1);
               }
             }
@@ -872,9 +893,10 @@
                const rowNum = r + 1;
                
                if (val === 'X') {
-                 gameState = State.placeStone(gameState, colLetter, rowNum, 'X');
-               } else if (val === 'O') {
-                 gameState = State.placeStone(gameState, colLetter, rowNum, 'O');
+                 gameState = State.placeStone(gameState, colLetter, rowNum, 'X').state || gameState;
+               }
+               if (val === 'O') {
+                 gameState = State.placeStone(gameState, colLetter, rowNum, 'O').state || gameState;
                } else if (val === 'W') {
                  gameState = State.placeBlock(gameState, colLetter, rowNum);
                }
@@ -1144,27 +1166,46 @@
       if (!rootHash) {
         elTreeContainer.innerHTML = '<div class="p-2 text-app-muted text-xs">No moves yet.</div>';
       } else {
-        function renderNode(hash, depth) {
+        function renderNode(hash, parentContainer, isRoot) {
           const node = Tree.getNode(hash);
           if (!node) return;
           
           const div = document.createElement('div');
-          const isCurrent = hash === Tree.getCurrentHash();
-          div.className = `py-1 rounded-lg cursor-pointer hover:bg-white/10 transition-colors truncate flex items-center ${isCurrent ? 'bg-app-accent/20 text-app-accent font-semibold' : 'text-app-muted'}`;
-          div.style.paddingLeft = `${depth * 12 + 8}px`;
-          
-          if (depth > 0) {
-            const branch = document.createElement('span');
-            branch.className = 'text-white/20 mr-2 font-mono';
-            branch.textContent = '└─';
-            div.appendChild(branch);
+          div.className = 'flex flex-col relative';
+          if (!isRoot) {
+            div.className += ' ml-3 border-l border-white/20';
           }
           
-          const label = document.createElement('span');
-          label.textContent = depth === 0 ? 'Start Position' : `${depth}. ${node.moveAction}`;
-          div.appendChild(label);
+          const isCurrent = hash === Tree.getCurrentHash();
+          const nodeRow = document.createElement('div');
+          nodeRow.className = `relative flex items-center group cursor-pointer pl-4 py-1.5 hover:bg-white/5 transition-colors ${isCurrent ? 'text-app-accent font-semibold' : 'text-app-muted'}`;
           
-          div.onclick = (e) => {
+          const circle = document.createElement('div');
+          circle.className = `absolute -left-[5px] top-1/2 -translate-y-1/2 w-[9px] h-[9px] rounded-full border-2 border-transparent bg-white/30 transition-all z-10`;
+          
+          // Color based on piece
+          if (node.moveAction && node.moveAction.startsWith('X')) {
+            circle.classList.remove('bg-white/30');
+            circle.classList.add('bg-blue-400');
+          } else if (node.moveAction && node.moveAction.startsWith('O')) {
+            circle.classList.remove('bg-white/30');
+            circle.classList.add('bg-red-400');
+          }
+
+          if (isCurrent) {
+             circle.className = `absolute -left-[6px] top-1/2 -translate-y-1/2 w-[11px] h-[11px] rounded-full border-[3px] border-[#121212] bg-app-accent shadow-[0_0_10px_currentColor] z-20`;
+          } else {
+             circle.classList.add('group-hover:scale-125');
+          }
+          
+          nodeRow.appendChild(circle);
+          
+          const label = document.createElement('span');
+          label.className = 'text-xs truncate';
+          label.textContent = isRoot ? 'Start Position' : node.moveAction;
+          nodeRow.appendChild(label);
+          
+          nodeRow.onclick = (e) => {
             e.stopPropagation();
             const s = Tree.setCurrent(hash);
             if (s) {
@@ -1174,16 +1215,17 @@
             }
           };
           
-          elTreeContainer.appendChild(div);
+          div.appendChild(nodeRow);
+          parentContainer.appendChild(div);
           
           if (node.childrenIds && node.childrenIds.size > 0) {
             node.childrenIds.forEach(childHash => {
-               renderNode(childHash, depth + 1);
+               renderNode(childHash, div, false);
             });
           }
         }
         
-        renderNode(rootHash, 0);
+        renderNode(rootHash, elTreeContainer, true);
       }
     }
 

@@ -44,14 +44,22 @@ window.State = (() => {
   // ── Actions ────────────────────────────────────────────────────────────────
 
   /**
-   * Place a stone. Returns new state or null if cell is occupied.
+   * Place a stone. Returns new state or { error: string }.
    */
-  function placeStone(state, col, row, player) {
+  function placeStone(state, col, row, player, strict = false) {
     const key  = cellKey(col, row);
     const cell = state.cells[key];
 
     // Cannot place on any occupied cell (stone, block, or hole)
-    if (cell) return null;
+    if (cell) return { error: 'Cell is occupied.' };
+
+    if (strict) {
+      // Zero-indexed: 0=X, 1=O, 2=X, 3=O
+      const expectedPlayer = (state.moveCounter % 2 === 0) ? 'X' : 'O';
+      if (player !== expectedPlayer) {
+        return { error: `Strict rule enabled: It is ${expectedPlayer}'s turn.` };
+      }
+    }
 
     const ns = clone(state);
     ns.cells[key] = {
@@ -60,7 +68,7 @@ window.State = (() => {
     };
     ns.moveCounter++;
     ns.lastMovePos = { col, row };
-    return ns;
+    return { state: ns };
   }
 
   /**
