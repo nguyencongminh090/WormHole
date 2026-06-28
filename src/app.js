@@ -496,7 +496,7 @@
   function _firePlacement(cell) {
     const elAutoSwitch = document.getElementById('auto-switch-cb');
     if (elAutoSwitch && elAutoSwitch.checked && (ui.tool === C.TOOL.STONE_X || ui.tool === C.TOOL.STONE_O)) {
-      const expected = (gameState.moveCounter % 2 === 0) ? C.TOOL.STONE_X : C.TOOL.STONE_O;
+      const expected = ((gameState.moveCounter - 1) % 2 === 0) ? C.TOOL.STONE_X : C.TOOL.STONE_O;
       if (ui.tool !== expected) {
         setTool(expected);
       }
@@ -1056,15 +1056,10 @@
     if (prev) {
       gameState = prev;
       
-      // Check what stone was removed by this undo to revert tool color
       const elAutoSwitch = document.getElementById('auto-switch-cb');
       if (elAutoSwitch && elAutoSwitch.checked) {
-        for (const key in oldCells) {
-          if (!gameState.cells[key] && (oldCells[key].type === C.TYPE.STONE_X || oldCells[key].type === C.TYPE.STONE_O)) {
-            setTool(oldCells[key].type === C.TYPE.STONE_X ? C.TOOL.STONE_X : C.TOOL.STONE_O);
-            break;
-          }
-        }
+        const expected = ((gameState.moveCounter - 1) % 2 === 0) ? C.TOOL.STONE_X : C.TOOL.STONE_O;
+        setTool(expected);
       }
 
       redraw();
@@ -1075,7 +1070,16 @@
   function doRedo() {
     cancelPendingOps();
     const next = Tree.redo();
-    if (next) { gameState = next; redraw(); refreshSidePanel(); }
+    if (next) { 
+      gameState = next; 
+      const elAutoSwitch = document.getElementById('auto-switch-cb');
+      if (elAutoSwitch && elAutoSwitch.checked) {
+        const expected = ((gameState.moveCounter - 1) % 2 === 0) ? C.TOOL.STONE_X : C.TOOL.STONE_O;
+        setTool(expected);
+      }
+      redraw(); 
+      refreshSidePanel(); 
+    }
   }
 
   function refreshUndoRedo() {
@@ -1180,16 +1184,23 @@
           
           const div = document.createElement('div');
           div.className = 'flex flex-col relative';
-          if (isVariation) {
+          
+          if (isRoot) {
+            div.className += ' ml-2 border-l border-white/20';
+          } else if (isVariation) {
             div.className += ' ml-5 border-l border-white/20 mt-1';
           }
           
           const isCurrent = hash === Tree.getCurrentHash();
           const nodeRow = document.createElement('div');
-          nodeRow.className = `relative flex items-center group cursor-pointer py-1.5 hover:bg-white/5 transition-colors ${isVariation ? 'pl-4' : ''} ${isCurrent ? 'text-app-accent font-semibold' : 'text-app-muted'}`;
+          nodeRow.className = `relative flex items-center group cursor-pointer py-1.5 hover:bg-white/5 transition-colors pl-4 ${isCurrent ? 'text-app-accent font-semibold' : 'text-app-muted'}`;
+          
+          if (isCurrent) {
+            nodeRow.id = 'current-tree-node';
+          }
           
           const circle = document.createElement('div');
-          circle.className = `absolute ${isVariation ? '-left-[5px]' : 'left-0'} top-1/2 -translate-y-1/2 w-[9px] h-[9px] rounded-full border-2 border-transparent bg-white/30 transition-all z-10`;
+          circle.className = `absolute -left-[5px] top-1/2 -translate-y-1/2 w-[9px] h-[9px] rounded-full border-2 border-transparent bg-white/30 transition-all z-10`;
           
           // Color based on piece
           if (node.moveAction && node.moveAction.startsWith('X')) {
@@ -1201,7 +1212,7 @@
           }
 
           if (isCurrent) {
-             circle.className = `absolute ${isVariation ? '-left-[6px]' : '-left-[1px]'} top-1/2 -translate-y-1/2 w-[11px] h-[11px] rounded-full border-[3px] border-[#121212] bg-app-accent shadow-[0_0_10px_currentColor] z-20`;
+             circle.className = `absolute -left-[6px] top-1/2 -translate-y-1/2 w-[11px] h-[11px] rounded-full border-[3px] border-[#121212] bg-app-accent shadow-[0_0_10px_currentColor] z-20`;
           } else {
              circle.classList.add('group-hover:scale-125');
           }
@@ -1209,7 +1220,7 @@
           nodeRow.appendChild(circle);
           
           const label = document.createElement('span');
-          label.className = `text-xs truncate ${isVariation ? '' : 'pl-4'}`;
+          label.className = 'text-xs truncate';
           label.textContent = isRoot ? 'Start Position' : node.moveAction;
           nodeRow.appendChild(label);
           
@@ -1236,6 +1247,12 @@
         }
         
         renderNode(rootHash, elTreeContainer, true);
+        
+        // Auto-scroll to current node
+        setTimeout(() => {
+          const curr = document.getElementById('current-tree-node');
+          if (curr) curr.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }, 10);
       }
     }
 

@@ -55,7 +55,7 @@ window.State = (() => {
 
     if (strict) {
       // Zero-indexed: 0=X, 1=O, 2=X, 3=O
-      const expectedPlayer = (state.moveCounter % 2 === 0) ? 'X' : 'O';
+      const expectedPlayer = ((state.moveCounter - 1) % 2 === 0) ? 'X' : 'O';
       if (player !== expectedPlayer) {
         return { error: `Strict rule enabled: It is ${expectedPlayer}'s turn.` };
       }
