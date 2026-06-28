@@ -163,16 +163,7 @@
 
 /* ── Responsive Layout Utilities ────────────────────────────────────────────── */
 
-/* Desktop-only: shown >= 768px */
-.desktop-only { display: flex; }
-
-/* Mobile-only: shown < 768px */
-.mobile-only { display: none; }
-
 @media (max-width: 767px) {
-  .desktop-only { display: none !important; }
-  .mobile-only  { display: flex !important; }
-
   /* Shift board container to sit between mobile header (48px) and nav (64px) */
   #board-container {
     top: 48px;
