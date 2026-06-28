@@ -50,7 +50,7 @@
   </div>
 
   <!-- Top Left: Brand & Board Config -->
-  <header class="absolute top-6 left-6 z-30 flex items-center gap-4">
+  <header class="absolute top-2 left-2 md:top-6 md:left-6 z-30 flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-4 scale-90 md:scale-100 origin-top-left">
     <div class="glass-panel rounded-2xl px-5 py-3 flex items-center gap-3">
       <h1 class="text-xl font-poppins font-semibold tracking-wide flex items-center gap-2">
         <span class="text-app-primary text-2xl drop-shadow-[0_0_8px_var(--color-primary-80)]">⬡</span> 
@@ -94,9 +94,9 @@
   </header>
 
   <!-- Top Right: Actions -->
-  <div class="absolute top-6 right-6 z-30 flex items-center gap-3">
+  <div class="absolute top-2 right-2 md:top-6 md:right-6 z-30 flex flex-col md:flex-row items-end md:items-center gap-2 md:gap-3 scale-90 md:scale-100 origin-top-right">
     <!-- Theme Selector -->
-    <div class="glass-panel rounded-xl flex items-center px-3 py-1.5 gap-2 text-app-muted hover:text-app-text transition-colors">
+    <div class="hidden md:flex glass-panel rounded-xl items-center px-3 py-1.5 gap-2 text-app-muted hover:text-app-text transition-colors">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg>
       <select id="theme-select" class="bg-transparent text-sm font-medium outline-none cursor-pointer focus:ring-0 appearance-none">
         <option value="dark">Dark Space</option>
@@ -126,8 +126,8 @@
   </div>
 
   <!-- Bottom Floating Toolbar -->
-  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-30">
-    <div class="glass-panel rounded-full p-2 flex items-center gap-1 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+  <div class="absolute bottom-2 md:bottom-8 left-1/2 -translate-x-1/2 z-30 w-[95vw] md:w-auto overflow-x-auto [&::-webkit-scrollbar]:hidden scale-90 md:scale-100 origin-bottom pb-2 md:pb-0">
+    <div class="glass-panel rounded-full p-2 flex items-center justify-start md:justify-center gap-1 shadow-[0_8px_32px_rgba(0,0,0,0.5)] min-w-max mx-auto">
       
       <!-- Undo / Redo -->
       <button id="btn-undo" class="w-10 h-10 rounded-full flex items-center justify-center text-app-muted hover:text-app-text hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed" title="Undo (Ctrl+Z)">
@@ -174,7 +174,7 @@
   </div>
 
   <!-- Right Floating Panels -->
-  <aside class="absolute top-24 right-6 bottom-24 z-30 w-80 flex flex-col gap-4 pointer-events-none">
+  <aside class="hidden lg:flex absolute top-24 right-6 bottom-24 z-30 w-80 flex-col gap-4 pointer-events-none">
     
     <div id="pending-hole-hint" class="pointer-events-auto hidden glass-panel rounded-xl p-3 border-app-primary/50 bg-app-primary/10 shadow-[0_0_15px_var(--color-primary-30)]">
       <p class="text-sm text-app-primary-light font-medium flex items-center gap-2">
@@ -227,7 +227,7 @@
   </aside>
 
   <!-- Bottom Left: Status -->
-  <div class="absolute bottom-6 left-6 z-30 flex flex-col gap-2 pointer-events-none">
+  <div class="absolute bottom-24 md:bottom-6 left-2 md:left-6 z-30 flex flex-col gap-2 pointer-events-none scale-75 md:scale-100 origin-bottom-left">
     <div class="glass-panel rounded-xl px-4 py-2 flex items-center gap-4 text-xs font-mono text-app-muted">
       <span id="status-cursor" class="w-8">—</span>
       <div class="w-px h-3 bg-white/20"></div>
