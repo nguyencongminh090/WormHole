@@ -1190,20 +1190,22 @@
         
         traverse(rootHash, 0, 0);
         
-        const COL_WIDTH = 64;
-        const ROW_HEIGHT = 36;
+        // Compact grid sizing for a professional dense look
+        const COL_WIDTH = 28;
+        const ROW_HEIGHT = 28;
         const PADDING_X = 24;
         const PADDING_Y = 20;
         
-        const svgW = maxCol * COL_WIDTH + PADDING_X * 2 + 50;
-        const svgH = maxRow * ROW_HEIGHT + PADDING_Y * 2 + 20;
+        const svgW = maxCol * COL_WIDTH + PADDING_X * 2;
+        const svgH = maxRow * ROW_HEIGHT + PADDING_Y * 2;
         
         const container = document.createElement('div');
-        container.className = 'relative w-full';
+        container.className = 'relative w-full overflow-visible';
         container.style.minWidth = svgW + 'px';
         container.style.minHeight = svgH + 'px';
         
-        let svgHTML = `<svg class="absolute top-0 left-0 w-full h-full pointer-events-none" width="${svgW}" height="${svgH}">`;
+        // SVG uses currentColor and inherits from text-app-muted for perfect theme compatibility
+        let svgHTML = `<svg class="absolute top-0 left-0 w-full h-full pointer-events-none text-app-text opacity-30" width="${svgW}" height="${svgH}">`;
         
         layout.forEach((pos, hash) => {
           const node = Tree.getNode(hash);
@@ -1219,7 +1221,7 @@
                 // Bezier curve for branches, straight line for main path
                 const path = `M ${x1} ${y1} C ${x1} ${y1 + ROW_HEIGHT/2}, ${x2} ${y2 - ROW_HEIGHT/2}, ${x2} ${y2}`;
                 
-                svgHTML += `<path d="${path}" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2" />`;
+                svgHTML += `<path d="${path}" fill="none" stroke="currentColor" stroke-width="2" />`;
               }
             });
           }
@@ -1235,31 +1237,35 @@
           const y = pos.row * ROW_HEIGHT + PADDING_Y;
           
           const nodeEl = document.createElement('div');
-          nodeEl.className = 'absolute flex items-center cursor-pointer group h-6 -mt-3';
-          nodeEl.style.left = (x - 6) + 'px';
-          nodeEl.style.top = y + 'px';
+          // Absolute container centered exactly on (x, y)
+          nodeEl.className = 'absolute flex items-center justify-center cursor-pointer group';
+          nodeEl.style.width = '20px';
+          nodeEl.style.height = '20px';
+          nodeEl.style.left = (x - 10) + 'px';
+          nodeEl.style.top = (y - 10) + 'px';
           
           if (isCurrent) nodeEl.id = 'current-tree-node';
           
           const circle = document.createElement('div');
-          circle.className = 'w-[12px] h-[12px] rounded-full border-2 border-[#121212] transition-all z-10';
+          circle.className = 'w-[10px] h-[10px] rounded-full border border-black/50 transition-all z-10 shadow-sm';
           
           if (node.moveAction && node.moveAction.startsWith('X')) {
-            circle.classList.add('bg-blue-400');
+            circle.classList.add('bg-[#2d89ef]');
           } else if (node.moveAction && node.moveAction.startsWith('O')) {
-            circle.classList.add('bg-red-400');
+            circle.classList.add('bg-[#ee4f4f]');
           } else {
-            circle.classList.add('bg-white/50');
+            circle.classList.add('bg-white/70'); // Root
           }
           
           if (isCurrent) {
-            circle.className = 'w-[16px] h-[16px] -ml-[2px] rounded-full border-[3px] border-[#121212] bg-app-accent shadow-[0_0_10px_currentColor] z-20';
+            circle.className = 'w-[14px] h-[14px] rounded-full border-2 border-app-accent bg-app-accent shadow-[0_0_12px_var(--color-accent)] z-20 scale-110';
           } else {
-            circle.classList.add('group-hover:scale-125', 'group-hover:bg-white');
+            circle.classList.add('group-hover:scale-150');
           }
           
+          // Tooltip label shown on hover
           const label = document.createElement('span');
-          label.className = `ml-2 text-[11px] font-medium whitespace-nowrap transition-colors ${isCurrent ? 'text-app-accent' : 'text-app-muted group-hover:text-white'}`;
+          label.className = `absolute left-full ml-1 px-1.5 py-0.5 rounded bg-black/80 text-white text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-30 shadow-lg`;
           label.textContent = (pos.row === 0 && pos.col === 0) ? 'Start' : node.moveAction;
           
           nodeEl.appendChild(circle);
