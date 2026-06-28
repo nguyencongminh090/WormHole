@@ -164,18 +164,7 @@
       });
     }
 
-    // Left Sidebar Toggle (Analysis Tree)
-    const btnToggleLeftSidebar = document.getElementById('btn-toggle-left-sidebar');
-    const leftSidebar = document.getElementById('left-sidebar');
-    if (btnToggleLeftSidebar && leftSidebar) {
-      btnToggleLeftSidebar.addEventListener('click', () => {
-        btnToggleLeftSidebar.classList.toggle('sidebar-open');
-        leftSidebar.classList.toggle('sidebar-open');
-        if (boardContainer) {
-          boardContainer.classList.toggle('pl-[20rem]');
-        }
-      });
-    }
+
 
     // Parse shareable URL parameter if present
     const params = new URLSearchParams(window.location.search);
@@ -1170,13 +1159,13 @@
   
   // ── Tree UI (Analysis Mode) ────────────────────────────────────────────────
   function renderTreeUI() {
-    const elTreeContainer = document.getElementById('tree-container');
+    const elTreeContainer = document.getElementById('history-list');
     if (elTreeContainer) {
       elTreeContainer.innerHTML = '';
       const rootHash = Tree.getRootHash();
       
       if (!rootHash) {
-        elTreeContainer.innerHTML = '<div class="p-2 text-app-muted text-xs">No moves yet.</div>';
+        elTreeContainer.innerHTML = '<div class="text-xs text-app-muted italic p-2 flex flex-col items-center justify-center h-20 opacity-50"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 12H4"></path></svg>No moves yet.</div>';
       } else {
         function renderNode(hash, parentContainer, isRoot, isVariation = false) {
           const node = Tree.getNode(hash);
@@ -1255,36 +1244,7 @@
         }, 10);
       }
     }
-
-    // Also update right panel history (Linear path)
-    const elHistoryList = document.getElementById('history-list');
-    const log = Tree.getLog();
-    if (elHistoryList) {
-      elHistoryList.innerHTML = '';
-      if (log.length === 0) {
-        elHistoryList.innerHTML = '<div class="empty-hint">No moves yet.</div>';
-      } else {
-        log.forEach(item => {
-          const div = document.createElement('div');
-          div.className = 'history-item';
-          div.textContent = `${item.n}. ${item.action}`;
-          div.onclick = () => {
-            const s = Tree.setCurrent(item.hash);
-            if (s) {
-              gameState = s;
-              redraw();
-              refreshSidePanel();
-            }
-          };
-          if (item.hash === Tree.getCurrentHash()) {
-            div.classList.add('active', 'border-l-2', 'border-app-accent', 'pl-2', 'bg-app-accent/10');
-          }
-          elHistoryList.appendChild(div);
-        });
-      }
-    }
   }
-
 
   // ── Notation sync ──────────────────────────────────────────────────────────
 
