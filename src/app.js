@@ -1096,7 +1096,7 @@
 
   function _renderHolesList() {
     elHolesList.innerHTML = '';
-    const pairs = gameState.holePairs;
+    const pairs = Setup.holePairs;
     const keys  = Object.keys(pairs);
 
     if (keys.length === 0) {
