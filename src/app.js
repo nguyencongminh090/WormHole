@@ -10,11 +10,43 @@
   function initTheme() {
     const saved = localStorage.getItem('wormholeTheme') || 'dark';
     setTheme(saved);
-    if (elThemeSelect) elThemeSelect.value = saved;
     
-    if (elThemeSelect) {
-      elThemeSelect.addEventListener('change', (e) => {
-        setTheme(e.target.value);
+    // Desktop custom dropdown
+    const elThemeLabel = document.getElementById('theme-select-label');
+    const elThemeBtn = document.getElementById('theme-select-btn');
+    const elThemeMenu = document.getElementById('theme-select-menu');
+    
+    // Update label text initially
+    if (elThemeLabel) {
+      const themeNames = {
+        dark: 'Dark Space', light: 'Light Minimal',
+        classic: 'Classic Paper', cyberpunk: 'Cyberpunk'
+      };
+      elThemeLabel.textContent = themeNames[saved] || 'Dark Space';
+    }
+
+    if (elThemeBtn && elThemeMenu) {
+      elThemeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        elThemeMenu.classList.toggle('opacity-0');
+        elThemeMenu.classList.toggle('scale-95');
+        elThemeMenu.classList.toggle('pointer-events-none');
+      });
+      
+      document.addEventListener('click', () => {
+        if (!elThemeMenu.classList.contains('pointer-events-none')) {
+          elThemeMenu.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+        }
+      });
+
+      document.querySelectorAll('.theme-option').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const val = e.currentTarget.dataset.themeVal;
+          const text = e.currentTarget.textContent;
+          setTheme(val);
+          if (elThemeLabel) elThemeLabel.textContent = text;
+          elThemeMenu.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+        });
       });
     }
   }
@@ -71,7 +103,7 @@
   const elBtnExport    = document.getElementById('btn-export');
   const elBtnCopyImg   = document.getElementById('btn-copy-img');
   const elBtnClear     = document.getElementById('btn-clear');
-  const elThemeSelect  = document.getElementById('theme-select');
+  // theme select element removed for custom dropdown
   const elHistoryList  = document.getElementById('history-list');
   const elHolesList    = document.getElementById('holes-list');
   const elPendingHint  = document.getElementById('pending-hole-hint');
