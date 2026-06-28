@@ -30,6 +30,7 @@ window.I18n = (() => {
       downloadPNG:      '⬇ PNG',
       clearLines:       '╱ Clear Lines',
       clear:            '✕ Clear',
+      uploadZcr:        'AI Board Scan',
       undo:             '↩',
       redo:             '↪',
 
@@ -108,6 +109,7 @@ window.I18n = (() => {
       downloadPNG:      '⬇ PNG',
       clearLines:       '╱ Xóa đường',
       clear:            '✕ Xóa tất cả',
+      uploadZcr:        'Quét Bàn Cờ (AI)',
       undo:             '↩',
       redo:             '↪',
 
