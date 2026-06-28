@@ -142,7 +142,41 @@
   function _finishInit() {
     redraw();
     refreshSidePanel();
+    resizeCanvasForMobile();
   }
+
+  // ── Mobile Canvas Scaling ─────────────────────────────────────────────────
+
+  const canvasWrapper = document.getElementById('canvas-wrapper');
+
+  function resizeCanvasForMobile() {
+    if (window.innerWidth >= 768) {
+      // Desktop: no scaling, reset any previous transform
+      canvasWrapper.style.transform = '';
+      return;
+    }
+    const MOBILE_HEADER = 48;
+    const MOBILE_NAV    = 64;
+    const MIN_CELL_SIZE = 20; // px floor so 19x19 stays usable
+
+    const availW = window.innerWidth  - 16; // 8px side padding each
+    const availH = window.innerHeight - MOBILE_HEADER - MOBILE_NAV - 16;
+    const available = Math.min(availW, availH);
+
+    const naturalSize = Renderer.canvasSize(gameState.boardSize);
+    let scale = available / naturalSize;
+
+    // Enforce minimum cell size: don't scale so small cells become untappable
+    const minScale = (MIN_CELL_SIZE * gameState.boardSize) / naturalSize;
+    scale = Math.max(scale, minScale);
+    // Never scale up beyond 1:1
+    scale = Math.min(scale, 1);
+
+    canvasWrapper.style.transform = `scale(${scale.toFixed(4)})`;
+    canvasWrapper.style.transformOrigin = 'center center';
+  }
+
+  window.addEventListener('resize', resizeCanvasForMobile);
 
   async function _decodeUrlPos(base64UrlSafe) {
     try {
@@ -552,22 +586,50 @@
 
   function bindToolbarEvents() {
     elBoardSize.value = String(gameState.boardSize);
-    elBoardSize.addEventListener('change', () => {
-      const sz = parseInt(elBoardSize.value, 10);
+    const _changeBoardSize = (sz) => {
       confirm('Change board size? This will clear the board.', () => {
         History.reset();
         gameState = State.setBoardSize(gameState, sz);
         cancelPendingOps();
         redraw();
         refreshSidePanel();
+        resizeCanvasForMobile();
       });
-    });
+    };
+
+    elBoardSize.addEventListener('change', () => _changeBoardSize(parseInt(elBoardSize.value, 10)));
+
+    // Mobile board size select
+    const elBoardSizeMobile = document.getElementById('board-size-select-mobile');
+    if (elBoardSizeMobile) {
+      elBoardSizeMobile.addEventListener('change', () => {
+        const sz = parseInt(elBoardSizeMobile.value, 10);
+        elBoardSize.value = String(sz); // keep desktop in sync
+        _changeBoardSize(sz);
+      });
+    }
 
 
     elBtnUndo.addEventListener('click', doUndo);
     elBtnRedo.addEventListener('click', doRedo);
 
-    // Safe Mode toggle
+    // Mobile Undo/Redo
+    const elUndoMobile = document.getElementById('btn-undo-mobile');
+    const elRedoMobile = document.getElementById('btn-redo-mobile');
+    if (elUndoMobile) elUndoMobile.addEventListener('click', doUndo);
+    if (elRedoMobile) elRedoMobile.addEventListener('click', doRedo);
+
+    // Mobile tool buttons
+    document.querySelectorAll('.tool-btn-mobile[data-tool]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setTool(btn.dataset.tool);
+        // Update active state on mobile nav
+        document.querySelectorAll('.tool-btn-mobile').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll(`.tool-btn-mobile[data-tool="${btn.dataset.tool}"]`).forEach(b => b.classList.add('active'));
+      });
+    });
+
+    // Safe Mode toggle (desktop)
     const elBtnSafe = document.getElementById('btn-safe-mode');
     const elSafeIcon = document.getElementById('safe-mode-icon');
     if (elBtnSafe) {
@@ -578,6 +640,134 @@
         if (elSafeIcon) elSafeIcon.textContent = ui.safeMode ? '🔓' : '🔒';
       });
     }
+
+    // Safe Mode toggle (mobile)
+    const elBtnSafeMobile = document.getElementById('btn-safe-mode-mobile');
+    const elSafeIconMobile = document.getElementById('safe-mode-icon-mobile');
+    if (elBtnSafeMobile) {
+      elBtnSafeMobile.addEventListener('click', () => {
+        ui.safeMode = !ui.safeMode;
+        if (!ui.safeMode) _setSafeModePending(null);
+        if (elSafeIconMobile) elSafeIconMobile.textContent = ui.safeMode ? '🔓' : '🔒';
+      });
+    }
+
+    // ⋯ More menu toggle (mobile)
+    const elMoreBtn    = document.getElementById('btn-more-mobile');
+    const elMoreMenu   = document.getElementById('mobile-more-menu');
+    if (elMoreBtn && elMoreMenu) {
+      elMoreBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        elMoreMenu.classList.toggle('hidden');
+        elMoreMenu.classList.toggle('open');
+      });
+      document.addEventListener('click', (e) => {
+        if (!elMoreMenu.contains(e.target) && e.target !== elMoreBtn) {
+          elMoreMenu.classList.add('hidden');
+          elMoreMenu.classList.remove('open');
+        }
+      });
+    }
+
+    // Mobile theme (mirrors desktop)
+    const elThemeMobile = document.getElementById('theme-select-mobile');
+    if (elThemeMobile) {
+      elThemeMobile.addEventListener('change', (e) => setTheme(e.target.value));
+    }
+
+    // Mobile lang buttons
+    document.querySelectorAll('.lang-btn-mobile').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const lang = btn.dataset.lang;
+        I18n.setLang(lang);
+        document.querySelectorAll('.lang-btn-mobile').forEach(b => {
+          b.classList.toggle('bg-white/10', b.dataset.lang === lang);
+          b.classList.toggle('text-app-text', b.dataset.lang === lang);
+          b.classList.toggle('text-app-muted', b.dataset.lang !== lang);
+        });
+        // also sync desktop lang btns
+        document.querySelectorAll('.lang-btn').forEach(b =>
+          b.classList.toggle('active', b.dataset.lang === lang));
+      });
+    });
+
+    // Mobile share
+    const elShareMobile = document.getElementById('btn-share-link-mobile');
+    if (elShareMobile) {
+      elShareMobile.addEventListener('click', () => {
+        navigator.clipboard.writeText(window.location.href)
+          .then(() => showToast(I18n.t('toastLinkCopied')))
+          .catch(() => showToast(I18n.t('toastClipFailed'), 'error'));
+        elMoreMenu && elMoreMenu.classList.add('hidden');
+      });
+    }
+
+    // Mobile export
+    const elExportMobile = document.getElementById('btn-export-mobile');
+    if (elExportMobile) {
+      elExportMobile.addEventListener('click', () => {
+        Export.downloadPNG(canvasStatic, gameState);
+        elMoreMenu && elMoreMenu.classList.add('hidden');
+      });
+    }
+
+    // Mobile clear board
+    const elClearMobile = document.getElementById('btn-clear-mobile');
+    if (elClearMobile) {
+      elClearMobile.addEventListener('click', () => {
+        elMoreMenu && elMoreMenu.classList.add('hidden');
+        confirm('Clear the entire board?', () => {
+          History.reset();
+          gameState = State.clearBoard(gameState);
+          cancelPendingOps();
+          redraw();
+          refreshSidePanel();
+        });
+      });
+    }
+
+    // Mobile scan board
+    const elImgUploadMobile = document.getElementById('img-upload-mobile');
+    if (elImgUploadMobile) {
+      elImgUploadMobile.addEventListener('change', async (e) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+        elMoreMenu && elMoreMenu.classList.add('hidden');
+        const file = e.target.files[0];
+        showToast('Processing image with WASM...', 'info');
+        const img = new Image();
+        img.onload = () => {
+          try {
+            if (!zcrPipeline || !zcrPipeline.ready) { showToast('OpenCV.js not ready yet.', 'error'); return; }
+            const matrix = zcrPipeline.processImage(img);
+            const boardSize = matrix.length;
+            History.reset();
+            gameState = State.create();
+            gameState = State.setBoardSize(gameState, boardSize);
+            for (let r = 0; r < boardSize; r++) {
+              for (let c = 0; c < boardSize; c++) {
+                const val = matrix[r][c];
+                if (val === 'X') gameState = State.placeStone(gameState, C.COLS[c], r+1, 'X');
+                else if (val === 'O') gameState = State.placeStone(gameState, C.COLS[c], r+1, 'O');
+                else if (val === 'W') gameState = State.placeBlock(gameState, C.COLS[c], r+1);
+              }
+            }
+            elBoardSize.value = String(boardSize);
+            if (elBoardSizeMobile) elBoardSizeMobile.value = String(boardSize);
+            cancelPendingOps(); redraw(); refreshSidePanel(); resizeCanvasForMobile();
+            showToast('Board scanned successfully!');
+          } catch(err) {
+            console.error(err);
+            showToast('Failed to process image.', 'error');
+          }
+          elImgUploadMobile.value = '';
+        };
+        img.src = URL.createObjectURL(file);
+      });
+    }
+
+    // Mobile pending portal cancel
+    const elCancelPortalMobile = document.getElementById('btn-cancel-portal-mobile');
+    if (elCancelPortalMobile) elCancelPortalMobile.addEventListener('click', cancelPendingOps);
 
     // Language switcher
     document.querySelectorAll('.lang-btn').forEach(btn => {
