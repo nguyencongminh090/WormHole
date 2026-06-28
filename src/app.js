@@ -1391,10 +1391,12 @@
     if (!toast) {
       toast = document.createElement('div');
       toast.id = 'toast';
+      toast.className = 'fixed top-8 left-1/2 -translate-x-1/2 z-[100] px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 opacity-0 translate-y-[-20px] pointer-events-none shadow-lg';
       document.body.appendChild(toast);
     }
     toast.textContent = message;
-    toast.className   = `toast toast-${type} visible`;
+    toast.classList.remove('toast-info', 'toast-error', 'toast-warn');
+    toast.classList.add(`toast-${type}`, 'visible');
     clearTimeout(toast._timer);
     toast._timer = setTimeout(() => toast.classList.remove('visible'), 2800);
   }
