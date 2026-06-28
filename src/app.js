@@ -117,12 +117,16 @@
     const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
     const rightSidebar = document.getElementById('right-sidebar');
     const boardContainer = document.getElementById('board-container');
+    const topRightActions = document.getElementById('top-right-actions');
     if (btnToggleSidebar && rightSidebar) {
       btnToggleSidebar.addEventListener('click', () => {
         btnToggleSidebar.classList.toggle('sidebar-open');
         rightSidebar.classList.toggle('sidebar-open');
         if (boardContainer) {
           boardContainer.classList.toggle('pr-[22rem]');
+        }
+        if (topRightActions) {
+          topRightActions.classList.toggle('sidebar-open');
         }
       });
     }
