@@ -546,8 +546,8 @@
 
   function onPlaceStone(cell, player) {
     const ns = State.placeStone(gameState, cell.col, cell.row, player);
-    if (!ns) { Tree.undo(); return; } // no-op, pop undo
-    History.logMove(`${player} ${Notation.cellLabel(cell.col, cell.row)}`);
+    if (!ns) return; 
+    Tree.addNode(ns, `${player} ${Notation.cellLabel(cell.col, cell.row)}`);
     gameState = ns;
 
     const elAutoSwitch = document.getElementById('auto-switch-cb');
@@ -562,8 +562,8 @@
 
   function onPlaceBlock(cell) {
     const ns = State.placeBlock(gameState, cell.col, cell.row);
-    if (!ns) { Tree.undo(); return; }
-    History.logMove(`Block ${Notation.cellLabel(cell.col, cell.row)}`);
+    if (!ns) return;
+    Tree.addNode(ns, `Block ${Notation.cellLabel(cell.col, cell.row)}`);
     gameState = ns;
     redraw();
     refreshSidePanel();
@@ -590,8 +590,8 @@
         showToast(result.error, 'error');
         return;
       }
-      History.logMove(`Portal ${ui.holeColorId} ${Notation.cellLabel(ui.pendingHole.pos.col, ui.pendingHole.pos.row)} ↔ ${Notation.cellLabel(cell.col, cell.row)}`);
-      gameState         = result.state;
+      Tree.addNode(result.state, `Portal ${ui.holeColorId} ${Notation.cellLabel(ui.pendingHole.pos.col, ui.pendingHole.pos.row)} ↔ ${Notation.cellLabel(cell.col, cell.row)}`);
+      gameState = result.state;
       ui.pendingHole    = null;
       ui.pendingHolePos = null;
       elPendingHint.classList.remove('visible');
@@ -609,7 +609,7 @@
       // Second click
       const ns = State.addLine(gameState, ui.linePreview.from, { col: cell.col, row: cell.row }, ui.lineColorId);
       if (ns) {
-        History.logMove(`Line ${Notation.cellLabel(ui.linePreview.from.col, ui.linePreview.from.row)} → ${Notation.cellLabel(cell.col, cell.row)}`);
+        Tree.addNode(ns, `Line ${Notation.cellLabel(ui.linePreview.from.col, ui.linePreview.from.row)} → ${Notation.cellLabel(cell.col, cell.row)}`);
         gameState = ns;
       }
       ui.linePreview = null;
@@ -624,8 +624,8 @@
     const erasedType = cell ? cell.type : null;
 
     const ns = State.erase(gameState, col, row);
-    if (!ns) { Tree.undo(); return; }
-    History.logMove(`Erase ${Notation.cellLabel(col, row)}`);
+    if (!ns) return;
+    Tree.addNode(ns, `Erase ${Notation.cellLabel(col, row)}`);
     gameState = ns;
 
     // "Undo" the color switch if we erased a stone and auto-switch is on
