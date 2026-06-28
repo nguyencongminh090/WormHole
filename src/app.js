@@ -7,10 +7,43 @@
 (function () {
   'use strict';
 
-  // ── App state ──────────────────────────────────────────────────────────────
+  function initTheme() {
+    const saved = localStorage.getItem('wormholeTheme') || 'dark';
+    setTheme(saved);
+    if (elThemeSelect) elThemeSelect.value = saved;
+    
+    if (elThemeSelect) {
+      elThemeSelect.addEventListener('change', (e) => {
+        setTheme(e.target.value);
+      });
+    }
+  }
+
+  function setTheme(themeName) {
+    if (!C.THEMES[themeName]) themeName = 'dark';
+    document.documentElement.setAttribute('data-theme', themeName);
+    
+    // Update C.CLR using Object.assign because C is frozen but its properties are mutable
+    for (const key of Object.keys(C.CLR)) delete C.CLR[key];
+    Object.assign(C.CLR, C.THEMES[themeName]);
+    
+    localStorage.setItem('wormholeTheme', themeName);
+    
+    if (gameState && gameState.boardSize) {
+      // Force static canvas redraw by clearing its cache
+      canvasStatic.__lastState = null;
+      redraw();
+    }
+  }
+
+  // ── URL & State Sync ──────────────────────────────────────────────────────────────
 
   let gameState = State.create();
   let urlUpdateTimer = null;
+  let zcrPipeline = null;
+  if (typeof ZCRPipeline !== 'undefined') {
+    zcrPipeline = new ZCRPipeline();
+  }
 
   /** Transient UI state — never saved to history */
   const ui = {
@@ -28,8 +61,9 @@
 
   // ── DOM refs ───────────────────────────────────────────────────────────────
 
-  const canvas      = document.getElementById('board-canvas');
-  const ctx         = canvas.getContext('2d');
+  const canvasStatic  = document.getElementById('canvas-static');
+  const canvasDynamic = document.getElementById('canvas-dynamic');
+  const ctxDynamic    = canvasDynamic.getContext('2d');
 
   const elBoardSize    = document.getElementById('board-size-select');
   const elBtnUndo      = document.getElementById('btn-undo');
@@ -37,6 +71,7 @@
   const elBtnExport    = document.getElementById('btn-export');
   const elBtnCopyImg   = document.getElementById('btn-copy-img');
   const elBtnClear     = document.getElementById('btn-clear');
+  const elThemeSelect  = document.getElementById('theme-select');
   const elHistoryList  = document.getElementById('history-list');
   const elHolesList    = document.getElementById('holes-list');
   const elPendingHint  = document.getElementById('pending-hole-hint');
@@ -55,6 +90,7 @@
   // ── Bootstrap ──────────────────────────────────────────────────────────────
 
   function init() {
+    initTheme();
     I18n.init();   // apply translations to all [data-i18n] elements
     buildToolPalette();
     buildHoleColorPicker();
@@ -150,7 +186,7 @@
   // ── Render ─────────────────────────────────────────────────────────────────
 
   function redraw() {
-    Renderer.render(canvas, gameState, ui);
+    Renderer.render(canvasStatic, canvasDynamic, gameState, ui);
     syncNotation();
     refreshUndoRedo();
     elStatusMove.textContent = `Move: ${gameState.moveCounter}`;
@@ -260,30 +296,30 @@
 
   function _touchInfo(e) {
     const t = e.touches[0] || e.changedTouches[0];
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width  / rect.width;
-    const scaleY = canvas.height / rect.height;
+    const rect = canvasDynamic.getBoundingClientRect();
+    const scaleX = canvasDynamic.width  / rect.width;
+    const scaleY = canvasDynamic.height / rect.height;
     const px = (t.clientX - rect.left) * scaleX;
     const py = (t.clientY - rect.top)  * scaleY;
     return { px, py, pageX: t.clientX, pageY: t.clientY };
   }
 
   function bindCanvasEvents() {
-    canvas.addEventListener('mousemove', onCanvasMouseMove);
-    canvas.addEventListener('click',     onCanvasClick);
-    canvas.addEventListener('mouseleave', () => {
+    canvasDynamic.addEventListener('mousemove', onCanvasMouseMove);
+    canvasDynamic.addEventListener('click',     onCanvasClick);
+    canvasDynamic.addEventListener('mouseleave', () => {
       ui.hoverCell = null;
       ui.mousePos  = { x: 0, y: 0 };
       _hideZoom();
       redraw();
     });
-    canvas.addEventListener('contextmenu', e => {
+    canvasDynamic.addEventListener('contextmenu', e => {
       e.preventDefault();
       const cell = _hitCell(e);
       if (cell) onErase(cell.col, cell.row);
     });
 
-    canvas.addEventListener('touchstart', e => {
+    canvasDynamic.addEventListener('touchstart', e => {
       e.preventDefault();
       const { px, py, pageX, pageY } = _touchInfo(e);
       ui.mousePos  = { x: px, y: py };
@@ -295,7 +331,7 @@
       redraw();
     }, { passive: false });
 
-    canvas.addEventListener('touchmove', e => {
+    canvasDynamic.addEventListener('touchmove', e => {
       e.preventDefault();
       const { px, py, pageX, pageY } = _touchInfo(e);
       ui.mousePos  = { x: px, y: py };
@@ -309,7 +345,7 @@
       redraw();
     }, { passive: false });
 
-    canvas.addEventListener('touchend', e => {
+    canvasDynamic.addEventListener('touchend', e => {
       e.preventDefault();
       _hideZoom();
       if (!ui.hoverCell) return;
@@ -328,7 +364,7 @@
       setTimeout(() => { _firePlacement(cell); }, 50);
     }, { passive: false });
 
-    canvas.addEventListener('touchcancel', () => {
+    canvasDynamic.addEventListener('touchcancel', () => {
       _hideZoom();
       ui.hoverCell = null;
       redraw();
@@ -336,18 +372,18 @@
   }
 
   function _hitCell(e) {
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width  / rect.width;
-    const scaleY = canvas.height / rect.height;
+    const rect = canvasDynamic.getBoundingClientRect();
+    const scaleX = canvasDynamic.width  / rect.width;
+    const scaleY = canvasDynamic.height / rect.height;
     const px = (e.clientX - rect.left) * scaleX;
     const py = (e.clientY - rect.top)  * scaleY;
     return Renderer.pixelToCell(px, py, gameState.boardSize);
   }
 
   function onCanvasMouseMove(e) {
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width  / rect.width;
-    const scaleY = canvas.height / rect.height;
+    const rect = canvasDynamic.getBoundingClientRect();
+    const scaleX = canvasDynamic.width  / rect.width;
+    const scaleY = canvasDynamic.height / rect.height;
     ui.mousePos = {
       x: (e.clientX - rect.left) * scaleX,
       y: (e.clientY - rect.top)  * scaleY,
@@ -554,13 +590,70 @@
       });
     });
 
+    // Image Upload (ZCR Pipeline)
+    const elImgUpload = document.getElementById('img-upload');
+    if (elImgUpload) {
+      elImgUpload.addEventListener('change', async (e) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+        const file = e.target.files[0];
+        
+        showToast("Processing image with WASM...", "info");
+        
+        const img = new Image();
+        img.onload = () => {
+          try {
+            if (!zcrPipeline || !zcrPipeline.ready) {
+               showToast("OpenCV.js is not ready yet.", "error");
+               return;
+            }
+            const matrix = zcrPipeline.processImage(img);
+            
+            // Reconstruct state from matrix
+            let boardSize = matrix.length; // assuming square
+            
+            History.reset();
+            gameState = State.create();
+            gameState = State.setBoardSize(gameState, boardSize);
+            
+            for (let r = 0; r < boardSize; r++) {
+              for (let c = 0; c < boardSize; c++) {
+                 const val = matrix[r][c];
+                 const colLetter = C.COLS[c];
+                 const rowNum = r + 1;
+                 
+                 if (val === 'X') {
+                   gameState = State.placeStone(gameState, colLetter, rowNum, 'X');
+                 } else if (val === 'O') {
+                   gameState = State.placeStone(gameState, colLetter, rowNum, 'O');
+                 } else if (val === 'W') {
+                   gameState = State.placeBlock(gameState, colLetter, rowNum);
+                 }
+              }
+            }
+            
+            elBoardSize.value = String(boardSize);
+            cancelPendingOps();
+            redraw();
+            refreshSidePanel();
+            showToast("Board scanned successfully!");
+          } catch(err) {
+            console.error(err);
+            showToast("Failed to process image.", "error");
+          }
+          // clear input
+          elImgUpload.value = "";
+        };
+        img.src = URL.createObjectURL(file);
+      });
+    }
+
     // Re-apply dynamic strings after lang change
     document.addEventListener('langchange', () => {
       elStatusTool.textContent = `Tool: ${_toolLabel(ui.tool)}`;
     });
 
     elBtnExport.addEventListener('click', () => {
-      Export.downloadPNG(canvas, gameState);
+      Export.downloadPNG(canvasStatic, gameState);
     });
 
     elBtnCopyImg.addEventListener('click', async () => {

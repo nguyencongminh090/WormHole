@@ -34,64 +34,77 @@ window.Renderer = (() => {
   // ── Main render ────────────────────────────────────────────────────────────
 
   /**
-   * Full board redraw.
-   * @param {HTMLCanvasElement} canvas
+   * Full board redraw using dual canvases.
+   * @param {HTMLCanvasElement} canvasStatic  - For static background, grid, and pieces
+   * @param {HTMLCanvasElement} canvasDynamic - For hover, highlights, and transient UI
    * @param {Object} state      — game state
    * @param {Object} uiState    — transient UI (hover, pendingHole, linePreview)
-   * @param {boolean} forExport — if true, skip hover/preview
+   * @param {boolean} forExport — if true, skip hover/preview and draw everything to canvasStatic
    */
-  function render(canvas, state, uiState = {}, forExport = false) {
+  function render(canvasStatic, canvasDynamic, state, uiState = {}, forExport = false) {
+    if (forExport || !canvasDynamic) {
+      _renderStatic(canvasStatic, state, true);
+      _renderDynamic(canvasStatic, state, uiState, true);
+      return;
+    }
+
+    // In a real app we'd only redraw static when state changes.
+    // For simplicity, we redraw both.
+    _renderStatic(canvasStatic, state, false);
+    _renderDynamic(canvasDynamic, state, uiState, false);
+  }
+
+  function _renderStatic(canvas, state, forExport) {
     const sz  = state.boardSize;
     const dim = canvasSize(sz);
     canvas.width  = dim;
     canvas.height = dim;
-
     const ctx = canvas.getContext('2d');
 
     _drawBackground(ctx, sz, dim);
     _drawGrid(ctx, sz);
     _drawCoords(ctx, sz);
 
-    // Cell highlights
-    if (!forExport) {
-      if (uiState.hoverCell) _drawCellBg(ctx, uiState.hoverCell.col, uiState.hoverCell.row, C.CLR.HOVER);
-    }
-    if (state.lastMovePos) _drawCellBg(ctx, state.lastMovePos.col, state.lastMovePos.row, C.CLR.LAST_MOVE);
-
-    // Pending hole hint
-    if (!forExport && uiState.pendingHolePos) {
-      _drawCellBg(ctx, uiState.pendingHolePos.col, uiState.pendingHolePos.row, C.CLR.PENDING_HOLE);
-    }
-
-    // All cells
     for (const [key, cell] of Object.entries(state.cells)) {
       const [col, rowStr] = key.split(',');
       const row = parseInt(rowStr, 10);
       _drawCell(ctx, col, row, cell, state);
     }
+  }
 
-    // Analysis lines
+  function _renderDynamic(canvas, state, uiState, forExport) {
+    const sz  = state.boardSize;
+    const dim = canvasSize(sz);
+    canvas.width  = dim;
+    canvas.height = dim;
+    const ctx = canvas.getContext('2d');
+
+    ctx.clearRect(0, 0, dim, dim);
+
+    if (!forExport) {
+      if (uiState.hoverCell) _drawCellBg(ctx, uiState.hoverCell.col, uiState.hoverCell.row, C.CLR.HOVER);
+    }
+    if (state.lastMovePos) _drawCellBg(ctx, state.lastMovePos.col, state.lastMovePos.row, C.CLR.LAST_MOVE);
+
+    if (!forExport && uiState.pendingHolePos) {
+      _drawCellBg(ctx, uiState.pendingHolePos.col, uiState.pendingHolePos.row, C.CLR.PENDING_HOLE);
+    }
+
     state.lines.forEach(line => _drawLine(ctx, line));
 
-    // Live preview of line being drawn
     if (!forExport && uiState.linePreview && uiState.mousePos) {
       _drawLinePreview(ctx, uiState.linePreview.from, uiState.mousePos);
     }
 
-    // Safe-mode pending confirmation overlay
     if (!forExport && uiState.safeModePending) {
       const p = uiState.safeModePending;
-      const cx = cellCx(p.col);
-      const cy = cellCy(p.row);
-      // Soft amber fill
       ctx.fillStyle = 'rgba(240,160,48,0.18)';
       ctx.fillRect(cellLeft(p.col), cellTop(p.row), CS, CS);
-      // Dashed amber ring
       ctx.save();
       ctx.strokeStyle = 'rgba(240,160,48,0.90)';
       ctx.lineWidth   = 2;
       ctx.setLineDash([4, 3]);
-      ctx.lineDashOffset = (Date.now() / 40) % 14; // animates
+      ctx.lineDashOffset = (Date.now() / 40) % 14;
       ctx.beginPath();
       ctx.rect(cellLeft(p.col) + 2, cellTop(p.row) + 2, CS - 4, CS - 4);
       ctx.stroke();
@@ -102,18 +115,10 @@ window.Renderer = (() => {
   // ── Background & grid ──────────────────────────────────────────────────────
 
   function _drawBackground(ctx, sz, dim) {
-    // Margin area
-    ctx.fillStyle = C.CLR.BOARD_MARGIN;
-    ctx.fillRect(0, 0, dim, dim);
-    // Paper board fill
-    ctx.fillStyle = C.CLR.BOARD_BG;
-    ctx.fillRect(M, M, sz * CS, sz * CS);
-    // Subtle paper texture — faint noise dots
-    ctx.fillStyle = 'rgba(0,0,0,0.012)';
-    for (let i = 0; i < 300; i++) {
-      const px = M + Math.random() * sz * CS;
-      const py = M + Math.random() * sz * CS;
-      ctx.fillRect(px, py, 1, 1);
+    ctx.clearRect(0, 0, dim, dim);
+    if (C.CLR.BOARD_BG !== 'transparent') {
+      ctx.fillStyle = C.CLR.BOARD_BG;
+      ctx.fillRect(M, M, sz * CS, sz * CS);
     }
   }
 

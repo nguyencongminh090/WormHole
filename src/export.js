@@ -16,7 +16,7 @@ window.Export = (() => {
   function downloadPNG(liveCanvas, state, filename) {
     // Off-screen canvas for clean export
     const offscreen = document.createElement('canvas');
-    Renderer.render(offscreen, state, {}, /* forExport */ true);
+    Renderer.render(offscreen, null, state, {}, /* forExport */ true);
 
     filename = filename || _defaultFilename();
 
@@ -35,7 +35,7 @@ window.Export = (() => {
    */
   function toDataURL(state) {
     const offscreen = document.createElement('canvas');
-    Renderer.render(offscreen, state, {}, true);
+    Renderer.render(offscreen, null, state, {}, true);
     return offscreen.toDataURL('image/png');
   }
 
@@ -44,7 +44,7 @@ window.Export = (() => {
    */
   async function copyToClipboard(state) {
     const offscreen = document.createElement('canvas');
-    Renderer.render(offscreen, state, {}, true);
+    Renderer.render(offscreen, null, state, {}, true);
 
     return new Promise((resolve, reject) => {
       offscreen.toBlob(async blob => {
