@@ -494,6 +494,14 @@
   }
 
   function _firePlacement(cell) {
+    const elAutoSwitch = document.getElementById('auto-switch-cb');
+    if (elAutoSwitch && elAutoSwitch.checked && (ui.tool === C.TOOL.STONE_X || ui.tool === C.TOOL.STONE_O)) {
+      const expected = (gameState.moveCounter % 2 === 0) ? C.TOOL.STONE_X : C.TOOL.STONE_O;
+      if (ui.tool !== expected) {
+        setTool(expected);
+      }
+    }
+
     switch (ui.tool) {
       case C.TOOL.STONE_X: onPlaceStone(cell, 'X'); break;
       case C.TOOL.STONE_O: onPlaceStone(cell, 'O'); break;
@@ -1166,22 +1174,22 @@
       if (!rootHash) {
         elTreeContainer.innerHTML = '<div class="p-2 text-app-muted text-xs">No moves yet.</div>';
       } else {
-        function renderNode(hash, parentContainer, isRoot) {
+        function renderNode(hash, parentContainer, isRoot, isVariation = false) {
           const node = Tree.getNode(hash);
           if (!node) return;
           
           const div = document.createElement('div');
           div.className = 'flex flex-col relative';
-          if (!isRoot) {
-            div.className += ' ml-3 border-l border-white/20';
+          if (isVariation) {
+            div.className += ' ml-5 border-l border-white/20 mt-1';
           }
           
           const isCurrent = hash === Tree.getCurrentHash();
           const nodeRow = document.createElement('div');
-          nodeRow.className = `relative flex items-center group cursor-pointer pl-4 py-1.5 hover:bg-white/5 transition-colors ${isCurrent ? 'text-app-accent font-semibold' : 'text-app-muted'}`;
+          nodeRow.className = `relative flex items-center group cursor-pointer py-1.5 hover:bg-white/5 transition-colors ${isVariation ? 'pl-4' : ''} ${isCurrent ? 'text-app-accent font-semibold' : 'text-app-muted'}`;
           
           const circle = document.createElement('div');
-          circle.className = `absolute -left-[5px] top-1/2 -translate-y-1/2 w-[9px] h-[9px] rounded-full border-2 border-transparent bg-white/30 transition-all z-10`;
+          circle.className = `absolute ${isVariation ? '-left-[5px]' : 'left-0'} top-1/2 -translate-y-1/2 w-[9px] h-[9px] rounded-full border-2 border-transparent bg-white/30 transition-all z-10`;
           
           // Color based on piece
           if (node.moveAction && node.moveAction.startsWith('X')) {
@@ -1193,7 +1201,7 @@
           }
 
           if (isCurrent) {
-             circle.className = `absolute -left-[6px] top-1/2 -translate-y-1/2 w-[11px] h-[11px] rounded-full border-[3px] border-[#121212] bg-app-accent shadow-[0_0_10px_currentColor] z-20`;
+             circle.className = `absolute ${isVariation ? '-left-[6px]' : '-left-[1px]'} top-1/2 -translate-y-1/2 w-[11px] h-[11px] rounded-full border-[3px] border-[#121212] bg-app-accent shadow-[0_0_10px_currentColor] z-20`;
           } else {
              circle.classList.add('group-hover:scale-125');
           }
@@ -1201,7 +1209,7 @@
           nodeRow.appendChild(circle);
           
           const label = document.createElement('span');
-          label.className = 'text-xs truncate';
+          label.className = `text-xs truncate ${isVariation ? '' : 'pl-4'}`;
           label.textContent = isRoot ? 'Start Position' : node.moveAction;
           nodeRow.appendChild(label);
           
@@ -1219,8 +1227,10 @@
           parentContainer.appendChild(div);
           
           if (node.childrenIds && node.childrenIds.size > 0) {
+            let childIndex = 0;
             node.childrenIds.forEach(childHash => {
-               renderNode(childHash, div, false);
+               renderNode(childHash, div, false, childIndex > 0);
+               childIndex++;
             });
           }
         }
