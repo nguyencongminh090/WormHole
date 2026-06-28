@@ -88,11 +88,13 @@ window.Renderer = (() => {
   function _renderDynamic(canvas, state, uiState, forExport) {
     const sz  = state.boardSize;
     const dim = canvasSize(sz);
-    canvas.width  = dim;
-    canvas.height = dim;
     const ctx = canvas.getContext('2d');
 
-    ctx.clearRect(0, 0, dim, dim);
+    if (!forExport) {
+      canvas.width  = dim;
+      canvas.height = dim;
+      ctx.clearRect(0, 0, dim, dim);
+    }
 
     if (!forExport) {
       if (uiState.hoverCell) _drawCellBg(ctx, uiState.hoverCell.col, uiState.hoverCell.row, C.CLR.HOVER);
