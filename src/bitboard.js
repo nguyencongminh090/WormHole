@@ -53,26 +53,10 @@ window.Bitboard = (() => {
         h ^= ZOBRIST.pieces[idx].X[cell.moveNum || 0] || 0n;
       } else if (cell.type === window.C.TYPE.STONE_O) {
         h ^= ZOBRIST.pieces[idx].O[cell.moveNum || 0] || 0n;
-      } else if (cell.type === window.C.TYPE.BLOCK) {
-        h ^= ZOBRIST.pieces[idx].W;
-      } else if (cell.type === window.C.TYPE.HOLE) {
-        h ^= ZOBRIST.pieces[idx].H;
       }
     }
 
-    // Since Portals have colors and pairs, append a string digest for them to be 100% collision-free
-    const portalStr = Object.values(state.holePairs)
-      .map(p => p.colorId + p.positions.map(pos => pos ? pos.col+pos.row : '').join(''))
-      .sort()
-      .join('|');
-      
-    // Same for lines (ephemeral but part of the visual state)
-    const lineStr = state.lines
-      .map(l => `${l.from.col}${l.from.row}>${l.to.col}${l.to.row}-${l.colorId}`)
-      .sort()
-      .join('|');
-
-    return h.toString(16) + (portalStr ? 'P' + portalStr : '') + (lineStr ? 'L' + lineStr : '');
+    return h.toString(16);
   }
 
   return { hashState };
