@@ -670,10 +670,13 @@
       redraw();
     } else {
       // Second click
-      const ns = State.addLine(gameState, ui.linePreview.from, { col: cell.col, row: cell.row }, ui.lineColorId);
-      if (ns) {
-        Tree.addNode(ns, `Line ${Notation.cellLabel(ui.linePreview.from.col, ui.linePreview.from.row)} → ${Notation.cellLabel(cell.col, cell.row)}`);
-        gameState = ns;
+      const toCol = cell.col, toRow = cell.row;
+      if (!(ui.linePreview.from.col === toCol && ui.linePreview.from.row === toRow)) {
+        Setup.lines.push({ 
+          from: { ...ui.linePreview.from }, 
+          to: { col: toCol, row: toRow }, 
+          colorId: ui.lineColorId 
+        });
       }
       ui.linePreview = null;
       redraw();
