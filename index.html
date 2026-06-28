@@ -188,7 +188,21 @@
     <!-- Theme Selector -->
     <div class="glass-panel rounded-xl flex items-center px-3 py-1.5 gap-2 text-app-muted hover:text-app-text transition-colors">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg>
-      <select id="theme-select" class    <div class="glass-panel rounded-xl flex items-center p-1 gap-1">
+      <select id="theme-select" class="bg-transparent text-sm font-medium outline-none cursor-pointer focus:ring-0 appearance-none">
+        <option value="dark">Dark Space</option>
+        <option value="light">Light Minimal</option>
+        <option value="classic">Classic Paper</option>
+        <option value="cyberpunk">Cyberpunk</option>
+      </select>
+    </div>
+
+    <!-- Lang -->
+    <div class="glass-panel rounded-xl flex items-center p-1">
+      <button id="btn-lang-en" class="lang-btn active px-3 py-1.5 rounded-lg text-sm text-app-muted font-medium transition-all hover:text-app-text data-[active]:bg-white/10 data-[active]:text-app-text" data-lang="en">EN</button>
+      <button id="btn-lang-vi" class="lang-btn px-3 py-1.5 rounded-lg text-sm text-app-muted font-medium transition-all hover:text-app-text data-[active]:bg-white/10 data-[active]:text-app-text" data-lang="vi">VI</button>
+    </div>
+
+    <div class="glass-panel rounded-xl flex items-center p-1 gap-1">
       <button id="btn-share-link" class="act-btn px-3 py-1.5 rounded-lg text-sm text-app-muted hover:bg-white/10 hover:text-app-text transition-all flex items-center gap-2" data-i18n-title="shareLink">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
       </button>
@@ -196,11 +210,6 @@
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
       </button>
       <button id="btn-export" class="act-btn px-3 py-1.5 rounded-lg text-sm bg-app-primary/20 text-app-primary-light hover:bg-app-primary/30 hover:text-app-text border border-app-primary/30 transition-all flex items-center gap-2" data-i18n-title="downloadPNG">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-      </button>enter gap-2" title="Copy Image">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
-      </button>
-      <button id="btn-export" class="act-btn px-3 py-1.5 rounded-lg text-sm bg-app-primary/20 text-app-primary-light hover:bg-app-primary/30 hover:text-app-text border border-app-primary/30 transition-all flex items-center gap-2" title="Download PNG">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
       </button>
     </div>
