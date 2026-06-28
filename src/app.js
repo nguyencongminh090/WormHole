@@ -71,6 +71,7 @@
   // ── URL & State Sync ──────────────────────────────────────────────────────────────
 
   let gameState = State.create();
+  Tree.init(gameState);
   let urlUpdateTimer = null;
   let zcrPipeline = null;
   if (typeof ZCRPipeline !== 'undefined') {
@@ -163,6 +164,19 @@
       });
     }
 
+    // Left Sidebar Toggle (Analysis Tree)
+    const btnToggleLeftSidebar = document.getElementById('btn-toggle-left-sidebar');
+    const leftSidebar = document.getElementById('left-sidebar');
+    if (btnToggleLeftSidebar && leftSidebar) {
+      btnToggleLeftSidebar.addEventListener('click', () => {
+        btnToggleLeftSidebar.classList.toggle('sidebar-open');
+        leftSidebar.classList.toggle('sidebar-open');
+        if (boardContainer) {
+          boardContainer.classList.toggle('pl-[20rem]');
+        }
+      });
+    }
+
     // Parse shareable URL parameter if present
     const params = new URLSearchParams(window.location.search);
     const encodedPos = params.get('pos');
@@ -172,10 +186,9 @@
         if (parsed.errors.length === 0) {
           gameState = parsed.state;
           if (parsed.historySteps) {
-            History.reset();
+            
             for (const step of parsed.historySteps) {
-              History.push(step.state);
-              History.logMove(step.action);
+              Tree.addNode(gameState, step.action);
             }
           }
         } else {
@@ -532,9 +545,8 @@
   // ── Actions ────────────────────────────────────────────────────────────────
 
   function onPlaceStone(cell, player) {
-    History.push(gameState);
     const ns = State.placeStone(gameState, cell.col, cell.row, player);
-    if (!ns) { History.undo(gameState); return; } // no-op, pop undo
+    if (!ns) { Tree.undo(); return; } // no-op, pop undo
     History.logMove(`${player} ${Notation.cellLabel(cell.col, cell.row)}`);
     gameState = ns;
 
@@ -549,9 +561,8 @@
   }
 
   function onPlaceBlock(cell) {
-    History.push(gameState);
     const ns = State.placeBlock(gameState, cell.col, cell.row);
-    if (!ns) { History.undo(gameState); return; }
+    if (!ns) { Tree.undo(); return; }
     History.logMove(`Block ${Notation.cellLabel(cell.col, cell.row)}`);
     gameState = ns;
     redraw();
@@ -561,11 +572,9 @@
   function onPlaceHole(cell) {
     if (!ui.pendingHole) {
       // First portal click
-      History.push(gameState);
       const result = State.startHole(gameState, cell.col, cell.row, ui.holeColorId);
       if (result.error) {
         showToast(result.error, 'error');
-        History.undo(gameState);
         return;
       }
       gameState = result.state;
@@ -598,7 +607,6 @@
       redraw();
     } else {
       // Second click
-      History.push(gameState);
       const ns = State.addLine(gameState, ui.linePreview.from, { col: cell.col, row: cell.row }, ui.lineColorId);
       if (ns) {
         History.logMove(`Line ${Notation.cellLabel(ui.linePreview.from.col, ui.linePreview.from.row)} → ${Notation.cellLabel(cell.col, cell.row)}`);
@@ -615,9 +623,8 @@
     const cell = gameState.cells[key];
     const erasedType = cell ? cell.type : null;
 
-    History.push(gameState);
     const ns = State.erase(gameState, col, row);
-    if (!ns) { History.undo(gameState); return; }
+    if (!ns) { Tree.undo(); return; }
     History.logMove(`Erase ${Notation.cellLabel(col, row)}`);
     gameState = ns;
 
@@ -638,7 +645,7 @@
     elBoardSize.value = String(gameState.boardSize);
     const _changeBoardSize = (sz) => {
       confirm('Change board size? This will clear the board.', () => {
-        History.reset();
+        
         gameState = State.setBoardSize(gameState, sz);
         cancelPendingOps();
         redraw();
@@ -770,7 +777,7 @@
       elClearMobile.addEventListener('click', () => {
         elMoreMenu && elMoreMenu.classList.add('hidden');
         confirm('Clear the entire board?', () => {
-          History.reset();
+          
           gameState = State.clearBoard(gameState);
           cancelPendingOps();
           redraw();
@@ -793,7 +800,7 @@
             if (!zcrPipeline || !zcrPipeline.ready) { showToast('OpenCV.js not ready yet.', 'error'); return; }
             const matrix = zcrPipeline.processImage(img);
             const boardSize = matrix.length;
-            History.reset();
+            
             gameState = State.create();
             gameState = State.setBoardSize(gameState, boardSize);
             for (let r = 0; r < boardSize; r++) {
@@ -806,6 +813,7 @@
             }
             elBoardSize.value = String(boardSize);
             if (elBoardSizeMobile) elBoardSizeMobile.value = String(boardSize);
+            Tree.init(gameState);
             cancelPendingOps(); redraw(); refreshSidePanel(); resizeCanvasForMobile();
             showToast('Board scanned successfully!');
           } catch(err) {
@@ -853,7 +861,7 @@
           // Reconstruct state from matrix
           let boardSize = matrix.length; // assuming square
           
-          History.reset();
+          
           gameState = State.create();
           gameState = State.setBoardSize(gameState, boardSize);
           
@@ -874,6 +882,7 @@
           }
           
           elBoardSize.value = String(boardSize);
+          Tree.init(gameState);
           cancelPendingOps();
           redraw();
           refreshSidePanel();
@@ -961,8 +970,7 @@
     document.getElementById('btn-clear-lines').addEventListener('click', () => {
       const ns = State.clearLines(gameState);
       if (ns) {
-        History.push(gameState);
-        History.logMove('Clear Lines');
+        Tree.addNode(gameState, 'Clear Lines');
         gameState = ns;
         redraw();
         showToast('Analysis lines cleared.');
@@ -971,7 +979,7 @@
 
     elBtnClear.addEventListener('click', () => {
       confirm('Clear the entire board?', () => {
-        History.reset();
+        
         gameState = State.clearBoard(gameState);
         cancelPendingOps();
         redraw();
@@ -994,12 +1002,11 @@
       } else {
         showToast('Position loaded!');
       }
-      History.reset();
+      
       gameState = result.state;
       if (result.historySteps) {
         for (const step of result.historySteps) {
-          History.push(step.state);
-          History.logMove(step.action);
+          Tree.addNode(gameState, step.action);
         }
       }
       elBoardSize.value = String(gameState.boardSize);
@@ -1015,7 +1022,7 @@
     cancelPendingOps();
     // Remember the board state before undo
     const oldCells = gameState.cells;
-    const prev = History.undo(gameState);
+    const prev = Tree.undo();
     if (prev) {
       gameState = prev;
       
@@ -1037,13 +1044,13 @@
 
   function doRedo() {
     cancelPendingOps();
-    const next = History.redo(gameState);
+    const next = Tree.redo();
     if (next) { gameState = next; redraw(); refreshSidePanel(); }
   }
 
   function refreshUndoRedo() {
-    elBtnUndo.disabled = !History.canUndo();
-    elBtnRedo.disabled = !History.canRedo();
+    elBtnUndo.disabled = !Tree.canUndo();
+    elBtnRedo.disabled = !Tree.canRedo();
   }
 
   // ── Keyboard shortcuts ─────────────────────────────────────────────────────
@@ -1073,7 +1080,7 @@
 
   function refreshSidePanel() {
     _renderHolesList();
-    _renderHistoryList();
+    renderTreeUI();
   }
 
   function _renderHolesList() {
@@ -1112,7 +1119,6 @@
       del.textContent = '✕';
       del.title       = 'Remove portal pair';
       del.addEventListener('click', () => {
-        History.push(gameState);
         // Erase both ends
         if (p2) { const ns = State.erase(gameState, p2.col, p2.row); if (ns) gameState = ns; }
         if (p1) { const ns = State.erase(gameState, p1.col, p1.row); if (ns) gameState = ns; }
@@ -1127,23 +1133,89 @@
     });
   }
 
-  function _renderHistoryList() {
-    const log = History.getLog();
-    elHistoryList.innerHTML = '';
-
-    if (log.length === 0) {
-      elHistoryList.innerHTML = '<div class="empty-hint">No moves yet.</div>';
-      return;
+  
+  // ── Tree UI (Analysis Mode) ────────────────────────────────────────────────
+  function renderTreeUI() {
+    const elTreeContainer = document.getElementById('tree-container');
+    if (elTreeContainer) {
+      elTreeContainer.innerHTML = '';
+      const rootHash = Tree.getRootHash();
+      
+      if (!rootHash) {
+        elTreeContainer.innerHTML = '<div class="p-2 text-app-muted text-xs">No moves yet.</div>';
+      } else {
+        function renderNode(hash, depth) {
+          const node = Tree.getNode(hash);
+          if (!node) return;
+          
+          const div = document.createElement('div');
+          const isCurrent = hash === Tree.getCurrentHash();
+          div.className = `py-1 rounded-lg cursor-pointer hover:bg-white/10 transition-colors truncate flex items-center ${isCurrent ? 'bg-app-accent/20 text-app-accent font-semibold' : 'text-app-muted'}`;
+          div.style.paddingLeft = `${depth * 12 + 8}px`;
+          
+          if (depth > 0) {
+            const branch = document.createElement('span');
+            branch.className = 'text-white/20 mr-2 font-mono';
+            branch.textContent = '└─';
+            div.appendChild(branch);
+          }
+          
+          const label = document.createElement('span');
+          label.textContent = depth === 0 ? 'Start Position' : `${depth}. ${node.moveAction}`;
+          div.appendChild(label);
+          
+          div.onclick = (e) => {
+            e.stopPropagation();
+            const s = Tree.setCurrent(hash);
+            if (s) {
+              gameState = s;
+              redraw();
+              refreshSidePanel();
+            }
+          };
+          
+          elTreeContainer.appendChild(div);
+          
+          if (node.childrenIds && node.childrenIds.size > 0) {
+            node.childrenIds.forEach(childHash => {
+               renderNode(childHash, depth + 1);
+            });
+          }
+        }
+        
+        renderNode(rootHash, 0);
+      }
     }
 
-    // Reverse so newest is on top
-    [...log].reverse().forEach(entry => {
-      const div = document.createElement('div');
-      div.className   = 'history-entry';
-      div.innerHTML   = `<span class="hist-num">${entry.n}.</span> <span class="hist-action">${entry.action}</span>`;
-      elHistoryList.appendChild(div);
-    });
+    // Also update right panel history (Linear path)
+    const elHistoryList = document.getElementById('history-list');
+    const log = Tree.getLog();
+    if (elHistoryList) {
+      elHistoryList.innerHTML = '';
+      if (log.length === 0) {
+        elHistoryList.innerHTML = '<div class="empty-hint">No moves yet.</div>';
+      } else {
+        log.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'history-item';
+          div.textContent = `${item.n}. ${item.action}`;
+          div.onclick = () => {
+            const s = Tree.setCurrent(item.hash);
+            if (s) {
+              gameState = s;
+              redraw();
+              refreshSidePanel();
+            }
+          };
+          if (item.hash === Tree.getCurrentHash()) {
+            div.classList.add('active', 'border-l-2', 'border-app-accent', 'pl-2', 'bg-app-accent/10');
+          }
+          elHistoryList.appendChild(div);
+        });
+      }
+    }
   }
+
 
   // ── Notation sync ──────────────────────────────────────────────────────────
 
