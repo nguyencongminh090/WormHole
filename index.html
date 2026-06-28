@@ -275,43 +275,48 @@
 
     <!-- Portals -->
     <div class="panel collapsible pointer-events-auto glass-panel rounded-2xl flex flex-col overflow-hidden max-h-[30%]" id="portals-panel">
-      <div class="panel-hd px-4 py-3 border-b border-white/5 bg-white/5 flex justify-between items-center cursor-pointer hover:bg-white/10 transition-colors" data-toggle="portals-panel">
-        <span class="font-poppins font-medium text-app-text text-sm flex items-center gap-2"><span class="text-app-primary">⬡</span> Portals</span>
-        <span class="collapse-icon text-app-muted text-xs transition-transform duration-200">▼</span>
+      <div class="panel-hd px-4 py-3 border-b border-glass-border/50 flex justify-between items-center cursor-pointer hover:bg-white/5 transition-colors group" data-toggle="portals-panel">
+        <span class="font-inter font-semibold text-app-text text-sm flex items-center gap-2">
+          <span class="text-app-primary text-lg leading-none">⬡</span> <span data-i18n="panelPortals">Portals</span>
+        </span>
+        <svg class="collapse-icon w-4 h-4 text-app-muted group-hover:text-app-text transition-all duration-300 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
       </div>
-      <div class="panel-body p-3 overflow-y-auto custom-scrollbar">
+      <div class="panel-body px-4 pb-4 pt-2 overflow-y-auto custom-scrollbar">
         <div id="holes-list" class="flex flex-col gap-2"></div>
       </div>
     </div>
 
     <!-- History -->
     <div class="panel collapsible pointer-events-auto glass-panel rounded-2xl flex flex-col overflow-hidden flex-1" id="history-panel">
-      <div class="panel-hd px-4 py-3 border-b border-white/5 bg-white/5 flex justify-between items-center cursor-pointer hover:bg-white/10 transition-colors" data-toggle="history-panel">
-        <span class="font-poppins font-medium text-app-text text-sm flex items-center gap-2">📋 History</span>
+      <div class="panel-hd px-4 py-3 border-b border-glass-border/50 flex justify-between items-center cursor-pointer hover:bg-white/5 transition-colors group" data-toggle="history-panel">
+        <span class="font-inter font-semibold text-app-text text-sm flex items-center gap-2">📋 <span data-i18n="panelHistory">History</span></span>
         <div class="flex items-center gap-3">
-          <button id="btn-clear-history" class="text-xs text-app-muted hover:text-app-text transition-colors" onclick="History.clearLog(); document.getElementById('history-list').innerHTML='<div class=\'text-xs text-app-muted italic p-2\'>No moves yet.</div>'">Clear</button>
-          <span class="collapse-icon text-app-muted text-xs transition-transform duration-200">▼</span>
+          <button id="btn-clear-history" class="text-xs font-medium text-app-muted hover:text-app-text transition-colors" onclick="History.clearLog(); document.getElementById('history-list').innerHTML='<div class=\'text-xs text-app-muted italic p-2\'>No moves yet.</div>'" data-i18n="clearHistory">Clear</button>
+          <svg class="collapse-icon w-4 h-4 text-app-muted group-hover:text-app-text transition-all duration-300 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
         </div>
       </div>
-      <div class="panel-body p-3 overflow-y-auto custom-scrollbar">
-        <div id="history-list" class="flex flex-col gap-1">
-          <div class="text-xs text-app-muted italic p-2">No moves yet.</div>
+      <div class="panel-body px-4 pb-4 pt-2 overflow-y-auto custom-scrollbar">
+        <div id="history-list" class="flex flex-col gap-1.5">
+          <div class="text-xs text-app-muted italic p-2" data-i18n="noMovesYet">No moves yet.</div>
         </div>
       </div>
     </div>
 
     <!-- Notation -->
     <div class="panel collapsible collapsed pointer-events-auto glass-panel rounded-2xl flex flex-col overflow-hidden max-h-[40%]" id="notation-panel">
-      <div class="panel-hd px-4 py-3 border-b border-white/5 bg-white/5 flex justify-between items-center cursor-pointer hover:bg-white/10 transition-colors" data-toggle="notation-panel">
-        <span class="font-poppins font-medium text-app-text text-sm flex items-center gap-2">📄 Notation</span>
-        <div class="flex items-center gap-2">
-          <button id="btn-parse-notation" class="text-xs bg-app-primary/20 text-app-primary-light px-2 py-1 rounded hover:bg-app-primary/40 transition-colors border border-app-primary/30">Apply</button>
-          <span class="collapse-icon text-app-muted text-xs transition-transform duration-200">▼</span>
+      <div class="panel-hd px-4 py-3 border-b border-glass-border/50 flex justify-between items-center cursor-pointer hover:bg-white/5 transition-colors group" data-toggle="notation-panel">
+        <span class="font-inter font-semibold text-app-text text-sm flex items-center gap-2">📄 <span data-i18n="panelNotation">Position Notation</span></span>
+        <div class="flex items-center gap-3">
+          <button id="btn-parse-notation" class="text-xs font-semibold bg-app-primary/20 text-app-primary-light px-2.5 py-1 rounded-md hover:bg-app-primary/40 transition-colors border border-app-primary/30" data-i18n="btnApply">↳ Apply</button>
+          <svg class="collapse-icon w-4 h-4 text-app-muted group-hover:text-app-text transition-all duration-300 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
         </div>
       </div>
-      <div class="panel-body p-3 flex flex-col gap-2">
-        <textarea id="notation-input" class="w-full bg-black/30 border border-white/10 rounded-lg p-2 text-xs text-app-muted font-mono focus:outline-none focus:border-app-primary/50 transition-colors resize-none h-24" spellcheck="false" placeholder="Paste notation here..."></textarea>
-        <button id="btn-copy-notation" class="w-full py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-app-muted transition-colors flex items-center justify-center gap-2">Copy Notation</button>
+      <div class="panel-body p-4 flex flex-col gap-3">
+        <textarea id="notation-input" class="w-full bg-black/20 border border-white/5 rounded-xl p-3 text-xs text-app-muted font-mono focus:outline-none focus:border-app-primary/50 focus:bg-black/40 transition-all resize-none h-24 custom-scrollbar" spellcheck="false" data-i18n-placeholder="notationPlaceholder" placeholder="Paste notation here and click Apply to load a position…"></textarea>
+        <button id="btn-copy-notation" class="w-full py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-app-muted hover:text-app-text transition-colors flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+          <span data-i18n="btnCopy">Copy</span>
+        </button>
       </div>
     </div>
   </aside>
