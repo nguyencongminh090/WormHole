@@ -21,3 +21,7 @@ Thumbs.db
 ehthumbs.db
 ehthumbs_vista.db
 *.cab
+
+# Python
+__pycache__/
+*.py[cod]
