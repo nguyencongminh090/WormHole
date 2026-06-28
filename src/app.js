@@ -899,7 +899,7 @@
                 const val = matrix[r][c];
                 if (val === 'X') gameState = State.placeStone(gameState, C.COLS[c], r+1, 'X').state || gameState;
                 else if (val === 'O') gameState = State.placeStone(gameState, C.COLS[c], r+1, 'O').state || gameState;
-                else if (val === 'W') gameState = State.placeBlock(gameState, C.COLS[c], r+1);
+                else if (val === 'W') Setup.addBlock(C.COLS[c], r+1);
               }
             }
             elBoardSize.value = String(boardSize);
@@ -968,7 +968,7 @@
                if (val === 'O') {
                  gameState = State.placeStone(gameState, colLetter, rowNum, 'O').state || gameState;
                } else if (val === 'W') {
-                 gameState = State.placeBlock(gameState, colLetter, rowNum);
+                 Setup.addBlock(colLetter, rowNum);
                }
             }
           }
