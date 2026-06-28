@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "skills": {
+    "frontend-design": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "bb3f72187c172a39c64e74bee56d08df99029e5d45c16828b433eb0a2b28b663"
+    },
+    "git-advanced-workflows": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/git-advanced-workflows/SKILL.md",
+      "computedHash": "68d2284bc4f510e3a5eaff0ceb111228d984243b065ca33127e2cd50a86788c4"
+    },
+    "github": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/github/SKILL.md",
+      "computedHash": "8bb3210e072304636d4503370ef1e35ef57b27655737fb98986bea8370531baf"
+    },
+    "high-end-visual-design": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/high-end-visual-design/SKILL.md",
+      "computedHash": "d8c2d396b640494b6bfc8093b1cfe306e553c4677a28187f3eb4476f8e46b6dc"
+    },
+    "minimalist-ui": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/minimalist-ui/SKILL.md",
+      "computedHash": "9402dce3f1220cb91168bbe2bb0dc6a3a87af38d28525fba0de5783381028f4b"
+    },
+    "prompt-engineering": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/prompt-engineering/SKILL.md",
+      "computedHash": "171883a7c3b5e5799a4cb89598f5454fd34bd5b405195d51842f89024ae2b89c"
+    },
+    "smart-git-automation": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/smart-git-automation/SKILL.md",
+      "computedHash": "fdd869df0df47d74239da6da59ac6708945ec4e4f0748bf068031b2bae2f4d02"
+    },
+    "ui-ux-pro-max": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ui-ux-pro-max/SKILL.md",
+      "computedHash": "703dda85be57e33ee32212488e017be0863bc796dfbe41bfad273e457648d42a"
+    }
+  }
+}
