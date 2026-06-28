@@ -43,6 +43,12 @@
       "skillPath": "skills/prompt-engineering/SKILL.md",
       "computedHash": "171883a7c3b5e5799a4cb89598f5454fd34bd5b405195d51842f89024ae2b89c"
     },
+    "readme": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/readme/SKILL.md",
+      "computedHash": "0ff1f12f888fe06872574a39b4716a916f7b3e554423655bf2308b8e123861c6"
+    },
     "smart-git-automation": {
       "source": "sickn33/antigravity-awesome-skills",
       "sourceType": "github",
