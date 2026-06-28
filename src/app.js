@@ -1404,5 +1404,71 @@
 
   // ── Start ──────────────────────────────────────────────────────────────────
 
+  window.addEventListener('load', () => {
+    const preloader = document.getElementById('zcaro-preloader');
+    const svg = document.getElementById('preloader-svg');
+    const path1 = document.getElementById('pl-path-1');
+    const path2 = document.getElementById('pl-path-2');
+    const path3 = document.getElementById('pl-path-3');
+    const portalA = document.getElementById('pl-portal-a');
+    const portalB = document.getElementById('pl-portal-b');
+    const bloom = document.getElementById('pl-bloom');
+    
+    if (!preloader || !svg) {
+      document.body.classList.add('app-loaded');
+      return;
+    }
+
+    // 1. Tracing Path 1 (Top White)
+    setTimeout(() => {
+      path1.style.transition = 'stroke-dashoffset 0.4s ease-in';
+      path1.style.strokeDashoffset = '0';
+      
+      // 2. Portal A Bloom
+      setTimeout(() => {
+        portalA.style.opacity = '1';
+        portalA.style.transform = 'scale(1.2)';
+        setTimeout(() => portalA.style.transform = 'scale(1)', 300); // Spring bounce
+        
+        // 3. Tracing Path 2 (Cyan Diagonal)
+        setTimeout(() => {
+          path2.style.transition = 'stroke-dashoffset 0.2s linear';
+          path2.style.strokeDashoffset = '0';
+          
+          // 4. Portal B Bloom & Path 3
+          setTimeout(() => {
+            portalB.style.opacity = '1';
+            portalB.style.transform = 'scale(1.2)';
+            setTimeout(() => portalB.style.transform = 'scale(1)', 300);
+            
+            path3.style.transition = 'stroke-dashoffset 0.3s ease-out';
+            path3.style.strokeDashoffset = '0';
+
+            // 5. Explosion / Reveal UI
+            setTimeout(() => {
+              portalA.style.transition = 'transform 0.8s cubic-bezier(0.85, 0, 0.15, 1)';
+              portalB.style.transition = 'transform 0.8s cubic-bezier(0.85, 0, 0.15, 1)';
+              portalA.style.transform = 'scale(40)';
+              portalB.style.transform = 'scale(40)';
+              
+              bloom.style.opacity = '1';
+              svg.style.transform = 'scale(1.5)';
+              
+              preloader.style.transition = 'opacity 0.6s ease 0.2s';
+              preloader.style.opacity = '0';
+              preloader.style.pointerEvents = 'none';
+
+              // Reveal App UI
+              document.body.classList.add('app-loaded');
+
+              setTimeout(() => preloader.remove(), 1000);
+            }, 600); // Wait for Path 3 to finish
+            
+          }, 200); // Wait for Path 2
+        }, 100); // Wait slightly after Portal A blooms
+      }, 400); // Wait for Path 1
+    }, 150); // Initial delay
+  });
+
   document.addEventListener('DOMContentLoaded', init);
 })();

@@ -237,28 +237,54 @@
   border-bottom-color: transparent;
 }
 
-/* ── Mount Entry Animations ───────────────────────────────────────────────── */
-@keyframes panelReveal {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-    filter: blur(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0px);
-  }
+/* ── Quantum Preloader Entry Animations ─────────────────────────────────────── */
+body:not(.app-loaded) #board-container {
+  opacity: 0;
+  filter: blur(12px);
+  transform: scale(0.96);
 }
 
-[data-reveal] {
-  animation: panelReveal 0.75s var(--ease-out-expo) both;
+body:not(.app-loaded) header,
+body:not(.app-loaded) #bottom-toolbar,
+body:not(.app-loaded) #mobile-nav,
+body:not(.app-loaded) #top-right-actions,
+body:not(.app-loaded) [data-reveal="4"],
+body:not(.app-loaded) #btn-toggle-sidebar {
+  opacity: 0;
+  transform: translateY(24px);
 }
-[data-reveal="1"] { animation-delay: 0.04s; }
-[data-reveal="2"] { animation-delay: 0.1s;  }
-[data-reveal="3"] { animation-delay: 0.16s; }
-[data-reveal="4"] { animation-delay: 0.22s; }
-[data-reveal="5"] { animation-delay: 0.28s; }
+
+body:not(.app-loaded) aside#right-sidebar {
+  opacity: 0;
+}
+
+body.app-loaded #board-container {
+  opacity: 1;
+  filter: blur(0);
+  transform: scale(1);
+  transition: all 1.2s cubic-bezier(0.32, 0.72, 0, 1) 0.2s;
+}
+
+body.app-loaded header,
+body.app-loaded #top-right-actions,
+body.app-loaded #btn-toggle-sidebar {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 1s cubic-bezier(0.32, 0.72, 0, 1) 0.3s;
+}
+
+body.app-loaded aside#right-sidebar {
+  opacity: 1;
+  transition: opacity 1s cubic-bezier(0.32, 0.72, 0, 1) 0.4s;
+}
+
+body.app-loaded #bottom-toolbar,
+body.app-loaded #mobile-nav,
+body.app-loaded [data-reveal="4"] {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 1s cubic-bezier(0.32, 0.72, 0, 1) 0.5s;
+}
 
 /* ── Toast Notifications ──────────────────────────────────────────────────── */
 #toast {
