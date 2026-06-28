@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img">
+  <title>Zcaro icon – wormhole portal Z</title>
+  <desc>Square app icon: Z letterform passing through a violet entry portal and a cyan exit portal</desc>
+
+  <defs>
+    <radialGradient id="bg-icon" cx="50%" cy="50%" r="70%">
+      <stop offset="0%"   stop-color="#14103A"/>
+      <stop offset="100%" stop-color="#0A0A14"/>
+    </radialGradient>
+    <radialGradient id="i-gv" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#7B5CF5" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#7B5CF5" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="i-gc" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#2AFFD6" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#2AFFD6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="i-vv" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"  stop-color="#1A0A3A"/>
+      <stop offset="100%" stop-color="#0A0518"/>
+    </radialGradient>
+    <radialGradient id="i-vc" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"  stop-color="#041A18"/>
+      <stop offset="100%" stop-color="#020E10"/>
+    </radialGradient>
+  </defs>
+
+  <!-- App icon background -->
+  <rect width="120" height="120" fill="url(#bg-icon)" rx="26"/>
+
+  <!-- Portal A (violet) center 38,60 r=22 -->
+  <circle cx="38" cy="60" r="30" fill="url(#i-gv)"/>
+  <circle cx="38" cy="60" r="22" fill="none" stroke="#7B5CF5" stroke-width="2.8"/>
+  <circle cx="38" cy="60" r="22" fill="none" stroke="#A990F8" stroke-width="0.6" opacity="0.5"/>
+  <circle cx="38" cy="60" r="13" fill="url(#i-vv)"/>
+  <circle cx="38" cy="60" r="8"  fill="none" stroke="#6040D0" stroke-width="0.5" opacity="0.5"/>
+
+  <!-- Portal B (cyan) center 82,60 r=22 -->
+  <circle cx="82" cy="60" r="30" fill="url(#i-gc)"/>
+  <circle cx="82" cy="60" r="22" fill="none" stroke="#2AFFD6" stroke-width="2.8"/>
+  <circle cx="82" cy="60" r="22" fill="none" stroke="#80FFF0" stroke-width="0.6" opacity="0.5"/>
+  <circle cx="82" cy="60" r="13" fill="url(#i-vc)"/>
+  <circle cx="82" cy="60" r="8"  fill="none" stroke="#10B89A" stroke-width="0.5" opacity="0.5"/>
+
+  <!-- Z: top bar -->
+  <line x1="20" y1="28" x2="56" y2="28" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round"/>
+  <!-- Z: diagonal top-right to portal A -->
+  <line x1="56" y1="28" x2="46" y2="47" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round"/>
+  <!-- Z: exit from portal B, continue diagonal in cyan -->
+  <line x1="74" y1="73" x2="64" y2="92" stroke="#2AFFD6" stroke-width="6.5" stroke-linecap="round" opacity="0.95"/>
+  <!-- Z: bottom bar -->
+  <line x1="64" y1="92" x2="100" y2="92" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round"/>
+
+  <!-- Wormhole dash between portals -->
+  <line x1="51" y1="60" x2="69" y2="60" stroke="#7B5CF5" stroke-width="1" stroke-dasharray="2.5 3" opacity="0.45"/>
+</svg>
