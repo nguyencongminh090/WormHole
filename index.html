@@ -263,60 +263,67 @@
     </div>
   </nav>
 
-  <!-- Right Floating Panels (Desktop only) -->
-  <aside class="hidden md:flex absolute top-24 right-6 bottom-24 z-30 w-80 flex-col gap-4 pointer-events-none">
+  <!-- Right Sidebar Toggle Button (Desktop only) -->
+  <button id="btn-toggle-sidebar" class="hidden md:flex fixed top-1/2 right-0 -translate-y-1/2 z-50 glass-panel border-r-0 rounded-l-2xl px-2 py-6 text-app-muted hover:text-app-text hover:bg-white/10 transition-all shadow-xl group" title="Toggle Sidebar">
+    <svg class="w-5 h-5 transition-transform duration-300 transform group-[.sidebar-open]:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+  </button>
+
+  <!-- Right Sidebar (Desktop only) -->
+  <aside id="right-sidebar" class="sidebar-open hidden md:flex fixed top-0 right-0 bottom-0 z-40 w-[22rem] flex-col glass-panel border-l border-glass-border/50 shadow-[-10px_0_30px_rgba(0,0,0,0.4)] transition-transform duration-300 transform translate-x-full pt-20 pb-24 px-4 overflow-hidden [&.sidebar-open]:translate-x-0">
     
-    <div id="pending-hole-hint" class="pointer-events-auto hidden glass-panel rounded-xl p-3 border-app-primary/50 bg-app-primary/10 shadow-[0_0_15px_var(--color-primary-30)]">
+    <div id="pending-hole-hint" class="pointer-events-auto hidden rounded-xl p-3 mb-4 bg-app-primary/10 border border-app-primary/30 shadow-[0_0_15px_var(--color-primary-30)]">
       <p class="text-sm text-app-primary-light font-medium flex items-center gap-2">
         <span class="animate-pulse">✦</span> Select destination portal
       </p>
       <button id="btn-cancel-portal" class="mt-2 w-full py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-app-muted transition-colors" data-i18n="cancel">Cancel</button>
     </div>
 
-    <!-- Portals -->
-    <div class="panel collapsible pointer-events-auto glass-panel rounded-2xl flex flex-col overflow-hidden max-h-[30%]" id="portals-panel">
-      <div class="panel-hd px-4 py-3 border-b border-glass-border/50 flex justify-between items-center cursor-pointer hover:bg-white/5 transition-colors group" data-toggle="portals-panel">
-        <span class="font-inter font-semibold text-app-text text-sm flex items-center gap-2">
-          <span class="text-app-primary text-lg leading-none">⬡</span> <span data-i18n="panelPortals">Portals</span>
-        </span>
-        <svg class="collapse-icon w-4 h-4 text-app-muted group-hover:text-app-text transition-all duration-300 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+    <div class="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-4 pb-4">
+      <!-- Portals -->
+      <div class="panel collapsible flex flex-col shrink-0" id="portals-panel">
+        <div class="panel-hd py-3 border-b border-white/5 flex justify-between items-center cursor-pointer hover:text-app-text text-app-muted transition-colors group" data-toggle="portals-panel">
+          <span class="font-inter font-semibold text-sm flex items-center gap-2">
+            <span class="text-app-primary text-lg leading-none">⬡</span> <span data-i18n="panelPortals">Portals</span>
+          </span>
+          <svg class="collapse-icon w-4 h-4 group-hover:text-app-text transition-all duration-300 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </div>
+        <div class="panel-body pt-3">
+          <div id="holes-list" class="flex flex-col gap-2"></div>
+        </div>
       </div>
-      <div class="panel-body px-4 pb-4 pt-2 overflow-y-auto custom-scrollbar">
-        <div id="holes-list" class="flex flex-col gap-2"></div>
-      </div>
-    </div>
 
-    <!-- History -->
-    <div class="panel collapsible pointer-events-auto glass-panel rounded-2xl flex flex-col overflow-hidden flex-1" id="history-panel">
-      <div class="panel-hd px-4 py-3 border-b border-glass-border/50 flex justify-between items-center cursor-pointer hover:bg-white/5 transition-colors group" data-toggle="history-panel">
-        <span class="font-inter font-semibold text-app-text text-sm flex items-center gap-2">📋 <span data-i18n="panelHistory">History</span></span>
-        <div class="flex items-center gap-3">
-          <button id="btn-clear-history" class="text-xs font-medium text-app-muted hover:text-app-text transition-colors" onclick="History.clearLog(); document.getElementById('history-list').innerHTML='<div class=\'text-xs text-app-muted italic p-2\'>No moves yet.</div>'" data-i18n="clearHistory">Clear</button>
-          <svg class="collapse-icon w-4 h-4 text-app-muted group-hover:text-app-text transition-all duration-300 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+      <!-- History -->
+      <div class="panel collapsible flex flex-col flex-1 min-h-[200px]" id="history-panel">
+        <div class="panel-hd py-3 border-b border-white/5 flex justify-between items-center cursor-pointer hover:text-app-text text-app-muted transition-colors group" data-toggle="history-panel">
+          <span class="font-inter font-semibold text-sm flex items-center gap-2">📋 <span data-i18n="panelHistory">History</span></span>
+          <div class="flex items-center gap-3">
+            <button id="btn-clear-history" class="text-xs font-medium hover:text-app-text transition-colors" onclick="History.clearLog(); document.getElementById('history-list').innerHTML='<div class=\'text-xs text-app-muted italic p-2\'>No moves yet.</div>'" data-i18n="clearHistory">Clear</button>
+            <svg class="collapse-icon w-4 h-4 group-hover:text-app-text transition-all duration-300 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </div>
+        </div>
+        <div class="panel-body pt-3 h-full overflow-y-auto custom-scrollbar">
+          <div id="history-list" class="flex flex-col gap-1.5">
+            <div class="text-xs text-app-muted italic p-2" data-i18n="noMovesYet">No moves yet.</div>
+          </div>
         </div>
       </div>
-      <div class="panel-body px-4 pb-4 pt-2 overflow-y-auto custom-scrollbar">
-        <div id="history-list" class="flex flex-col gap-1.5">
-          <div class="text-xs text-app-muted italic p-2" data-i18n="noMovesYet">No moves yet.</div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Notation -->
-    <div class="panel collapsible collapsed pointer-events-auto glass-panel rounded-2xl flex flex-col overflow-hidden max-h-[40%]" id="notation-panel">
-      <div class="panel-hd px-4 py-3 border-b border-glass-border/50 flex justify-between items-center cursor-pointer hover:bg-white/5 transition-colors group" data-toggle="notation-panel">
-        <span class="font-inter font-semibold text-app-text text-sm flex items-center gap-2">📄 <span data-i18n="panelNotation">Position Notation</span></span>
-        <div class="flex items-center gap-3">
-          <button id="btn-parse-notation" class="text-xs font-semibold bg-app-primary/20 text-app-primary-light px-2.5 py-1 rounded-md hover:bg-app-primary/40 transition-colors border border-app-primary/30" data-i18n="btnApply">↳ Apply</button>
-          <svg class="collapse-icon w-4 h-4 text-app-muted group-hover:text-app-text transition-all duration-300 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+      <!-- Notation -->
+      <div class="panel collapsible collapsed flex flex-col shrink-0" id="notation-panel">
+        <div class="panel-hd py-3 border-b border-white/5 flex justify-between items-center cursor-pointer hover:text-app-text text-app-muted transition-colors group" data-toggle="notation-panel">
+          <span class="font-inter font-semibold text-sm flex items-center gap-2">📄 <span data-i18n="panelNotation">Position Notation</span></span>
+          <div class="flex items-center gap-3">
+            <button id="btn-parse-notation" class="text-xs font-semibold bg-app-primary/20 text-app-primary-light px-2.5 py-1 rounded-md hover:bg-app-primary/40 transition-colors border border-app-primary/30" data-i18n="btnApply">↳ Apply</button>
+            <svg class="collapse-icon w-4 h-4 group-hover:text-app-text transition-all duration-300 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </div>
         </div>
-      </div>
-      <div class="panel-body p-4 flex flex-col gap-3">
-        <textarea id="notation-input" class="w-full bg-black/20 border border-white/5 rounded-xl p-3 text-xs text-app-muted font-mono focus:outline-none focus:border-app-primary/50 focus:bg-black/40 transition-all resize-none h-24 custom-scrollbar" spellcheck="false" data-i18n-placeholder="notationPlaceholder" placeholder="Paste notation here and click Apply to load a position…"></textarea>
-        <button id="btn-copy-notation" class="w-full py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-app-muted hover:text-app-text transition-colors flex items-center justify-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
-          <span data-i18n="btnCopy">Copy</span>
-        </button>
+        <div class="panel-body pt-3 flex flex-col gap-3">
+          <textarea id="notation-input" class="w-full bg-black/20 border border-white/5 rounded-xl p-3 text-xs text-app-muted font-mono focus:outline-none focus:border-app-primary/50 focus:bg-black/40 transition-all resize-none h-24 custom-scrollbar" spellcheck="false" data-i18n-placeholder="notationPlaceholder" placeholder="Paste notation here and click Apply to load a position…"></textarea>
+          <button id="btn-copy-notation" class="w-full py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-app-muted hover:text-app-text transition-colors flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+            <span data-i18n="btnCopy">Copy</span>
+          </button>
+        </div>
       </div>
     </div>
   </aside>

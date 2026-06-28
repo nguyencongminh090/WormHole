@@ -107,11 +107,21 @@
     document.querySelectorAll('.panel-hd[data-toggle]').forEach(hd => {
       hd.addEventListener('click', (e) => {
         // Don't toggle if clicking a button inside the header
-        if (e.target.closest('.sm-btn') || e.target.closest('.panel-actions')) return;
+        if (e.target.closest('button') || e.target.closest('.panel-actions')) return;
         const panel = document.getElementById(hd.dataset.toggle);
         if (panel) panel.classList.toggle('collapsed');
       });
     });
+
+    // Right Sidebar Toggle
+    const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
+    const rightSidebar = document.getElementById('right-sidebar');
+    if (btnToggleSidebar && rightSidebar) {
+      btnToggleSidebar.addEventListener('click', () => {
+        btnToggleSidebar.classList.toggle('sidebar-open');
+        rightSidebar.classList.toggle('sidebar-open');
+      });
+    }
 
     // Parse shareable URL parameter if present
     const params = new URLSearchParams(window.location.search);
