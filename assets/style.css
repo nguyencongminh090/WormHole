@@ -82,7 +82,7 @@
   border-color: rgba(var(--color-text), 0.2);
 }
 
-.tool-active {
+.tool-btn.active:not(.tool-btn-mobile) {
   background: rgb(var(--color-primary) / 0.2) !important;
   border-color: rgb(var(--color-primary) / 0.5) !important;
   box-shadow: 0 0 15px rgb(var(--color-primary) / 0.4) !important;
@@ -90,7 +90,7 @@
 }
 
 /* For light themes, active tool needs to be dark enough */
-[data-theme="light"] .tool-active, [data-theme="classic"] .tool-active {
+[data-theme="light"] .tool-btn.active:not(.tool-btn-mobile), [data-theme="classic"] .tool-btn.active:not(.tool-btn-mobile) {
   color: #fff !important;
   background: rgb(var(--color-primary) / 0.8) !important;
 }
