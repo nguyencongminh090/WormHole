@@ -531,15 +531,37 @@
         <!-- Main Panel: The Rules -->
         <div class="md:col-span-2 bg-white/5 border border-white/10 rounded-3xl p-8 flex flex-col gap-6 relative overflow-hidden group">
           <div class="absolute -top-32 -right-32 w-64 h-64 bg-app-accent/20 rounded-full blur-[60px] group-hover:bg-app-accent/30 transition-colors duration-700"></div>
-          <h3 class="text-2xl font-semibold text-white">Quantum Rules</h3>
-          <div class="text-white/70 space-y-4 text-sm md:text-base leading-relaxed relative z-10">
-            <p><strong>Zcaro</strong> là một trình giả lập cờ Caro (Gomoku) đột phá với cơ chế <em>Lỗ Sâu Lượng Tử (Wormhole)</em>.</p>
-            <p>Bàn cờ tồn tại 2 cổng không gian liên kết: <span class="text-[#7B5CF5] font-semibold drop-shadow-[0_0_8px_rgba(123,92,245,0.6)]">Portal A (Tím)</span> và <span class="text-[#2AFFD6] font-semibold drop-shadow-[0_0_8px_rgba(42,255,214,0.6)]">Portal B (Cyan)</span>.</p>
-            <ul class="list-disc pl-5 space-y-3">
-              <li><strong>Dịch chuyển tức thời:</strong> Bất kỳ quân cờ nào đặt vào Portal A sẽ lập tức chui qua lỗ sâu và xuất hiện tại Portal B, và ngược lại.</li>
-              <li><strong>Đường nối xuyên không:</strong> Một đường 5 chiến thắng có thể nối xuyên qua wormhole! Ví dụ: 3 quân cờ xếp đến Portal A sẽ nối tiếp với 2 quân cờ từ Portal B (cùng hướng) tạo thành chuỗi 5.</li>
-              <li><strong>Chiến thuật:</strong> Tận dụng các portal để tạo ra những đường tấn công unblockable (không thể cản phá) hoặc thoát khỏi bẫy của đối phương.</li>
-            </ul>
+          <h3 class="text-2xl font-semibold text-white mb-2 tracking-tight">Zcaro Ruleset</h3>
+          <div class="text-white/70 space-y-6 text-sm leading-relaxed relative z-10">
+            
+            <!-- Hố Đen (Wormholes) -->
+            <div class="bg-white/[0.02] border border-white/5 rounded-2xl p-4 transition-colors hover:bg-white/[0.04]">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-2 h-2 rounded-full bg-app-accent shadow-[0_0_10px_rgba(123,92,245,0.8)]"></div>
+                <h4 class="text-white font-medium text-base">Luật Hố đen (Wormholes)</h4>
+              </div>
+              <ul class="list-disc pl-6 space-y-2 text-white/60 marker:text-app-accent/50">
+                <li>Hố đen tạo thành các cặp, hoạt động như <strong>cổng dịch chuyển không gian</strong>.</li>
+                <li><strong class="text-white/80">Không thể đặt quân cờ vào ô hố đen.</strong></li>
+                <li>Đường thẳng <strong>có thể xuyên qua cặp hố</strong>, nhưng chỉ được công nhận chiến thắng khi đường nối gồm <strong>≥ 5 quân khác nhau</strong> (không tính lặp).</li>
+                <li class="text-xs text-white/40 italic marker:text-white/20">Cấu hình: Tuỳ chọn bật/tắt. Khoảng cách Chebyshev giữa 2 hố đen bất kỳ ≥ 5; không trùng/sát ô khoá.</li>
+              </ul>
+            </div>
+
+            <!-- Ô Khoá (Locks) -->
+            <div class="bg-white/[0.02] border border-white/5 rounded-2xl p-4 transition-colors hover:bg-white/[0.04]">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-2 h-2 rounded-full bg-[#FF453A] shadow-[0_0_10px_rgba(255,69,58,0.8)]"></div>
+                <h4 class="text-white font-medium text-base">Luật Ô khoá (Lock Cells)</h4>
+              </div>
+              <ul class="list-disc pl-6 space-y-2 text-white/60 marker:text-[#FF453A]/50">
+                <li>Luôn có <strong>3 ô khoá</strong> được sinh ngẫu nhiên trên bàn cờ.</li>
+                <li><strong class="text-white/80">Không thể đặt quân cờ lên ô khoá.</strong></li>
+                <li>Một số ô lân cận ô khoá sẽ được <strong>làm nổi bật (highlight)</strong> để định hướng thế trận.</li>
+                <li class="text-xs text-white/40 italic marker:text-white/20">Cấu hình: Tuỳ chọn bật/tắt. Cách biên ≥ 3, không nằm vùng giữa 3x3. Khoảng cách Chebyshev giữa 2 ô khoá bất kỳ > 3.</li>
+              </ul>
+            </div>
+
           </div>
         </div>
 
