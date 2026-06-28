@@ -175,6 +175,14 @@
   const elStatusTool   = document.getElementById('status-tool');
   const elStatusMove   = document.getElementById('status-move');
 
+  const elCanvasOverlay = document.getElementById('canvas-overlay');
+  
+  // About Modal
+  const elBtnOpenAbout = document.getElementById('btn-open-about');
+  const elBtnCloseAbout = document.getElementById('btn-close-about');
+  const elAboutOverlay = document.getElementById('about-overlay');
+  const elAboutContainer = document.getElementById('about-container');
+
   const elModalOverlay  = document.getElementById('modal-overlay');
   const elModalConfirm  = document.getElementById('modal-confirm');
   const elModalCancel   = document.getElementById('modal-cancel');
@@ -1405,6 +1413,38 @@
   // ── Start ──────────────────────────────────────────────────────────────────
 
   window.addEventListener('load', () => {
+    // ── About Modal Events ───────────────────────────────────────────────────
+    const elBtnOpenAboutMobile = document.getElementById('btn-open-about-mobile');
+    
+    if (elBtnOpenAbout && elBtnCloseAbout && elAboutOverlay) {
+      const openAbout = () => {
+        elAboutOverlay.classList.remove('opacity-0', 'pointer-events-none');
+        elAboutOverlay.classList.add('opacity-100', 'pointer-events-auto');
+        
+        elAboutContainer.classList.remove('scale-95', 'opacity-0');
+        elAboutContainer.classList.add('scale-100', 'opacity-100');
+        
+        // Hide mobile menu if it is open
+        const mobileMenu = document.getElementById('mobile-more-menu');
+        if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+          mobileMenu.classList.add('hidden');
+        }
+      };
+
+      elBtnOpenAbout.addEventListener('click', openAbout);
+      if (elBtnOpenAboutMobile) {
+        elBtnOpenAboutMobile.addEventListener('click', openAbout);
+      }
+
+      elBtnCloseAbout.addEventListener('click', () => {
+        elAboutOverlay.classList.remove('opacity-100', 'pointer-events-auto');
+        elAboutOverlay.classList.add('opacity-0', 'pointer-events-none');
+        
+        elAboutContainer.classList.remove('scale-100', 'opacity-100');
+        elAboutContainer.classList.add('scale-95', 'opacity-0');
+      });
+    }
+
     const preloader = document.getElementById('zcaro-preloader');
     const svg = document.getElementById('preloader-svg');
     const path1 = document.getElementById('pl-path-1');

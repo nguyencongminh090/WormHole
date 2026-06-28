@@ -150,6 +150,11 @@
       <span data-i18n="downloadPNG">Download PNG</span>
     </button>
     <div class="h-px bg-white/10 mx-2"></div>
+    <!-- About -->
+    <button id="btn-open-about-mobile" class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/5 text-sm text-app-muted w-full">
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      <span>About Zcaro</span>
+    </button>
     <!-- Clear -->
     <button id="btn-clear-mobile" class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-app-accent/10 text-sm text-app-accent/80 w-full">
       <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
@@ -272,6 +277,11 @@
     </div>
 
     <div class="glass-panel rounded-xl flex items-center p-1 gap-1">
+      <!-- About Button -->
+      <button id="btn-open-about" class="act-btn px-3 py-1.5 rounded-lg text-sm text-app-muted hover:bg-white/10 hover:text-app-text transition-all flex items-center gap-2" title="About Zcaro">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      </button>
+      <div class="w-px h-4 bg-white/10 mx-1"></div>
       <button id="btn-share-link" class="act-btn px-3 py-1.5 rounded-lg text-sm text-app-muted hover:bg-white/10 hover:text-app-text transition-all flex items-center gap-2" data-i18n-title="shareLink">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
       </button>
@@ -502,6 +512,67 @@
       <span class="animate-pulse">✦</span> Select destination portal
     </p>
     <button id="btn-cancel-portal-mobile" class="mt-2 w-full py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-app-muted transition-colors" data-i18n="cancel">Cancel</button>
+  </div>
+
+  <!-- About & Instruction Overlay (Bento Grid) -->
+  <div id="about-overlay" class="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-xl opacity-0 pointer-events-none transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] px-4 py-6 md:p-12 overflow-y-auto">
+    <div id="about-container" class="relative w-full max-w-5xl h-full max-h-[85vh] flex flex-col gap-6 scale-95 opacity-0 transition-all duration-700 delay-100 ease-[cubic-bezier(0.32,0.72,0,1)]">
+      
+      <!-- Header Row -->
+      <div class="flex justify-between items-end mb-2 shrink-0">
+        <h2 class="text-4xl md:text-6xl font-bold font-jakarta text-white tracking-tight">About Zcaro.</h2>
+        <button id="btn-close-about" class="group flex items-center justify-center w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 transition-all duration-300">
+          <svg class="w-5 h-5 text-white/70 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <!-- Bento Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1 min-h-0">
+        <!-- Main Panel: The Rules -->
+        <div class="md:col-span-2 bg-white/5 border border-white/10 rounded-3xl p-8 flex flex-col gap-6 relative overflow-hidden group">
+          <div class="absolute -top-32 -right-32 w-64 h-64 bg-app-accent/20 rounded-full blur-[60px] group-hover:bg-app-accent/30 transition-colors duration-700"></div>
+          <h3 class="text-2xl font-semibold text-white">Quantum Rules</h3>
+          <div class="text-white/70 space-y-4 text-sm md:text-base leading-relaxed relative z-10">
+            <p><strong>Zcaro</strong> là một trình giả lập cờ Caro (Gomoku) đột phá với cơ chế <em>Lỗ Sâu Lượng Tử (Wormhole)</em>.</p>
+            <p>Bàn cờ tồn tại 2 cổng không gian liên kết: <span class="text-[#7B5CF5] font-semibold drop-shadow-[0_0_8px_rgba(123,92,245,0.6)]">Portal A (Tím)</span> và <span class="text-[#2AFFD6] font-semibold drop-shadow-[0_0_8px_rgba(42,255,214,0.6)]">Portal B (Cyan)</span>.</p>
+            <ul class="list-disc pl-5 space-y-3">
+              <li><strong>Dịch chuyển tức thời:</strong> Bất kỳ quân cờ nào đặt vào Portal A sẽ lập tức chui qua lỗ sâu và xuất hiện tại Portal B, và ngược lại.</li>
+              <li><strong>Đường nối xuyên không:</strong> Một đường 5 chiến thắng có thể nối xuyên qua wormhole! Ví dụ: 3 quân cờ xếp đến Portal A sẽ nối tiếp với 2 quân cờ từ Portal B (cùng hướng) tạo thành chuỗi 5.</li>
+              <li><strong>Chiến thuật:</strong> Tận dụng các portal để tạo ra những đường tấn công unblockable (không thể cản phá) hoặc thoát khỏi bẫy của đối phương.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Right Column: Project & Author -->
+        <div class="flex flex-col gap-4 overflow-y-auto">
+          <!-- Project Info -->
+          <div class="bg-white/5 border border-white/10 rounded-3xl p-6 flex-1 flex flex-col justify-between group relative overflow-hidden">
+             <div class="absolute -bottom-20 -left-20 w-40 h-40 bg-app-primary/20 rounded-full blur-[40px] group-hover:bg-app-primary/30 transition-colors duration-700"></div>
+             <div class="relative z-10">
+               <h3 class="text-xl font-semibold text-white mb-2">The Project</h3>
+               <p class="text-white/60 text-sm leading-relaxed">Zcaro Editor được thiết kế với kiến trúc zero-build, tối ưu hoá tối đa hiệu năng render cho việc phân tích các thế cờ phức tạp.</p>
+             </div>
+             <div class="mt-4 flex gap-2 flex-wrap relative z-10">
+               <span class="px-3 py-1 bg-white/10 rounded-full text-[11px] text-white/80 font-medium tracking-wide">Vanilla JS</span>
+               <span class="px-3 py-1 bg-white/10 rounded-full text-[11px] text-white/80 font-medium tracking-wide">Tailwind CSS</span>
+               <span class="px-3 py-1 bg-white/10 rounded-full text-[11px] text-white/80 font-medium tracking-wide">HTML5 Canvas</span>
+             </div>
+          </div>
+
+          <!-- Author Info -->
+          <a href="https://github.com/ngmint" target="_blank" class="bg-gradient-to-br from-white/10 to-white/5 border border-white/10 rounded-3xl p-6 flex items-center gap-4 hover:border-white/20 transition-colors cursor-pointer shrink-0">
+            <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+            </div>
+            <div>
+              <p class="text-[10px] text-white/50 uppercase tracking-wider font-bold">Architect</p>
+              <p class="text-white font-medium text-sm">Nguyen Cong Minh</p>
+              <p class="text-white/50 text-xs mt-0.5">@ngmint</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Modal -->
