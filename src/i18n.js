@@ -18,6 +18,7 @@ window.I18n = (() => {
       // App meta
       appName:          'Zcaro Editor',
       appSubtitle:      'by NguyenMinh',
+      language:         'Language',
 
       // Toolbar
       board:            'Board',
@@ -95,6 +96,7 @@ window.I18n = (() => {
       // App meta
       appName:          'Zcaro Editor',
       appSubtitle:      '',
+      language:         'Ngôn ngữ',
 
       // Toolbar
       board:            'Bàn cờ',
