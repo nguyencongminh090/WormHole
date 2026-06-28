@@ -834,61 +834,93 @@
     });
 
     // Image Upload (ZCR Pipeline)
+    function processImageFile(file) {
+      if (!file || !file.type.startsWith('image/')) {
+        showToast("Please provide a valid image file.", "error");
+        return;
+      }
+      showToast("Processing image with WASM...", "info");
+      
+      const img = new Image();
+      img.onload = () => {
+        try {
+          if (!zcrPipeline || !zcrPipeline.ready) {
+             showToast("OpenCV.js is not ready yet.", "error");
+             return;
+          }
+          const matrix = zcrPipeline.processImage(img);
+          
+          // Reconstruct state from matrix
+          let boardSize = matrix.length; // assuming square
+          
+          History.reset();
+          gameState = State.create();
+          gameState = State.setBoardSize(gameState, boardSize);
+          
+          for (let r = 0; r < boardSize; r++) {
+            for (let c = 0; c < boardSize; c++) {
+               const val = matrix[r][c];
+               const colLetter = C.COLS[c];
+               const rowNum = r + 1;
+               
+               if (val === 'X') {
+                 gameState = State.placeStone(gameState, colLetter, rowNum, 'X');
+               } else if (val === 'O') {
+                 gameState = State.placeStone(gameState, colLetter, rowNum, 'O');
+               } else if (val === 'W') {
+                 gameState = State.placeBlock(gameState, colLetter, rowNum);
+               }
+            }
+          }
+          
+          elBoardSize.value = String(boardSize);
+          cancelPendingOps();
+          redraw();
+          refreshSidePanel();
+          showToast("Board scanned successfully!");
+        } catch(err) {
+          console.error(err);
+          showToast("Failed to process image.", "error");
+        }
+      };
+      img.src = URL.createObjectURL(file);
+    }
+
     const elImgUpload = document.getElementById('img-upload');
     if (elImgUpload) {
-      elImgUpload.addEventListener('change', async (e) => {
+      elImgUpload.addEventListener('change', (e) => {
         if (!e.target.files || e.target.files.length === 0) return;
-        const file = e.target.files[0];
-        
-        showToast("Processing image with WASM...", "info");
-        
-        const img = new Image();
-        img.onload = () => {
-          try {
-            if (!zcrPipeline || !zcrPipeline.ready) {
-               showToast("OpenCV.js is not ready yet.", "error");
-               return;
-            }
-            const matrix = zcrPipeline.processImage(img);
-            
-            // Reconstruct state from matrix
-            let boardSize = matrix.length; // assuming square
-            
-            History.reset();
-            gameState = State.create();
-            gameState = State.setBoardSize(gameState, boardSize);
-            
-            for (let r = 0; r < boardSize; r++) {
-              for (let c = 0; c < boardSize; c++) {
-                 const val = matrix[r][c];
-                 const colLetter = C.COLS[c];
-                 const rowNum = r + 1;
-                 
-                 if (val === 'X') {
-                   gameState = State.placeStone(gameState, colLetter, rowNum, 'X');
-                 } else if (val === 'O') {
-                   gameState = State.placeStone(gameState, colLetter, rowNum, 'O');
-                 } else if (val === 'W') {
-                   gameState = State.placeBlock(gameState, colLetter, rowNum);
-                 }
-              }
-            }
-            
-            elBoardSize.value = String(boardSize);
-            cancelPendingOps();
-            redraw();
-            refreshSidePanel();
-            showToast("Board scanned successfully!");
-          } catch(err) {
-            console.error(err);
-            showToast("Failed to process image.", "error");
-          }
-          // clear input
-          elImgUpload.value = "";
-        };
-        img.src = URL.createObjectURL(file);
+        processImageFile(e.target.files[0]);
+        e.target.value = "";
       });
     }
+
+    // Handle Drag & Drop
+    document.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+    });
+    document.addEventListener('drop', (e) => {
+      e.preventDefault();
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        processImageFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    // Handle Paste
+    window.addEventListener('paste', (e) => {
+      if (e.clipboardData && e.clipboardData.files && e.clipboardData.files.length > 0) {
+        processImageFile(e.clipboardData.files[0]);
+      } else if (e.clipboardData && e.clipboardData.items) {
+        for (let i = 0; i < e.clipboardData.items.length; i++) {
+          if (e.clipboardData.items[i].type.indexOf('image') !== -1) {
+            const file = e.clipboardData.items[i].getAsFile();
+            processImageFile(file);
+            break;
+          }
+        }
+      }
+    });
 
     // Re-apply dynamic strings after lang change
     document.addEventListener('langchange', () => {
