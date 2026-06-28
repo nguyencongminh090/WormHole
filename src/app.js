@@ -113,13 +113,17 @@
       });
     });
 
-    // Right Sidebar Toggle
+    // Right Sidebar Toggle (Push/Pull Mechanism)
     const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
     const rightSidebar = document.getElementById('right-sidebar');
+    const boardContainer = document.getElementById('board-container');
     if (btnToggleSidebar && rightSidebar) {
       btnToggleSidebar.addEventListener('click', () => {
         btnToggleSidebar.classList.toggle('sidebar-open');
         rightSidebar.classList.toggle('sidebar-open');
+        if (boardContainer) {
+          boardContainer.classList.toggle('pr-[22rem]');
+        }
       });
     }
 

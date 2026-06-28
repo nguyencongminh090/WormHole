@@ -120,8 +120,8 @@
        SHARED CANVAS AREA
        ═══════════════════════════════════════════════════════════════════════ -->
 
-  <!-- Fullscreen Canvas Area -->
-  <div id="board-container" class="absolute inset-0 z-0 flex items-center justify-center cursor-crosshair">
+  <!-- Fullscreen Canvas Area (with Push/Pull transition) -->
+  <div id="board-container" class="absolute inset-0 z-0 flex items-center justify-center cursor-crosshair transition-all duration-300">
     <div class="relative shadow-2xl" id="canvas-wrapper">
       <canvas id="canvas-static" class="absolute inset-0 z-10"></canvas>
       <canvas id="canvas-dynamic" class="relative z-20"></canvas>
@@ -284,12 +284,12 @@
   </nav>
 
   <!-- Right Sidebar Toggle Button (Desktop only) -->
-  <button id="btn-toggle-sidebar" class="hidden md:flex fixed top-1/2 right-0 -translate-y-1/2 z-50 glass-panel border-r-0 rounded-l-2xl px-2 py-6 text-app-muted hover:text-app-text hover:bg-white/10 transition-all shadow-xl group" title="Toggle Sidebar">
-    <svg class="w-5 h-5 transition-transform duration-300 transform group-[.sidebar-open]:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+  <button id="btn-toggle-sidebar" class="hidden md:flex fixed top-1/2 right-0 [&.sidebar-open]:right-[22rem] -translate-y-1/2 z-50 glass-panel border-r-0 rounded-l-2xl px-2 py-6 text-app-muted hover:text-app-text hover:bg-white/10 transition-all duration-300 shadow-xl group" title="Toggle Sidebar">
+    <svg class="w-5 h-5 transition-transform duration-300 transform group-[.sidebar-open]:rotate-180 rotate-180 group-[.sidebar-open]:rotate-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
   </button>
 
   <!-- Right Sidebar (Desktop only) -->
-  <aside id="right-sidebar" class="sidebar-open hidden md:flex fixed top-0 right-0 bottom-0 z-40 w-[22rem] flex-col bg-white/5 dark:bg-black/20 backdrop-blur-3xl border-l border-white/10 shadow-[-10px_0_40px_rgba(0,0,0,0.2)] transition-transform duration-300 transform translate-x-full pt-20 pb-24 px-4 overflow-hidden [&.sidebar-open]:translate-x-0">
+  <aside id="right-sidebar" class="hidden md:flex fixed top-0 right-0 bottom-0 z-40 w-[22rem] flex-col bg-white/5 dark:bg-black/20 backdrop-blur-3xl border-l border-white/10 shadow-[-10px_0_40px_rgba(0,0,0,0.2)] transition-transform duration-300 transform translate-x-full pt-20 pb-24 px-4 overflow-hidden [&.sidebar-open]:translate-x-0">
     
     <div id="pending-hole-hint" class="pointer-events-auto hidden rounded-xl p-3 mb-4 bg-app-primary/10 border border-app-primary/30 shadow-[0_0_15px_var(--color-primary-30)]">
       <p class="text-sm text-app-primary-light font-medium flex items-center gap-2">
