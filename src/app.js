@@ -1222,36 +1222,36 @@
     const elTreeContainer = document.getElementById('history-list');
     if (elTreeContainer) {
       elTreeContainer.innerHTML = '';
-      const rootHash = Tree.getRootHash();
+      const rootNodeId = Tree.getRootNodeId();
       
-      if (!rootHash) {
-        elTreeContainer.innerHTML = '<div class="text-xs text-app-muted italic p-2 flex flex-col items-center justify-center h-20 opacity-50"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 12H4"></path></svg>No moves yet.</div>';
+      if (!rootNodeId) {
+        elTreeContainer.innerHTML = '<div class="text-xs text-app-muted italic p-2 flex flex-col items-center justify-center h-20 opacity-50"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M20 12H4"></path></svg>No moves yet.</div>';
       } else {
-        const layout = new Map(); // hash -> { col, row }
+        const layout = new Map(); // nodeId -> { col, row }
         let maxCol = 0;
         let maxRow = 0;
 
-        function traverse(hash, col, row) {
-          if (layout.has(hash)) return; // prevent cycles
-          layout.set(hash, { col, row });
+        function traverse(nodeId, col, row) {
+          if (layout.has(nodeId)) return; // prevent cycles (shouldn't happen in strict tree, but good safety)
+          layout.set(nodeId, { col, row });
           maxRow = Math.max(maxRow, row);
           
-          const node = Tree.getNode(hash);
+          const node = Tree.getNode(nodeId);
           if (!node || !node.childrenIds) return;
           
           let childIdx = 0;
-          node.childrenIds.forEach(childHash => {
+          node.childrenIds.forEach(childNodeId => {
             if (childIdx === 0) {
-              traverse(childHash, col, row + 1); // straight down
+              traverse(childNodeId, col, row + 1); // straight down
             } else {
               maxCol++;
-              traverse(childHash, maxCol, row + 1); // branch right
+              traverse(childNodeId, maxCol, row + 1); // branch right
             }
             childIdx++;
           });
         }
         
-        traverse(rootHash, 0, 0);
+        traverse(rootNodeId, 0, 0);
         
         // Compact grid sizing for a professional dense look
         const COL_WIDTH = 28;
@@ -1270,11 +1270,11 @@
         // SVG uses currentColor and inherits from text-app-muted for perfect theme compatibility
         let svgHTML = `<svg class="absolute top-0 left-0 w-full h-full pointer-events-none text-app-text opacity-30" width="${svgW}" height="${svgH}">`;
         
-        layout.forEach((pos, hash) => {
-          const node = Tree.getNode(hash);
+        layout.forEach((pos, nodeId) => {
+          const node = Tree.getNode(nodeId);
           if (node && node.childrenIds) {
-            node.childrenIds.forEach(childHash => {
-              const childPos = layout.get(childHash);
+            node.childrenIds.forEach(childNodeId => {
+              const childPos = layout.get(childNodeId);
               if (childPos) {
                 const x1 = pos.col * COL_WIDTH + PADDING_X;
                 const y1 = pos.row * ROW_HEIGHT + PADDING_Y;
@@ -1292,9 +1292,9 @@
         svgHTML += `</svg>`;
         container.innerHTML = svgHTML;
         
-        layout.forEach((pos, hash) => {
-          const node = Tree.getNode(hash);
-          const isCurrent = hash === Tree.getCurrentHash();
+        layout.forEach((pos, nodeId) => {
+          const node = Tree.getNode(nodeId);
+          const isCurrent = nodeId === Tree.getCurrentNodeId();
           
           const x = pos.col * COL_WIDTH + PADDING_X;
           const y = pos.row * ROW_HEIGHT + PADDING_Y;
@@ -1336,7 +1336,7 @@
           
           nodeEl.onclick = (e) => {
             e.stopPropagation();
-            const s = Tree.setCurrent(hash);
+            const s = Tree.setCurrent(nodeId);
             if (s) {
               gameState = s;
               redraw();

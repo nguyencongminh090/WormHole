@@ -7,11 +7,12 @@
 window.Tree = (() => {
   'use strict';
 
-  // Map of Hash -> Node
-  // Node: { id, state, parentId, childrenIds: Set, moveAction: string, depth: number }
+  // Map of NodeId -> Node
+  // Node: { id, hash, state, parentId, childrenIds: Set, moveAction: string, depth: number }
   const _nodes = new Map();
-  let _currentHash = null;
-  let _rootHash = null;
+  let _nodeCounter = 0;
+  let _currentNodeId = null;
+  let _rootNodeId = null;
 
   function init(initialState) {
     if (!initialState) {
@@ -19,60 +20,63 @@ window.Tree = (() => {
       // Assume current board size is C.COLS.length
       initialState = window.State.setBoardSize(initialState, window.C.COLS.length);
     }
+    _nodeCounter = 0;
     _nodes.clear();
     const h = window.Bitboard.hashState(initialState);
-    _nodes.set(h, {
-      id: h,
+    const id = `node_${_nodeCounter++}`;
+    _nodes.set(id, {
+      id: id,
+      hash: h,
       state: window.State.clone(initialState),
       parentId: null,
       childrenIds: new Set(),
       moveAction: 'Root',
       depth: 0
     });
-    _rootHash = h;
-    _currentHash = h;
+    _rootNodeId = id;
+    _currentNodeId = id;
   }
 
   function addNode(newState, actionStr) {
-    const parentHash = _currentHash;
-    const newHash = window.Bitboard.hashState(newState);
+    const parentId = _currentNodeId;
+    const h = window.Bitboard.hashState(newState);
+    const newId = `node_${_nodeCounter++}`;
 
-    if (!_nodes.has(newHash)) {
-      const parentNode = _nodes.get(parentHash);
-      _nodes.set(newHash, {
-        id: newHash,
-        state: window.State.clone(newState),
-        parentId: parentHash,
-        childrenIds: new Set(),
-        moveAction: actionStr,
-        depth: parentNode ? parentNode.depth + 1 : 0
-      });
+    const parentNode = _nodes.get(parentId);
+    _nodes.set(newId, {
+      id: newId,
+      hash: h,
+      state: window.State.clone(newState),
+      parentId: parentId,
+      childrenIds: new Set(),
+      moveAction: actionStr,
+      depth: parentNode ? parentNode.depth + 1 : 0
+    });
+
+    // Link parent to child
+    if (parentId && _nodes.has(parentId)) {
+      _nodes.get(parentId).childrenIds.add(newId);
     }
 
-    // Link parent to child (DAG edge)
-    if (parentHash && _nodes.has(parentHash)) {
-      _nodes.get(parentHash).childrenIds.add(newHash);
-    }
-
-    _currentHash = newHash;
-    return newHash;
+    _currentNodeId = newId;
+    return newId;
   }
 
-  function setCurrent(hash) {
-    if (_nodes.has(hash)) {
-      _currentHash = hash;
-      return window.State.clone(_nodes.get(hash).state);
+  function setCurrent(id) {
+    if (_nodes.has(id)) {
+      _currentNodeId = id;
+      return window.State.clone(_nodes.get(id).state);
     }
     return null;
   }
 
   function getCurrentNode() {
-    return _nodes.get(_currentHash);
+    return _nodes.get(_currentNodeId);
   }
 
-  function getRootHash() { return _rootHash; }
-  function getCurrentHash() { return _currentHash; }
-  function getNode(hash) { return _nodes.get(hash); }
+  function getRootNodeId() { return _rootNodeId; }
+  function getCurrentNodeId() { return _currentNodeId; }
+  function getNode(id) { return _nodes.get(id); }
   function getAllNodes() { return Array.from(_nodes.values()); }
 
   // Fallback for legacy History methods in app.js
@@ -84,8 +88,8 @@ window.Tree = (() => {
   function undo() {
     const curr = getCurrentNode();
     if (curr && curr.parentId) {
-      _currentHash = curr.parentId;
-      return window.State.clone(_nodes.get(_currentHash).state);
+      _currentNodeId = curr.parentId;
+      return window.State.clone(_nodes.get(_currentNodeId).state);
     }
     return null;
   }
@@ -100,8 +104,8 @@ window.Tree = (() => {
     const curr = getCurrentNode();
     if (curr && curr.childrenIds.size > 0) {
       // Pick first child for simple redo
-      _currentHash = Array.from(curr.childrenIds)[0];
-      return window.State.clone(_nodes.get(_currentHash).state);
+      _currentNodeId = Array.from(curr.childrenIds)[0];
+      return window.State.clone(_nodes.get(_currentNodeId).state);
     }
     return null;
   }
@@ -112,19 +116,19 @@ window.Tree = (() => {
     let curr = getCurrentNode();
     while (curr) {
       if (curr.parentId !== null) { // skip root
-        path.unshift({ action: curr.moveAction, hash: curr.id });
+        path.unshift({ action: curr.moveAction, id: curr.id, hash: curr.hash });
       }
       curr = curr.parentId ? _nodes.get(curr.parentId) : null;
     }
-    return path.map((item, idx) => ({ n: idx + 1, action: item.action, hash: item.hash }));
+    return path.map((item, idx) => ({ n: idx + 1, action: item.action, id: item.id, hash: item.hash }));
   }
 
   // For compatibility with app.js History.reset()
   function reset() {
-    // If called without state, it implies clearing everything
+    _nodeCounter = 0;
     _nodes.clear();
-    _currentHash = null;
-    _rootHash = null;
+    _currentNodeId = null;
+    _rootNodeId = null;
   }
 
   // For compatibility with app.js History.logMove()
@@ -133,7 +137,7 @@ window.Tree = (() => {
   }
 
   return { 
-    init, addNode, setCurrent, getCurrentNode, getRootHash, getCurrentHash, 
+    init, addNode, setCurrent, getCurrentNode, getRootNodeId, getCurrentNodeId, 
     getNode, getAllNodes, canUndo, undo, canRedo, redo, getLog, reset, logMove 
   };
 })();
