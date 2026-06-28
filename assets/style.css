@@ -115,6 +115,10 @@
   transition: max-height 0.3s ease, opacity 0.2s ease, padding 0.3s ease;
   opacity: 1;
 }
+.collapsible.collapsed {
+  flex: 0 0 auto !important;
+  min-height: 0 !important;
+}
 .collapsible.collapsed .panel-body {
   max-height: 0 !important;
   opacity: 0;

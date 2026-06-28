@@ -57,6 +57,10 @@
       <button id="btn-safe-mode-mobile" class="w-8 h-8 rounded-full flex items-center justify-center text-app-muted hover:text-app-text hover:bg-white/10 transition-colors text-base" title="Safe Mode">
         <span id="safe-mode-icon-mobile">🔒</span>
       </button>
+      <!-- Panels toggle -->
+      <button id="btn-panels-mobile" class="w-8 h-8 rounded-full flex items-center justify-center text-app-muted hover:text-app-text hover:bg-white/10 transition-colors" title="Panels">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
+      </button>
       <!-- ⋯ More menu trigger -->
       <button id="btn-more-mobile" class="w-8 h-8 rounded-full flex items-center justify-center text-app-muted hover:text-app-text hover:bg-white/10 transition-colors" aria-label="More options">
         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
@@ -276,7 +280,9 @@
         </div>
 
         <div class="relative group flex items-center compound-tool">
-          <button class="tool-btn w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 hover:bg-white/10 relative text-app-muted text-xl font-bold" data-tool="line" data-i18n-title="toolLine">╱</button>
+          <button class="tool-btn w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 hover:bg-white/10 relative text-app-muted" data-tool="line" data-i18n-title="toolLine">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 7l-10 10"></path></svg>
+          </button>
           <div class="absolute bottom-full left-1/2 -translate-x-1/2 pb-2 hidden group-hover:flex flex-col items-center">
             <div id="line-color-picker" class="glass-panel rounded-full p-2 flex gap-2 shadow-xl border-white/10 transition-all"></div>
           </div>
@@ -284,7 +290,9 @@
 
         <div class="w-px h-8 bg-white/10 mx-1"></div>
 
-        <button class="tool-btn w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 hover:bg-app-accent/20 hover:text-app-accent text-app-muted text-lg relative" data-tool="eraser" data-i18n-title="toolEraser">⌫</button>
+        <button class="tool-btn w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 hover:bg-app-accent/20 hover:text-app-accent text-app-muted relative" data-tool="eraser" data-i18n-title="toolEraser">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+        </button>
       </div>
     </div>
   </nav>
@@ -294,8 +302,12 @@
     <svg class="w-5 h-5 transition-transform duration-300 transform group-[.sidebar-open]:rotate-180 rotate-180 group-[.sidebar-open]:rotate-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
   </button>
 
-  <!-- Right Sidebar (Desktop only) -->
-  <aside id="right-sidebar" class="hidden md:flex fixed top-0 right-0 bottom-0 z-40 w-[22rem] flex-col bg-white/5 dark:bg-black/20 backdrop-blur-3xl border-l border-white/10 shadow-[-10px_0_40px_rgba(0,0,0,0.2)] transition-transform duration-300 transform translate-x-full pt-20 pb-24 px-4 overflow-hidden [&.sidebar-open]:translate-x-0">
+
+  <!-- Mobile Sidebar Backdrop -->
+  <div id="sidebar-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden md:hidden opacity-0 transition-opacity duration-300 pointer-events-none [&.open]:opacity-100 [&.open]:pointer-events-auto"></div>
+
+  <!-- Right Sidebar (Responsive) -->
+  <aside id="right-sidebar" class="flex fixed top-0 right-0 bottom-0 z-50 w-[22rem] max-w-[85vw] flex-col bg-white/5 dark:bg-black/20 backdrop-blur-3xl border-l border-white/10 shadow-[-10px_0_40px_rgba(0,0,0,0.2)] transition-transform duration-300 transform translate-x-full pt-20 pb-24 px-4 overflow-hidden [&.sidebar-open]:translate-x-0">
     
     <div id="pending-hole-hint" class="pointer-events-auto hidden rounded-xl p-3 mb-4 bg-app-primary/10 border border-app-primary/30 shadow-[0_0_15px_var(--color-primary-30)]">
       <p class="text-sm text-app-primary-light font-medium flex items-center gap-2">
@@ -382,29 +394,41 @@
   <!-- ═══════════════════════════════════════════════════════════════════════
        MOBILE BOTTOM NAV
        ═══════════════════════════════════════════════════════════════════════ -->
-  <nav id="mobile-nav" class="flex md:hidden fixed bottom-0 left-0 right-0 z-40 h-16 glass-panel border-t border-glass-border items-center justify-around px-2 gap-1">
-    <!-- Undo -->
-    <button id="btn-undo-mobile" class="w-11 h-11 rounded-full flex items-center justify-center text-app-muted hover:text-app-text hover:bg-white/10 transition-colors disabled:opacity-30" data-i18n-title="shortcutUndo">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path></svg>
-    </button>
-    <!-- Redo -->
-    <button id="btn-redo-mobile" class="w-11 h-11 rounded-full flex items-center justify-center text-app-muted hover:text-app-text hover:bg-white/10 transition-colors disabled:opacity-30" data-i18n-title="shortcutRedo">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6"></path></svg>
-    </button>
+  <nav id="mobile-nav" class="flex md:hidden fixed bottom-0 left-0 right-0 z-40 h-16 glass-panel border-t border-glass-border items-center px-3 gap-3 overflow-x-auto overflow-y-hidden snap-x" style="scrollbar-width: none; -ms-overflow-style: none;">
+    <style>#mobile-nav::-webkit-scrollbar { display: none; }</style>
+    <!-- Undo / Redo Group -->
+    <div class="flex items-center gap-1 shrink-0 snap-center">
+      <button id="btn-undo-mobile" class="w-11 h-11 rounded-full flex items-center justify-center text-app-muted hover:text-app-text hover:bg-white/10 transition-colors disabled:opacity-30" data-i18n-title="shortcutUndo">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path></svg>
+      </button>
+      <button id="btn-redo-mobile" class="w-11 h-11 rounded-full flex items-center justify-center text-app-muted hover:text-app-text hover:bg-white/10 transition-colors disabled:opacity-30" data-i18n-title="shortcutRedo">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6"></path></svg>
+      </button>
+    </div>
 
-    <div class="w-px h-8 bg-white/10 flex-shrink-0"></div>
+    <div class="w-px h-8 bg-white/10 shrink-0"></div>
 
     <!-- Tool Buttons (mobile) -->
-    <button class="tool-btn-mobile tool-btn active w-11 h-11 rounded-full flex items-center justify-center transition-all" data-tool="stone_x" data-i18n-title="shortcutBlack">
-      <div class="w-5 h-5 rounded-full bg-slate-900 border border-slate-700 shadow-md"></div>
-    </button>
-    <button class="tool-btn-mobile tool-btn w-11 h-11 rounded-full flex items-center justify-center transition-all" data-tool="stone_o" data-i18n-title="shortcutWhite">
-      <div class="w-5 h-5 rounded-full bg-[#f5f0e8] border border-slate-300 shadow-md"></div>
-    </button>
-    <button class="tool-btn-mobile tool-btn w-11 h-11 rounded-full flex items-center justify-center transition-all text-lg" data-tool="block" data-i18n-title="shortcutBlock">🧱</button>
-    <button class="tool-btn-mobile tool-btn w-11 h-11 rounded-full flex items-center justify-center transition-all text-xl" data-tool="hole" data-i18n-title="shortcutHole">⬡</button>
-    <button class="tool-btn-mobile tool-btn w-11 h-11 rounded-full flex items-center justify-center transition-all text-lg font-bold" data-tool="line" data-i18n-title="shortcutLine">╱</button>
-    <button class="tool-btn-mobile tool-btn w-11 h-11 rounded-full flex items-center justify-center transition-all text-base" data-tool="eraser" data-i18n-title="shortcutEraser">⌫</button>
+    <div class="flex items-center gap-1 shrink-0">
+      <button class="tool-btn-mobile tool-btn active w-11 h-11 rounded-full flex items-center justify-center transition-all snap-center" data-tool="stone_x" data-i18n-title="shortcutBlack">
+        <div class="w-5 h-5 rounded-full bg-slate-900 border border-slate-700 shadow-md"></div>
+      </button>
+      <button class="tool-btn-mobile tool-btn w-11 h-11 rounded-full flex items-center justify-center transition-all snap-center" data-tool="stone_o" data-i18n-title="shortcutWhite">
+        <div class="w-5 h-5 rounded-full bg-[#f5f0e8] border border-slate-300 shadow-md"></div>
+      </button>
+      <button class="tool-btn-mobile tool-btn w-11 h-11 rounded-full flex items-center justify-center transition-all snap-center text-app-muted" data-tool="block" data-i18n-title="shortcutBlock">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4h16v16H4z M4 9h16 M4 14h16 M9 4v5 M15 9v5 M9 14v6"></path></svg>
+      </button>
+      <button class="tool-btn-mobile tool-btn w-11 h-11 rounded-full flex items-center justify-center transition-all snap-center text-app-muted" data-tool="hole" data-i18n-title="shortcutHole">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2l8 4.5v9L12 22l-8-4.5v-9L12 2z"></path></svg>
+      </button>
+      <button class="tool-btn-mobile tool-btn w-11 h-11 rounded-full flex items-center justify-center transition-all snap-center text-app-muted" data-tool="line" data-i18n-title="shortcutLine">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 7l-10 10"></path></svg>
+      </button>
+      <button class="tool-btn-mobile tool-btn w-11 h-11 rounded-full flex items-center justify-center transition-all snap-center text-app-muted hover:text-app-accent hover:bg-app-accent/20" data-tool="eraser" data-i18n-title="shortcutEraser">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+      </button>
+    </div>
   </nav>
 
   <!-- Pending portal hint (shared, works for both) -->

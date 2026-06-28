@@ -224,6 +224,18 @@
       });
     }
 
+    // Mobile Sidebar Drawer Toggle
+    const btnPanelsMobile = document.getElementById('btn-panels-mobile');
+    const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+    if (btnPanelsMobile && rightSidebar && sidebarBackdrop) {
+      const toggleMobileSidebar = () => {
+        rightSidebar.classList.toggle('sidebar-open');
+        sidebarBackdrop.classList.toggle('open');
+      };
+      btnPanelsMobile.addEventListener('click', toggleMobileSidebar);
+      sidebarBackdrop.addEventListener('click', toggleMobileSidebar);
+    }
+
 
 
     // Parse shareable URL parameter if present
