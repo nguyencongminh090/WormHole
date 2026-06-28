@@ -892,6 +892,7 @@
             const matrix = zcrPipeline.processImage(img);
             const boardSize = matrix.length;
             
+            Setup.clear();
             gameState = State.create();
             gameState = State.setBoardSize(gameState, boardSize);
             for (let r = 0; r < boardSize; r++) {
@@ -952,7 +953,7 @@
           // Reconstruct state from matrix
           let boardSize = matrix.length; // assuming square
           
-          
+          Setup.clear();
           gameState = State.create();
           gameState = State.setBoardSize(gameState, boardSize);
           
