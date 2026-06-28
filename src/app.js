@@ -174,11 +174,10 @@
         const parsed = Notation.parse(notation);
         if (parsed.errors.length === 0) {
           gameState = parsed.state;
-          if (parsed.historySteps) {
-            
-            for (const step of parsed.historySteps) {
-              Tree.addNode(gameState, step.action);
-            }
+          if (parsed.historySteps && parsed.historySteps.length > 0) {
+            // We cannot reconstruct a proper DAG from just notation actions,
+            // so we set the loaded position as the new root of the tree.
+            Tree.init(gameState);
           }
         } else {
           console.error("Errors parsing URL position:", parsed.errors);
@@ -1023,10 +1022,8 @@
       }
       
       gameState = result.state;
-      if (result.historySteps) {
-        for (const step of result.historySteps) {
-          Tree.addNode(gameState, step.action);
-        }
+      if (result.historySteps && result.historySteps.length > 0) {
+        Tree.init(gameState);
       }
       elBoardSize.value = String(gameState.boardSize);
       cancelPendingOps();
@@ -1167,53 +1164,108 @@
       if (!rootHash) {
         elTreeContainer.innerHTML = '<div class="text-xs text-app-muted italic p-2 flex flex-col items-center justify-center h-20 opacity-50"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 12H4"></path></svg>No moves yet.</div>';
       } else {
-        function renderNode(hash, parentContainer, isRoot, isVariation = false) {
+        const layout = new Map(); // hash -> { col, row }
+        let maxCol = 0;
+        let maxRow = 0;
+
+        function traverse(hash, col, row) {
+          if (layout.has(hash)) return; // prevent cycles
+          layout.set(hash, { col, row });
+          maxRow = Math.max(maxRow, row);
+          
           const node = Tree.getNode(hash);
-          if (!node) return;
+          if (!node || !node.childrenIds) return;
           
-          const div = document.createElement('div');
-          div.className = 'flex flex-col relative';
-          
-          if (isRoot) {
-            div.className += ' ml-2 border-l border-white/20';
-          } else if (isVariation) {
-            div.className += ' ml-5 border-l border-white/20 mt-1';
+          let childIdx = 0;
+          node.childrenIds.forEach(childHash => {
+            if (childIdx === 0) {
+              traverse(childHash, col, row + 1); // straight down
+            } else {
+              maxCol++;
+              traverse(childHash, maxCol, row + 1); // branch right
+            }
+            childIdx++;
+          });
+        }
+        
+        traverse(rootHash, 0, 0);
+        
+        const COL_WIDTH = 64;
+        const ROW_HEIGHT = 36;
+        const PADDING_X = 24;
+        const PADDING_Y = 20;
+        
+        const svgW = maxCol * COL_WIDTH + PADDING_X * 2 + 50;
+        const svgH = maxRow * ROW_HEIGHT + PADDING_Y * 2 + 20;
+        
+        const container = document.createElement('div');
+        container.className = 'relative w-full';
+        container.style.minWidth = svgW + 'px';
+        container.style.minHeight = svgH + 'px';
+        
+        let svgHTML = `<svg class="absolute top-0 left-0 w-full h-full pointer-events-none" width="${svgW}" height="${svgH}">`;
+        
+        layout.forEach((pos, hash) => {
+          const node = Tree.getNode(hash);
+          if (node && node.childrenIds) {
+            node.childrenIds.forEach(childHash => {
+              const childPos = layout.get(childHash);
+              if (childPos) {
+                const x1 = pos.col * COL_WIDTH + PADDING_X;
+                const y1 = pos.row * ROW_HEIGHT + PADDING_Y;
+                const x2 = childPos.col * COL_WIDTH + PADDING_X;
+                const y2 = childPos.row * ROW_HEIGHT + PADDING_Y;
+                
+                // Bezier curve for branches, straight line for main path
+                const path = `M ${x1} ${y1} C ${x1} ${y1 + ROW_HEIGHT/2}, ${x2} ${y2 - ROW_HEIGHT/2}, ${x2} ${y2}`;
+                
+                svgHTML += `<path d="${path}" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2" />`;
+              }
+            });
           }
-          
+        });
+        svgHTML += `</svg>`;
+        container.innerHTML = svgHTML;
+        
+        layout.forEach((pos, hash) => {
+          const node = Tree.getNode(hash);
           const isCurrent = hash === Tree.getCurrentHash();
-          const nodeRow = document.createElement('div');
-          nodeRow.className = `relative flex items-center group cursor-pointer py-1.5 hover:bg-white/5 transition-colors pl-4 ${isCurrent ? 'text-app-accent font-semibold' : 'text-app-muted'}`;
           
-          if (isCurrent) {
-            nodeRow.id = 'current-tree-node';
-          }
+          const x = pos.col * COL_WIDTH + PADDING_X;
+          const y = pos.row * ROW_HEIGHT + PADDING_Y;
+          
+          const nodeEl = document.createElement('div');
+          nodeEl.className = 'absolute flex items-center cursor-pointer group h-6 -mt-3';
+          nodeEl.style.left = (x - 6) + 'px';
+          nodeEl.style.top = y + 'px';
+          
+          if (isCurrent) nodeEl.id = 'current-tree-node';
           
           const circle = document.createElement('div');
-          circle.className = `absolute -left-[5px] top-1/2 -translate-y-1/2 w-[9px] h-[9px] rounded-full border-2 border-transparent bg-white/30 transition-all z-10`;
+          circle.className = 'w-[12px] h-[12px] rounded-full border-2 border-[#121212] transition-all z-10';
           
-          // Color based on piece
           if (node.moveAction && node.moveAction.startsWith('X')) {
-            circle.classList.remove('bg-white/30');
             circle.classList.add('bg-blue-400');
           } else if (node.moveAction && node.moveAction.startsWith('O')) {
-            circle.classList.remove('bg-white/30');
             circle.classList.add('bg-red-400');
-          }
-
-          if (isCurrent) {
-             circle.className = `absolute -left-[6px] top-1/2 -translate-y-1/2 w-[11px] h-[11px] rounded-full border-[3px] border-[#121212] bg-app-accent shadow-[0_0_10px_currentColor] z-20`;
           } else {
-             circle.classList.add('group-hover:scale-125');
+            circle.classList.add('bg-white/50');
           }
           
-          nodeRow.appendChild(circle);
+          if (isCurrent) {
+            circle.className = 'w-[16px] h-[16px] -ml-[2px] rounded-full border-[3px] border-[#121212] bg-app-accent shadow-[0_0_10px_currentColor] z-20';
+          } else {
+            circle.classList.add('group-hover:scale-125', 'group-hover:bg-white');
+          }
           
           const label = document.createElement('span');
-          label.className = 'text-xs truncate';
-          label.textContent = isRoot ? 'Start Position' : node.moveAction;
-          nodeRow.appendChild(label);
+          label.className = `ml-2 text-[11px] font-medium whitespace-nowrap transition-colors ${isCurrent ? 'text-app-accent' : 'text-app-muted group-hover:text-white'}`;
+          label.textContent = (pos.row === 0 && pos.col === 0) ? 'Start' : node.moveAction;
           
-          nodeRow.onclick = (e) => {
+          nodeEl.appendChild(circle);
+          nodeEl.appendChild(label);
+          
+          nodeEl.onclick = (e) => {
             e.stopPropagation();
             const s = Tree.setCurrent(hash);
             if (s) {
@@ -1223,24 +1275,14 @@
             }
           };
           
-          div.appendChild(nodeRow);
-          parentContainer.appendChild(div);
-          
-          if (node.childrenIds && node.childrenIds.size > 0) {
-            let childIndex = 0;
-            node.childrenIds.forEach(childHash => {
-               renderNode(childHash, div, false, childIndex > 0);
-               childIndex++;
-            });
-          }
-        }
+          container.appendChild(nodeEl);
+        });
         
-        renderNode(rootHash, elTreeContainer, true);
+        elTreeContainer.appendChild(container);
         
-        // Auto-scroll to current node
         setTimeout(() => {
           const curr = document.getElementById('current-tree-node');
-          if (curr) curr.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          if (curr) curr.scrollIntoView({ block: 'center', behavior: 'smooth' });
         }, 10);
       }
     }
