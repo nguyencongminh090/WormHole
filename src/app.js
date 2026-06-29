@@ -254,10 +254,33 @@
         Setup.clear();
         const parsed = Notation.parse(notation);
         if (parsed.errors.length === 0) {
+          if (parsed.meta) {
+            if (parsed.meta.theme) {
+              setTheme(parsed.meta.theme);
+              const elThemeLabel = document.getElementById('theme-select-label');
+              const themeNames = {
+                dark: 'Dark Space', light: 'Light Minimal',
+                classic: 'Classic Paper', cyberpunk: 'Cyberpunk'
+              };
+              if (elThemeLabel) elThemeLabel.textContent = themeNames[parsed.meta.theme] || 'Dark Space';
+            }
+            if (parsed.meta.safeMode === '1') {
+              ui.safeMode = true;
+              const elBtnSafe = document.getElementById('btn-safe-mode');
+              if (elBtnSafe) elBtnSafe.classList.add('active');
+              const elSafeIcon = document.getElementById('safe-mode-icon');
+              if (elSafeIcon) elSafeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path>';
+            }
+          }
+
           gameState = parsed.state;
           if (parsed.historySteps && parsed.historySteps.length > 0) {
-            // We cannot reconstruct a proper DAG from just notation actions,
-            // so we set the loaded position as the new root of the tree.
+            const emptyState = State.create(gameState.boardSize);
+            Tree.init(emptyState);
+            for (const step of parsed.historySteps) {
+              Tree.logMove(step.action, step.state);
+            }
+          } else {
             Tree.init(gameState);
           }
         } else {
@@ -329,7 +352,7 @@
     clearTimeout(urlUpdateTimer);
     urlUpdateTimer = setTimeout(async () => {
       try {
-        const notation = Notation.serialise(gameState);
+        const notation = Notation.serialise(gameState, ui);
         const url = new URL(window.location.href);
         if (notation === `SIZE:${gameState.boardSize}`) {
           url.searchParams.delete('pos');

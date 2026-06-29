@@ -25,9 +25,14 @@ window.Notation = (() => {
 
   // ── Serialise ────────────────────────────────────────────────────────────
 
-  function serialise(state) {
+  function serialise(state, ui) {
     const out = [];
     out.push(`SIZE:${state.boardSize}`);
+
+    if (ui) {
+      const theme = localStorage.getItem('wormholeTheme') || 'dark';
+      out.push(`META:theme=${theme},safeMode=${ui.safeMode ? '1' : '0'}`);
+    }
 
     const xs = [], os = [];
     for (const [key, cell] of Object.entries(state.cells)) {
@@ -75,6 +80,16 @@ window.Notation = (() => {
       else errors.push(`Unknown board size ${sz}.`);
     }
 
+    let meta = {};
+    const metaLine = rawLines.find(l => l.startsWith('META:'));
+    if (metaLine) {
+      const parts = metaLine.slice(5).split(',');
+      parts.forEach(p => {
+        const [k, v] = p.split('=');
+        if (k && v) meta[k.trim()] = v.trim();
+      });
+    }
+
     let state = State.create(boardSize);
 
     const stones = [];
@@ -82,6 +97,7 @@ window.Notation = (() => {
     // Parse non-stone elements first, and collect stones
     for (const line of rawLines) {
       if (line.startsWith('SIZE:')) continue;
+      if (line.startsWith('META:')) continue;
 
       if (line.startsWith('X:') || line.startsWith('O:')) {
         const player = line[0];
@@ -173,7 +189,7 @@ window.Notation = (() => {
       state = _forceStone(state, s.col, s.row, s.player, s.num);
     }
 
-    return { state, errors, historySteps };
+    return { state, errors, historySteps, meta };
   }
 
   // ── Private helpers ───────────────────────────────────────────────────────
